@@ -1,0 +1,101 @@
+SELECT CASE WHEN rr."date" IS NULL THEN '^' ELSE TO_CHAR(rr."date", 'YYYY') END AS stdr_year
+     , CASE WHEN dr.round_id IS NULL THEN -1 ELSE dr.round_id END AS round_no
+     , CASE WHEN dr.age_group_id IS NULL THEN '^' ELSE CAST(dr.age_group_id AS TEXT) END AS age_group_cde
+     , CASE WHEN dr.player_id IS NULL THEN '^' ELSE CAST(dr.player_id AS TEXT) END AS player_id
+     , CASE WHEN pp.gender IS NULL THEN '^' ELSE pp.gender END AS player_sexdstn_cde
+     , CASE WHEN dr.years IS NULL THEN '^' ELSE CAST(TRUNC(dr.years) AS TEXT) END AS player_agrde_cde
+     , CASE WHEN dr.team IS NULL THEN '^' ELSE dr.team END AS goldenpass_team_id
+     , CASE WHEN dr."position" IS NULL THEN '^' ELSE dr."position" END AS player_postn_cde
+     , CASE WHEN rr."date" IS NULL THEN '^' ELSE TO_CHAR(rr."date", 'YYYYMMDD') END AS mesure_de
+     , CASE WHEN rr."number" IS NULL THEN -1 ELSE rr."number" END AS mesure_ordr
+     , CASE WHEN pp.kfa_id IS NULL THEN '^' ELSE pp.kfa_id END AS kfa_player_id
+     , CASE WHEN pp."group" IS NULL THEN'^' ELSE pp."group" END AS goldenpass_cnvc_se_cde
+     , CASE WHEN dr.height IS NULL THEN 0 ELSE dr.height END AS height
+     , CASE WHEN dr.weight IS NULL THEN 0 ELSE dr.weight END AS bdwgh
+     , CASE WHEN dr.physical_maturity IS NULL THEN 0 ELSE dr.physical_maturity END AS bdy_mtrty_sttus
+     , CASE WHEN dr.body_fat_percentage IS NULL THEN 0 ELSE dr.body_fat_percentage END AS body_fat_percentage
+     , CASE WHEN dr.muscle_mass IS NULL THEN 0 ELSE dr.muscle_mass END AS muscle_mass
+     , CASE WHEN dr.dribble IS NULL THEN 0 ELSE dr.dribble END AS dribble
+     , CASE WHEN dr.awareness IS NULL THEN 0 ELSE dr.awareness END AS awareness
+     , CASE WHEN dr.sprint_5m IS NULL THEN 0 ELSE dr.sprint_5m END AS sprint_5m
+     , CASE WHEN dr.sprint_10m IS NULL THEN 0 ELSE dr.sprint_10m END AS sprint_10m
+     , CASE WHEN dr.sprint_30m IS NULL THEN 0 ELSE dr.sprint_30m END AS sprint_30m
+     , CASE WHEN dr.reaction_rapidity IS NULL THEN 0 ELSE dr.reaction_rapidity END AS reaction_rapidity
+     , CASE WHEN dr.change_of_direction IS NULL THEN 0 ELSE dr.change_of_direction END AS change_of_direction
+     , CASE WHEN dr.countermovement_jump IS NULL THEN 0 ELSE dr.countermovement_jump END AS countermovement_jump
+     , CASE WHEN dr.reactive_strength_index IS NULL THEN 0 ELSE dr.reactive_strength_index END AS reactive_strength_index
+     , CASE WHEN dr.mindset IS NULL THEN 0 ELSE dr.mindset END AS mindset
+     , CASE WHEN dr.relationship IS NULL THEN 0 ELSE dr.relationship END AS relationship
+     , CASE WHEN dr.self_management IS NULL THEN 0 ELSE dr.self_management END AS self_management
+     , CASE WHEN dr.support_coach IS NULL THEN 0 ELSE dr.support_coach END AS support_coach
+     , CASE WHEN dr.support_parents IS NULL THEN 0 ELSE dr.support_parents END AS support_parents
+     , CASE WHEN dr.support_peer IS NULL THEN 0 ELSE dr.support_peer END AS support_peer
+     , CASE WHEN dr.measure_concentration IS NULL THEN 0 ELSE dr.measure_concentration END AS measure_concentration
+     , CASE WHEN dr.measure_coping_skill IS NULL THEN 0 ELSE dr.measure_coping_skill END AS measure_coping_skill
+     , CASE WHEN dr.measure_killer_instinct IS NULL THEN 0 ELSE dr.measure_killer_instinct END AS measure_killer_instinct
+     , CASE WHEN dr.measure_nerve IS NULL THEN 0 ELSE dr.measure_nerve END AS measure_nerve
+     , CASE WHEN dr.measure_self_confidence IS NULL THEN 0 ELSE dr.measure_self_confidence END AS measure_confidence
+     , CASE WHEN dr.measure_play_intelligence IS NULL THEN 0 ELSE dr.measure_play_intelligence END AS measure_play_intelligence
+     , CASE WHEN dr.insight_concentration IS NULL THEN 0 ELSE dr.insight_concentration END AS insight_concentration
+     , CASE WHEN dr.insight_coping_skill IS NULL THEN 0 ELSE dr.insight_coping_skill END AS insight_coping_skill
+     , CASE WHEN dr.insight_killer_instinct IS NULL THEN 0 ELSE dr.insight_killer_instinct END AS insight_killer_instinct
+     , CASE WHEN dr.insight_nerve IS NULL THEN 0 ELSE dr.insight_nerve END AS insight_nerve
+     , CASE WHEN dr.insight_self_confidence IS NULL THEN 0 ELSE dr.insight_self_confidence END AS insight_confidence
+     , CASE WHEN dr.insight_play_intelligence IS NULL THEN 0 ELSE dr.insight_play_intelligence END AS insight_play_intelligence
+     , dr.intelligence_url AS intlgnc_vido_url
+     , dr.speciality_url AS spclty_vido_url
+     , 1 AS mesure_co
+  FROM data_record dr
+       LEFT OUTER JOIN
+       round_round rr
+    ON dr.round_id = rr.id 
+       LEFT OUTER JOIN
+       player_player pp 
+    ON dr.player_id = pp.id
+ GROUP BY CASE WHEN rr."date" IS NULL THEN '^' ELSE TO_CHAR(rr."date", 'YYYY') END
+     , CASE WHEN dr.round_id IS NULL THEN -1 ELSE dr.round_id END
+     , CASE WHEN dr.age_group_id IS NULL THEN '^' ELSE CAST(dr.age_group_id AS TEXT) END
+     , CASE WHEN dr.player_id IS NULL THEN '^' ELSE CAST(dr.player_id AS TEXT) END
+     , CASE WHEN pp.gender IS NULL THEN '^' ELSE pp.gender END
+     , CASE WHEN dr.years IS NULL THEN '^' ELSE CAST(TRUNC(dr.years) AS TEXT) END
+     , CASE WHEN dr.team IS NULL THEN '^' ELSE dr.team END
+     , CASE WHEN dr."position" IS NULL THEN '^' ELSE dr."position" END
+     , CASE WHEN rr."date" IS NULL THEN '^' ELSE TO_CHAR(rr."date", 'YYYYMMDD') END
+     , CASE WHEN rr."number" IS NULL THEN -1 ELSE rr."number" END
+     , CASE WHEN pp.kfa_id IS NULL THEN '^' ELSE pp.kfa_id END
+     , CASE WHEN pp."group" IS NULL THEN '^' ELSE pp."group" END
+     , CASE WHEN dr.height IS NULL THEN 0 ELSE dr.height END
+     , CASE WHEN dr.weight IS NULL THEN 0 ELSE dr.weight END
+     , CASE WHEN dr.physical_maturity IS NULL THEN 0 ELSE dr.physical_maturity END
+     , CASE WHEN dr.body_fat_percentage IS NULL THEN 0 ELSE dr.body_fat_percentage END
+     , CASE WHEN dr.muscle_mass IS NULL THEN 0 ELSE dr.muscle_mass END
+     , CASE WHEN dr.dribble IS NULL THEN 0 ELSE dr.dribble END
+     , CASE WHEN dr.awareness IS NULL THEN 0 ELSE dr.awareness END
+     , CASE WHEN dr.sprint_5m IS NULL THEN 0 ELSE dr.sprint_5m END
+     , CASE WHEN dr.sprint_10m IS NULL THEN 0 ELSE dr.sprint_10m END
+     , CASE WHEN dr.sprint_30m IS NULL THEN 0 ELSE dr.sprint_30m END
+     , CASE WHEN dr.reaction_rapidity IS NULL THEN 0 ELSE dr.reaction_rapidity END
+     , CASE WHEN dr.change_of_direction IS NULL THEN 0 ELSE dr.change_of_direction END
+     , CASE WHEN dr.countermovement_jump IS NULL THEN 0 ELSE dr.countermovement_jump END
+     , CASE WHEN dr.reactive_strength_index IS NULL THEN 0 ELSE dr.reactive_strength_index END
+     , CASE WHEN dr.mindset IS NULL THEN 0 ELSE dr.mindset END
+     , CASE WHEN dr.relationship IS NULL THEN 0 ELSE dr.relationship END
+     , CASE WHEN dr.self_management IS NULL THEN 0 ELSE dr.self_management END
+     , CASE WHEN dr.support_coach IS NULL THEN 0 ELSE dr.support_coach END
+     , CASE WHEN dr.support_parents IS NULL THEN 0 ELSE dr.support_parents END
+     , CASE WHEN dr.support_peer IS NULL THEN 0 ELSE dr.support_peer END
+     , CASE WHEN dr.measure_concentration IS NULL THEN 0 ELSE dr.measure_concentration END
+     , CASE WHEN dr.measure_coping_skill IS NULL THEN 0 ELSE dr.measure_coping_skill END
+     , CASE WHEN dr.measure_killer_instinct IS NULL THEN 0 ELSE dr.measure_killer_instinct END
+     , CASE WHEN dr.measure_nerve IS NULL THEN 0 ELSE dr.measure_nerve END
+     , CASE WHEN dr.measure_self_confidence IS NULL THEN 0 ELSE dr.measure_self_confidence END
+     , CASE WHEN dr.measure_play_intelligence IS NULL THEN 0 ELSE dr.measure_play_intelligence END
+     , CASE WHEN dr.insight_concentration IS NULL THEN 0 ELSE dr.insight_concentration END
+     , CASE WHEN dr.insight_coping_skill IS NULL THEN 0 ELSE dr.insight_coping_skill END
+     , CASE WHEN dr.insight_killer_instinct IS NULL THEN 0 ELSE dr.insight_killer_instinct END
+     , CASE WHEN dr.insight_nerve IS NULL THEN 0 ELSE dr.insight_nerve END
+     , CASE WHEN dr.insight_self_confidence IS NULL THEN 0 ELSE dr.insight_self_confidence END
+     , CASE WHEN dr.insight_play_intelligence IS NULL THEN 0 ELSE dr.insight_play_intelligence END
+     , dr.intelligence_url
+     , dr.speciality_url
+;

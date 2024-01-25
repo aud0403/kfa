@@ -1,0 +1,47 @@
+SELECT CASE WHEN m.season_group_name IS NULL THEN '^' ELSE m.season_group_name END AS stdr_year
+     , CASE WHEN m.id IS NULL THEN -1 ELSE m.id END AS game_no
+     , CASE WHEN m.round_id IS NULL THEN -1 ELSE m.round_id END AS round_no 
+     , CASE WHEN m.season_id IS NULL THEN -1 ELSE m.season_id END AS season_no
+     , CASE WHEN m.league_id IS NULL THEN -1 ELSE m.league_id END AS league_no
+     , CASE WHEN m.home_team_id IS NULL THEN -1 ELSE m.home_team_id END AS home_team_no
+     , CASE WHEN m.away_team_id IS NULL THEN -1 ELSE m.away_team_id END AS away_team_no
+     , CASE WHEN m.home_team_country_cd IS NULL THEN '^' ELSE m.home_team_country_cd END AS home_team_nation_cde
+     , CASE WHEN m.away_team_country_cd IS NULL THEN '^' ELSE m.away_team_country_cd END AS away_team_nation_cde
+     , CASE WHEN m.venue_id IS NULL THEN -1 ELSE m.venue_id END AS stdm_no
+     , CASE WHEN m.extra_result_type IS NULL THEN '^' ELSE m.extra_result_type END AS et_result_cde 
+     , CASE WHEN m.start_time IS NULL THEN '^' ELSE TO_CHAR(TO_DATE(m.start_time, 'YYYY-MM-DD'), 'YYYYMMDD') END AS game_de
+     , CASE WHEN m.start_time IS NULL THEN '^' ELSE TO_CHAR(TO_TIMESTAMP(m.start_time, 'YYYY-MM-DD HH24:MI'), 'HH24MI') END AS game_begin_tmzon_cde 
+     , CASE WHEN m.full_time IS NULL THEN 0 ELSE m.full_time END AS game_time
+     , CASE WHEN m.half_time_duration IS NULL THEN 0 ELSE m.half_time_duration END AS fhalf_shalf_time
+     , CASE WHEN m.extra_full_time IS NULL THEN 0 ELSE m.extra_full_time END AS et_time
+     , CASE WHEN m.detail_result_home_score IS NULL THEN 0 ELSE m.detail_result_home_score END AS home_team_score 
+     , CASE WHEN m.detail_result_away_score IS NULL THEN 0 ELSE m.detail_result_away_score END AS away_team_score
+     , CASE WHEN m.extra_result_home_score IS NULL THEN 0 ELSE m.extra_result_home_score END AS home_team_addnl_score
+     , CASE WHEN m.extra_result_away_score IS NULL THEN 0 ELSE m.extra_result_away_score END AS away_team_addnl_score
+     , CASE WHEN m.venue_ground_width IS NULL THEN 0 ELSE CAST(m.venue_ground_width AS NUMERIC) END AS side_line_lt
+     , CASE WHEN m.venue_ground_height IS NULL THEN 0 ELSE CAST(m.venue_ground_height AS NUMERIC) END AS goal_line_lt
+     , 1 AS game_co
+  FROM matches m
+ GROUP BY CASE WHEN m.season_group_name IS NULL THEN '^' ELSE m.season_group_name END
+     , CASE WHEN m.id IS NULL THEN -1 ELSE m.id END
+     , CASE WHEN m.round_id IS NULL THEN -1 ELSE m.round_id END
+     , CASE WHEN m.season_id IS NULL THEN -1 ELSE m.season_id END
+     , CASE WHEN m.league_id IS NULL THEN -1 ELSE m.league_id END
+     , CASE WHEN m.home_team_id IS NULL THEN -1 ELSE m.home_team_id END
+     , CASE WHEN m.away_team_id IS NULL THEN -1 ELSE m.away_team_id END
+     , CASE WHEN m.home_team_country_cd IS NULL THEN '^' ELSE m.home_team_country_cd END
+     , CASE WHEN m.away_team_country_cd IS NULL THEN '^' ELSE m.away_team_country_cd END
+     , CASE WHEN m.venue_id IS NULL THEN -1 ELSE m.venue_id END
+     , CASE WHEN m.extra_result_type IS NULL THEN '^' ELSE m.extra_result_type END
+     , CASE WHEN m.start_time IS NULL THEN '^' ELSE TO_CHAR(TO_DATE(m.start_time, 'YYYY-MM-DD'), 'YYYYMMDD') END
+     , CASE WHEN m.start_time IS NULL THEN '^' ELSE TO_CHAR(TO_TIMESTAMP(m.start_time, 'YYYY-MM-DD HH24:MI'), 'HH24MI') END
+     , CASE WHEN m.full_time IS NULL THEN 0 ELSE m.full_time END
+     , CASE WHEN m.half_time_duration IS NULL THEN 0 ELSE m.half_time_duration END
+     , CASE WHEN m.extra_full_time IS NULL THEN 0 ELSE m.extra_full_time END
+     , CASE WHEN m.detail_result_home_score IS NULL THEN 0 ELSE m.detail_result_home_score END
+     , CASE WHEN m.detail_result_away_score IS NULL THEN 0 ELSE m.detail_result_away_score END
+     , CASE WHEN m.extra_result_home_score IS NULL THEN 0 ELSE m.extra_result_home_score END
+     , CASE WHEN m.extra_result_away_score IS NULL THEN 0 ELSE m.extra_result_away_score END
+     , CASE WHEN m.venue_ground_width IS NULL THEN 0 ELSE CAST(m.venue_ground_width AS NUMERIC) END
+     , CASE WHEN m.venue_ground_height IS NULL THEN 0 ELSE CAST(m.venue_ground_height AS NUMERIC) END
+;

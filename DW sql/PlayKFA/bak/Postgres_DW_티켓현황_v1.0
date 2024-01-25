@@ -1,0 +1,23 @@
+SELECT CASE WHEN tob.seq_no IS NULL THEN -1 ELSE tob.seq_no END AS seq_no
+     , CASE WHEN tob.bdate_bdate_seq IS NULL THEN '^' ELSE tob.bdate_bdate_seq END AS ticket_esntl_no
+     , CASE WHEN tob.booking_place IS NULL THEN '^' ELSE tob.booking_place END AS advantk_conect_cde
+     , CASE WHEN tob.product_title IS NULL THEN '^' ELSE tob.product_title END AS ticket_sj_cde
+     , CASE WHEN tob.ticket_price IS NULL THEN '^' ELSE CAST(tob.ticket_price AS TEXT) END AS ticket_pc_cde
+     , CASE WHEN tob.ticket_seq IS NULL THEN '^' ELSE tob.ticket_seq END AS ticket_no
+     , CASE WHEN tob.user_seq IS NULL THEN -1 ELSE tob.user_seq END AS mber_no
+     , CASE WHEN tob.point_current IS NULL THEN 0 ELSE tob.point_current END AS occrrnc_point
+     , CASE WHEN tob.ticket_price IS NULL THEN 0 ELSE tob.ticket_price END AS ticket_pc
+     , CASE WHEN tob.total_price IS NULL THEN 0 ELSE tob.total_price END AS pay_amount
+     , 1 AS ticket_co
+  FROM tbl_order_booking tob
+ GROUP BY CASE WHEN tob.seq_no IS NULL THEN -1 ELSE tob.seq_no END
+     , CASE WHEN tob.bdate_bdate_seq IS NULL THEN '^' ELSE tob.bdate_bdate_seq END
+     , CASE WHEN tob.booking_place IS NULL THEN '^' ELSE tob.booking_place END
+     , CASE WHEN tob.product_title IS NULL THEN '^' ELSE tob.product_title END
+     , CASE WHEN tob.ticket_price IS NULL THEN '^' ELSE CAST(tob.ticket_price AS TEXT) END
+     , CASE WHEN tob.ticket_seq IS NULL THEN '^' ELSE tob.ticket_seq END
+     , CASE WHEN tob.user_seq IS NULL THEN -1 ELSE tob.user_seq END
+     , CASE WHEN tob.point_current IS NULL THEN 0 ELSE tob.point_current END
+     , CASE WHEN tob.ticket_price IS NULL THEN 0 ELSE tob.ticket_price END
+     , CASE WHEN tob.total_price IS NULL THEN 0 ELSE tob.total_price END
+ ;

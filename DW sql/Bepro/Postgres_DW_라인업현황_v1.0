@@ -1,0 +1,19 @@
+SELECT CASE WHEN ml.season_group_name IS NULL THEN '^' ELSe ml.season_group_name END AS stdr_year
+     , CASE WHEN ml.id IS NULL THEN -1 ELSE ml.id END AS lineup_indx
+     , CASE WHEN ml.match_id IS NULL THEN -1 ELSE ml.match_id END AS game_no
+     , CASE WHEN ml.player_id IS NULL THEN -1 ELSE ml.player_id END AS player_no
+     , CASE WHEN ml.position_name IS NULL THEN '^' ELSE ml.position_name END AS player_postn_cde
+     , CASE WHEN ml.team_id IS NULL THEN -1 ELSE ml.team_id END AS team_no
+     , CASE WHEN ml.is_starting_lineup = 'true' THEN 'Y' ELSE 'N' END AS strtg_at
+     , ml.back_number AS entry_no
+     , 1 AS game_co
+  FROM matches_lineup ml
+ GROUP BY CASE WHEN ml.season_group_name IS NULL THEN '^' ELSe ml.season_group_name END 
+     , CASE WHEN ml.id IS NULL THEN -1 ELSE ml.id END 
+     , CASE WHEN ml.match_id IS NULL THEN -1 ELSE ml.match_id END 
+     , CASE WHEN ml.player_id IS NULL THEN -1 ELSE ml.player_id END 
+     , CASE WHEN ml.position_name IS NULL THEN '^' ELSE ml.position_name END 
+     , CASE WHEN ml.team_id IS NULL THEN -1 ELSE ml.team_id END 
+     , CASE WHEN ml.is_starting_lineup = 'true' THEN 'Y' ELSE 'N' END 
+     , ml.back_number
+;

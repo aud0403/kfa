@@ -1,0 +1,80 @@
+/*
+ * 회원현황
+ * user_grade_seq와 grade_seq 중 사용 컬럼 확인 후 tbl_user_grade(사용자 등급 관리 테이블) 엮기
+ */
+SELECT CASE WHEN tu.seq_no IS NULL THEN -1 ELSE tu.seq_no END AS mber_no
+     , CASE WHEN tu.user_birth IS NULL THEN '^' ELSE REPLACE(tu.user_birth, '-', '') END AS brthdy
+     , CASE WHEN tu.user_sex IS NULL THEN '^' ELSE tu.user_sex END AS sexdstn_cde
+     , CASE WHEN fn_valid_inspct_playkfa(tu.user_birth) = 'P' THEN fn_agrde_playkfa(CAST(EXTRACT(YEAR FROM NOW()) as TEXT), REPLACE(tu.user_birth, '-', ''))
+            WHEN fn_valid_inspct_playkfa(tu.user_birth) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_playkfa(tu.user_birth) = 'N' THEN '^'
+            ELSE '^'
+       END AS agrde_cde
+     , CASE WHEN tu.phone_certification_active = 1 THEN 'Y' ELSE 'N' END AS moblphon_crtfc_at
+     , CASE WHEN tu.auth_date IS NULL THEN 'N' ELSE 'Y' END AS self_crtfc_at
+     , CASE WHEN tu.user_email IS NULL THEN '^' ELSE tu.user_email END AS email
+     , CASE WHEN tu.user_phone IS NULL THEN '^' ELSE tu.user_phone END AS moblphon_no
+     , CASE WHEN tu.interpark_code IS NULL THEN '^' ELSE tu.interpark_code END AS interpart_cde
+     , CASE WHEN tu.user_grade_seq IS NULL THEN -1 ELSE tu.user_grade_seq END AS mber_grad_no
+     , CASE WHEN tu.del_check = 0 then 'N'
+            WHEN tu.del_check = 1 then 'Y'
+            ELSE '^'
+       END AS delete_at
+     , CASE WHEN tu.markecting_check = 1 THEN 'Y' ELSE 'N' END AS markt_agre_at
+     , CASE WHEN tu.event_agree_check = 1 THEN 'Y' ELSE 'N' END AS event_agre_at
+     , CASE WHEN tu."14_YN" IS NULL THEN '^' ELSE tu."14_YN" END AS "14_BELO_AT"
+     , CASE WHEN tu.parent_email IS NULL THEN '^' ELSE tu.parent_email END AS parnts_email
+     , CASE WHEN tu.parent_phone IS NULL THEN '^' ELSE tu.parent_phone END AS parnts_mbtlnum
+     , CASE WHEN tu.markecting_check_type IS NULL THEN '^' ELSE CAST(tu.markecting_check_type AS TEXT) END AS markt_ty_cde
+     , 1 AS mber_co
+--     , tu.privacy_check, tu.grade_seq
+--     , tu.auth_date
+--     , tu.user_rank
+--     , tu.regdate, tu.uptdate
+  FROM tbl_user tu
+ GROUP BY CASE WHEN tu.seq_no IS NULL THEN -1 ELSE tu.seq_no END
+     , CASE WHEN tu.user_birth IS NULL THEN '^' ELSE REPLACE(tu.user_birth, '-', '') END
+     , CASE WHEN tu.user_sex IS NULL THEN '^' ELSE tu.user_sex END
+     , CASE WHEN fn_valid_inspct_playkfa(tu.user_birth) = 'P' THEN fn_agrde_playkfa(CAST(EXTRACT(YEAR FROM NOW()) as TEXT), REPLACE(tu.user_birth, '-', ''))
+            WHEN fn_valid_inspct_playkfa(tu.user_birth) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_playkfa(tu.user_birth) = 'N' THEN '^'
+            ELSE '^'
+       END
+     , CASE WHEN tu.phone_certification_active = 1 THEN 'Y' ELSE 'N' END
+     , CASE WHEN tu.auth_date IS NULL THEN 'N' ELSE 'Y' END
+     , CASE WHEN tu.user_email IS NULL THEN '^' ELSE tu.user_email END
+     , CASE WHEN tu.user_phone IS NULL THEN '^' ELSE tu.user_phone END
+     , CASE WHEN tu.interpark_code IS NULL THEN '^' ELSE tu.interpark_code END
+     , CASE WHEN tu.user_grade_seq IS NULL THEN -1 ELSE tu.user_grade_seq END
+     , CASE WHEN tu.del_check = 0 then 'N'
+            WHEN tu.del_check = 1 then 'Y'
+            ELSE '^'
+       END
+     , CASE WHEN tu.markecting_check = 1 THEN 'Y' ELSE 'N' END
+     , CASE WHEN tu.event_agree_check = 1 THEN 'Y' ELSE 'N' END
+     , CASE WHEN tu."14_YN" IS NULL THEN '^' ELSE tu."14_YN" END
+     , CASE WHEN tu.parent_email IS NULL THEN '^' ELSE tu.parent_email END
+     , CASE WHEN tu.parent_phone IS NULL THEN '^' ELSE tu.parent_phone END
+     , CASE WHEN tu.markecting_check_type IS NULL THEN '^' ELSE CAST(tu.markecting_check_type AS TEXT) END
+;
+
+
+
+/*
+ * 회원접속현황
+ */
+SELECT CASE WHEN seq_no IS NULL THEN -1 ELSE seq_no end AS seq_no
+     , CASE WHEN user_seq IS NULL THEN -1 ELSE user_seq END AS mber_no
+     , CASE WHEN created_date IS NULL THEN '^' ELSE TO_CHAR(created_date, 'YYYYMMDD') END AS conect_de
+     , CASE WHEN created_date IS NULL THEN '^' ELSE TO_CHAR(created_date, 'HH24') END AS conect_tmzon_cde
+     , CASE WHEN main_cate IS NULL THEN -1 ELSE main_cate END AS main_ctgry_no
+     , CASE WHEN sub_cate IS NULL THEN -1 ELSE sub_cate END AS sub_ctgry_no
+     , 1 AS conect_co
+  FROM tbl_log_info
+ GROUP BY CASE WHEN seq_no IS NULL THEN -1 ELSE seq_no END
+     , CASE WHEN user_seq IS NULL THEN -1 ELSE user_seq END
+     , CASE WHEN created_date IS NULL THEN '^' ELSE TO_CHAR(created_date, 'YYYYMMDD') END
+     , CASE WHEN created_date IS NULL THEN '^' ELSE TO_CHAR(created_date, 'HH24') END
+     , CASE WHEN main_cate IS NULL THEN -1 ELSE main_cate END
+     , CASE WHEN sub_cate IS NULL THEN -1 ELSE sub_cate END
+;

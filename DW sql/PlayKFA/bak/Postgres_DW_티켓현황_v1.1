@@ -1,0 +1,48 @@
+SELECT CASE WHEN tbdi.order_date IS NULL THEN '^' ELSE SUBSTR(tbdi.order_date, 1, 4) END AS stdr_year
+     , CASE WHEN tbdi.member_id IS NULL THEN -1 ELSE CAST(tbdi.member_id AS NUMERIC) END AS mber_no
+     , CASE WHEN fn_valid_inspct_playkfa(tbdi.member_birth) = 'P' AND fn_agrde_playkfa_add(SUBSTR(tbdi.order_date, 1, 4), tbdi.member_birth) != 'E'
+            THEN CAST(TRUNC(CAST(fn_agrde_playkfa_add(SUBSTR(tbdi.order_date, 1, 4), tbdi.member_birth) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct_playkfa(tbdi.member_birth) = 'P' AND fn_agrde_playkfa_add(SUBSTR(tbdi.order_date, 1, 4), tbdi.member_birth) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_playkfa(tbdi.member_birth) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_playkfa(tbdi.member_birth) = 'N' THEN '^'
+            ELSE '^'
+        END AS ordrr_agrde_lclas_cde
+     , CASE WHEN tbdi.bdate_bdateseq IS NULL THEN '^' ELSE tbdi.bdate_bdateseq END AS ticket_esntl_no
+     , CASE WHEN tbdi.ticket_no IS NULL THEN '^' ELSE tbdi.ticket_no END AS ticket_no
+     , CASE WHEN tbdi.reserve_loc IS NULL THEN '^' ELSE tbdi.reserve_loc END AS advantk_conect_cde
+     , CASE WHEN tbdi.product_code IS NULL THEN '^' ELSE tbdi.product_code END AS goods_cde
+     , CASE WHEN tbdi.order_date IS NULL THEN '^' ELSE tbdi.order_date END AS order_de
+     , CASE WHEN tbdi.order_time IS NULL THEN '^' ELSE SUBSTR(tbdi.order_time, 1, 4) END AS order_tmzon_cde
+     , CASE WHEN tbdi.buy_way1 IS NULL THEN '^' ELSE tbdi.buy_way1 END AS pay_mn_cde
+     , CASE WHEN tbdi.buy_way1_name IS NULL THEN '^' ELSE tbdi.buy_way1_name END AS pay_cmpny_cde
+     , CASE WHEN tbdi.seat_grade_name IS NULL THEN '^' ELSE SPLIT_PART(tbdi.seat_grade_name::VARCHAR, '(', 1) END AS seat_grad_cde
+     , CASE WHEN tbdi.delivery_info IS NULL THEN '^' ELSE tbdi.delivery_info END AS ticket_knd_cde
+     , COALESCE(tbdi.ticket_price, 0) AS ticket_pc
+     , COALESCE(tbdi.fee, 0) AS use_fee
+     , COALESCE(tbdi.discount_price, 0) AS dscnt_amount
+     , 1 AS ticket_co
+     --, tbdi.concert_name, tbdi.concert_date, tbdi.concert_time, tbdi.concert_day, tbdi.seat_row
+  FROM tbl_booking_data_info tbdi
+ GROUP BY CASE WHEN tbdi.order_date IS NULL THEN '^' ELSE substr(tbdi.order_date, 1, 4) END
+     , CASE WHEN tbdi.member_id IS NULL THEN -1 ELSE CAST(tbdi.member_id AS NUMERIC) END
+     , CASE WHEN fn_valid_inspct_playkfa(tbdi.member_birth) = 'P' AND fn_agrde_playkfa_add(SUBSTR(tbdi.order_date, 1, 4), tbdi.member_birth) != 'E'
+            THEN CAST(TRUNC(CAST(fn_agrde_playkfa_add(SUBSTR(tbdi.order_date, 1, 4), tbdi.member_birth) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct_playkfa(tbdi.member_birth) = 'P' AND fn_agrde_playkfa_add(SUBSTR(tbdi.order_date, 1, 4), tbdi.member_birth) = 'E' then 'E'
+            WHEN fn_valid_inspct_playkfa(tbdi.member_birth) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_playkfa(tbdi.member_birth) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN tbdi.bdate_bdateseq IS NULL THEN '^' ELSE tbdi.bdate_bdateseq END
+     , CASE WHEN tbdi.ticket_no IS NULL THEN '^' ELSE tbdi.ticket_no END
+     , CASE WHEN tbdi.reserve_loc IS NULL THEN '^' ELSE tbdi.reserve_loc END
+     , CASE WHEN tbdi.product_code IS NULL THEN '^' ELSE tbdi.product_code END
+     , CASE WHEN tbdi.order_date IS NULL THEN '^' ELSE tbdi.order_date END
+     , CASE WHEN tbdi.order_time IS NULL THEN '^' ELSE SUBSTR(tbdi.order_time, 1, 4) END
+     , CASE WHEN tbdi.buy_way1 IS NULL THEN '^' ELSE tbdi.buy_way1 END
+     , CASE WHEN tbdi.buy_way1_name IS NULL THEN '^' ELSE tbdi.buy_way1_name END
+     , CASE WHEN tbdi.seat_grade_name IS NULL THEN '^' ELSE SPLIT_PART(tbdi.seat_grade_name::VARCHAR, '(', 1) END
+     , CASE WHEN tbdi.delivery_info IS NULL THEN '^' ELSE tbdi.delivery_info END
+     , COALESCE(tbdi.ticket_price, 0)
+     , COALESCE(tbdi.fee, 0)
+     , COALESCE(tbdi.discount_price, 0)
+;

@@ -1,0 +1,67 @@
+SELECT CASE WHEN fss."YEAR" IS NULL THEN '^' ELSE fss."YEAR" END AS stdr_year
+     , CASE WHEN fs.userid IS NULL THEN '^' ELSE fs.userid END AS stdnt_id
+     , CASE WHEN a.jumin IS NULL THEN '^' ELSE a.jumin END AS kfa_coach_id
+     , CASE WHEN a.gender IS NULL THEN '^' ELSE a.gender END AS coach_sexdstn_cde
+     , CASE WHEN fs.subj IS NULL THEN '^' ELSE fs.subj END AS crse_cde
+     , CASE WHEN fs.subjseq IS NULL THEN -1 ELSE CAST(fs.subjseq AS NUMERIC) END AS crse_odr
+     , CASE WHEN fs.stold_yn IS NULL THEN '^' ELSE fs.stold_yn END AS compl_at
+     , CASE WHEN fs.stold_cd IS NULL THEN '^' ELSE fs.stold_cd END AS un_compl_resn_cde
+     , CASE WHEN fs.stold_date IS NULL THEN '^' ELSE SUBSTR(fs.stold_date, 1, 8) END AS compl_de
+     , CASE WHEN fst.grades IS NULL THEN '^' ELSE fst.grades END AS scre_grad_cde
+     , CASE WHEN fst.good_yn IS NULL THEN '^' ELSE fst.good_yn END AS scre_exclnc_at
+     , CASE WHEN fst."STATE" IS NULL THEN '^' ELSE fst."STATE" END AS psexam_info_cde
+     , CASE WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'P' AND fss."YEAR" IS NOT NULL THEN fn_agrde_kfaacademy(fss."YEAR", a.birthday)
+            WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'N' THEN '^'
+            ELSE '^'
+        END AS coach_agrde_cde
+     , CASE WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'P' AND fss."YEAR" IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde_kfaacademy(fss."YEAR", a.birthday) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN fs.score IS NULL THEN 0 ELSE fs.score END AS acqs_score
+     , 1 AS stdnt_co
+  FROM fb_stold fs
+       LEFT OUTER JOIN
+       fb_student fst
+    ON fs.subj = fst.subj
+   AND fs.subjseq = fst.subjseq
+   AND fs.userid = fst.userid
+       LEFT OUTER JOIN
+       fb_subjseq fss
+    ON fst.subj = fss.subj
+   AND fst.subjseq = fss.subjseq
+       LEFT OUTER join
+       (
+        SELECT fm.userid, fm.ipin_ci, jmn.jumin, jmn.ci, fm.gender, fm.birthday
+          FROM fb_member fm
+               LEFT OUTER JOIN
+               joinkfa."jn_master_new#" jmn
+            ON fm.ipin_ci = jmn.ci
+       ) a
+    ON fs.userid = a.userid
+ GROUP BY CASE WHEN fss."YEAR" IS NULL THEN '^' ELSE fss."YEAR" END 
+     , CASE WHEN fs.userid IS NULL THEN '^' ELSE fs.userid end
+     , CASE WHEN a.jumin IS NULL THEN '^' ELSE a.jumin END
+     , CASE WHEN fs.subj IS NULL THEN '^' ELSE fs.subj END
+     , CASE WHEN fs.subjseq IS NULL THEN -1 ELSE CAST(fs.subjseq AS NUMERIC) END
+     , CASE WHEN fs.stold_yn IS NULL THEN '^' ELSE fs.stold_yn END
+     , CASE WHEN fs.stold_cd IS NULL THEN '^' ELSE fs.stold_cd END
+     , CASE WHEN fs.stold_date IS NULL THEN '^' ELSE SUBSTR(fs.stold_date, 1, 8) END
+     , CASE WHEN fst.grades IS NULL THEN '^' ELSE fst.grades END
+     , CASE WHEN fst.good_yn IS NULL THEN '^' ELSE fst.good_yn END
+     , CASE WHEN fst."STATE" IS NULL THEN '^' ELSE fst."STATE" END
+     , CASE WHEN a.gender IS NULL THEN '^' ELSE a.gender END
+     , CASE WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'P' AND fss."YEAR" IS NOT NULL THEN fn_agrde_kfaacademy(fss."YEAR", a.birthday)
+            WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'N' THEN '^'
+            ELSE '^'
+       END
+     , CASE WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'P' AND fss."YEAR" IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde_kfaacademy(fss."YEAR", a.birthday) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_kfaacademy(a.birthday) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fs.score IS NULL THEN 0 ELSE fs.score END
+;

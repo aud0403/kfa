@@ -1,0 +1,136 @@
+SELECT CASE WHEN mts.season_group_name IS NULL THEN '^' ELSE mts.season_group_name END AS stdr_year
+     , CASE WHEN mts.match_id IS NULL THEN -1 ELSE mts.match_id END AS game_no
+     , CASE WHEN mts.team_id IS NULL THEN -1 ELSE mts.team_id END AS team_no
+     , CASE WHEN mts.goal IS NULL THEN 0 ELSE mts.goal END AS goal
+     , CASE WHEN mts.total_shot IS NULL THEN 0 ELSE mts.total_shot END AS tot_shot
+     , CASE WHEN mts.shot_on_target IS NULL THEN 0 ELSE mts.shot_on_target END AS shot_on_target
+     , CASE WHEN mts.shot_off_target IS NULL THEN 0 ELSE mts.shot_off_target END AS shot_off_target
+     , CASE WHEN mts.shot_blocked IS NULL THEN 0 ELSE mts.shot_blocked END AS shot_blocked
+     , CASE WHEN mts.shot_in_pa IS NULL THEN 0 ELSE mts.shot_in_pa END AS shot_in_pa
+     , CASE WHEN mts.shot_outside_of_pa IS NULL THEN 0 ELSE mts.shot_outside_of_pa END AS shot_outside_of_pa
+     , CASE WHEN mts.free_kick IS NULL THEN 0 ELSE mts.free_kick END AS free_kick
+     , CASE WHEN mts.corner_kick IS NULL THEN 0 ELSE mts.corner_kick END AS corner_kick
+     , CASE WHEN mts.throw_in IS NULL THEN 0 ELSE mts.throw_in END AS throw_in
+     , CASE WHEN mts.pass IS NULL THEN 0 ELSE mts.pass END AS pass
+     , CASE WHEN mts.pass_succeeded IS NULL THEN 0 ELSE mts.pass_succeeded END AS pass_succes
+     , CASE WHEN mts.assist IS NULL THEN 0 ELSE mts.assist END AS assist
+     , CASE WHEN mts.key_pass IS NULL THEN 0 ELSE mts.key_pass END AS key_pass
+     , CASE WHEN mts.control_under_pressure IS NULL THEN 0 ELSE mts.control_under_pressure END AS control_under_pressure
+     , CASE WHEN mts."CROSS" IS NULL THEN 0 ELSE mts."CROSS" END AS "CROSS"
+     , CASE WHEN mts.cross_succeeded IS NULL THEN 0 ELSE mts.cross_succeeded END AS cross_succes
+     , CASE WHEN mts.final_third_area_pass IS NULL THEN 0 ELSE mts.final_third_area_pass END AS final_third_area_pass
+     , CASE WHEN mts.final_third_area_pass_succeeded IS NULL THEN 0 ELSE mts.final_third_area_pass_succeeded END AS final_third_area_pass_succes
+     , CASE WHEN mts.middle_area_pass IS NULL THEN 0 ELSE mts.middle_area_pass END AS middle_area_pass
+     , CASE WHEN mts.middle_area_pass_succeeded IS NULL THEN 0 ELSE mts.middle_area_pass_succeeded END AS middle_area_pass_succes
+     , CASE WHEN mts.defensive_area_pass IS NULL THEN 0 ELSE mts.defensive_area_pass END AS defensive_area_pass
+     , CASE WHEN mts.defensive_area_pass_succeeded IS NULL THEN 0 ELSE mts.defensive_area_pass_succeeded END AS defensive_area_pass_succes
+     , CASE WHEN mts.short_pass IS NULL THEN 0 ELSE mts.short_pass END AS short_pass
+     , CASE WHEN mts.short_pass_succeeded IS NULL THEN 0 ELSE mts.short_pass_succeeded END AS short_pass_succes
+     , CASE WHEN mts.medium_range_pass IS NULL THEN 0 ELSE mts.medium_range_pass END AS medium_pass
+     , CASE WHEN mts.medium_range_pass_succeeded IS NULL THEN 0 ELSE mts.medium_range_pass_succeeded END AS medium_pass_succes
+     , CASE WHEN mts.long_pass IS NULL THEN 0 ELSE mts.long_pass END AS long_pass
+     , CASE WHEN mts.long_pass_succeeded IS NULL THEN 0 ELSE mts.long_pass_succeeded END AS long_pass_succes
+     , CASE WHEN mts.forward_pass IS NULL THEN 0 ELSE mts.forward_pass END AS forward_pass
+     , CASE WHEN mts.forward_pass_succeeded IS NULL THEN 0 ELSE mts.forward_pass_succeeded END AS forward_pass_succes
+     , CASE WHEN mts.backward_pass IS NULL THEN 0 ELSE mts.backward_pass END AS backward_pass
+     , CASE WHEN mts.backward_pass_succeeded IS NULL THEN 0 ELSE mts.backward_pass_succeeded END AS backward_pass_succes
+     , CASE WHEN mts.sideways_pass IS NULL THEN 0 ELSE mts.sideways_pass END AS sideways_pass
+     , CASE WHEN mts.sideways_pass_succeeded IS NULL THEN 0 ELSE mts.sideways_pass_succeeded END AS sideways_pass_succes
+     , CASE WHEN mts.tackle IS NULL THEN 0 ELSE mts.tackle END AS tackle
+     , CASE WHEN mts.tackle_succeeded IS NULL THEN 0 ELSE mts.tackle_succeeded END AS tackle_succes
+     , CASE WHEN mts.aerial_duel IS NULL THEN 0 ELSE mts.aerial_duel END AS aerial_duel
+     , CASE WHEN mts.aerial_duel_succeeded IS NULL THEN 0 ELSE mts.aerial_duel_succeeded END AS aerial_duel_succes
+     , CASE WHEN mts.ground_duel IS NULL THEN 0 ELSE mts.ground_duel END AS ground_duel
+     , CASE WHEN mts.ground_duel_succeeded IS NULL THEN 0 ELSE mts.ground_duel_succeeded END AS ground_duel_succes
+     , CASE WHEN mts.intercept IS NULL THEN 0 ELSE mts.intercept END AS intercept
+     , CASE WHEN mts.clearance IS NULL THEN 0 ELSE mts.clearance END AS clearance
+     , CASE WHEN mts."recovery" IS NULL THEN 0 ELSE mts."recovery" END AS "recovery"
+     , CASE WHEN mts.intervention IS NULL THEN 0 ELSE mts.intervention END AS intervention
+     , CASE WHEN mts.take_on IS NULL THEN 0 ELSE mts.take_on END AS take_on
+     , CASE WHEN mts.take_on_succeeded IS NULL THEN 0 ELSE mts.take_on_succeeded END AS take_on_succes
+     , CASE WHEN mts.mistake IS NULL THEN 0 ELSE mts.mistake END AS mistake
+     , CASE WHEN mts.block IS NULL THEN 0 ELSE mts.block END AS block
+     , CASE WHEN mts.foul IS NULL THEN 0 ELSE mts.foul END AS foul
+     , CASE WHEN mts.foul_won IS NULL THEN 0 ELSE mts.foul_won END AS foul_won
+     , CASE WHEN mts.offside IS NULL THEN 0 ELSE mts.offside END AS offside
+     , CASE WHEN mts.yellow_card IS NULL THEN 0 ELSE mts.yellow_card END AS yellow_card
+     , CASE WHEN mts.red_card IS NULL THEN 0 ELSE mts.red_card END AS red_card
+     , CASE WHEN mts.own_goal IS NULL THEN 0 ELSE mts.own_goal END AS own_goal
+     , CASE WHEN mts.goal_conceded IS NULL THEN 0 ELSE mts.goal_conceded END AS conceded_goal
+     , CASE WHEN mts.goal_kick IS NULL THEN 0 ELSE mts.goal_kick END AS goal_kick
+     , CASE WHEN mts.goal_kick_succeeded IS NULL THEN 0 ELSE mts.goal_kick_succeeded END AS goal_kick_succes
+     , CASE WHEN mts.aerial_clearance IS NULL THEN 0 ELSE mts.aerial_clearance END AS aerial_clearance
+     , CASE WHEN mts.aerial_clearance_succeeded IS NULL THEN 0 ELSE mts.aerial_clearance_succeeded END AS aerial_clearance_succes
+     , CASE WHEN mts.save_by_catching IS NULL THEN 0 ELSE mts.save_by_catching END AS save_by_catching
+     , CASE WHEN mts.save_by_punching IS NULL THEN 0 ELSE mts.save_by_punching END AS save_by_punching
+     , CASE WHEN mts.possession IS NULL THEN 0 ELSE mts.possession END AS possesn_rt
+     , 1 AS game_co
+  FROM matches_team_stats mts
+ WHERE mts.team_id IS NOT NULL
+ GROUP BY CASE WHEN mts.season_group_name IS NULL THEN '^' ELSE mts.season_group_name END
+     , CASE WHEN mts.match_id IS NULL THEN -1 ELSE mts.match_id END
+     , CASE WHEN mts.team_id IS NULL THEN -1 ELSE mts.team_id END
+     , CASE WHEN mts.goal IS NULL THEN 0 ELSE mts.goal END
+     , CASE WHEN mts.total_shot IS NULL THEN 0 ELSE mts.total_shot END
+     , CASE WHEN mts.shot_on_target IS NULL THEN 0 ELSE mts.shot_on_target END
+     , CASE WHEN mts.shot_off_target IS NULL THEN 0 ELSE mts.shot_off_target END
+     , CASE WHEN mts.shot_blocked IS NULL THEN 0 ELSE mts.shot_blocked END
+     , CASE WHEN mts.shot_in_pa IS NULL THEN 0 ELSE mts.shot_in_pa END
+     , CASE WHEN mts.shot_outside_of_pa IS NULL THEN 0 ELSE mts.shot_outside_of_pa END
+     , CASE WHEN mts.free_kick IS NULL THEN 0 ELSE mts.free_kick END
+     , CASE WHEN mts.corner_kick IS NULL THEN 0 ELSE mts.corner_kick END
+     , CASE WHEN mts.throw_in IS NULL THEN 0 ELSE mts.throw_in END
+     , CASE WHEN mts.pass IS NULL THEN 0 ELSE mts.pass END
+     , CASE WHEN mts.pass_succeeded IS NULL THEN 0 ELSE mts.pass_succeeded END
+     , CASE WHEN mts.assist IS NULL THEN 0 ELSE mts.assist END
+     , CASE WHEN mts.key_pass IS NULL THEN 0 ELSE mts.key_pass END
+     , CASE WHEN mts.control_under_pressure IS NULL THEN 0 ELSE mts.control_under_pressure END
+     , CASE WHEN mts."CROSS" IS NULL THEN 0 ELSE mts."CROSS" END
+     , CASE WHEN mts.cross_succeeded IS NULL THEN 0 ELSE mts.cross_succeeded END
+     , CASE WHEN mts.final_third_area_pass IS NULL THEN 0 ELSE mts.final_third_area_pass END
+     , CASE WHEN mts.final_third_area_pass_succeeded IS NULL THEN 0 ELSE mts.final_third_area_pass_succeeded END
+     , CASE WHEN mts.middle_area_pass IS NULL THEN 0 ELSE mts.middle_area_pass END
+     , CASE WHEN mts.middle_area_pass_succeeded IS NULL THEN 0 ELSE mts.middle_area_pass_succeeded END
+     , CASE WHEN mts.defensive_area_pass IS NULL THEN 0 ELSE mts.defensive_area_pass END
+     , CASE WHEN mts.defensive_area_pass_succeeded IS NULL THEN 0 ELSE mts.defensive_area_pass_succeeded END
+     , CASE WHEN mts.short_pass IS NULL THEN 0 ELSE mts.short_pass END
+     , CASE WHEN mts.short_pass_succeeded IS NULL THEN 0 ELSE mts.short_pass_succeeded END
+     , CASE WHEN mts.medium_range_pass IS NULL THEN 0 ELSE mts.medium_range_pass END
+     , CASE WHEN mts.medium_range_pass_succeeded IS NULL THEN 0 ELSE mts.medium_range_pass_succeeded END
+     , CASE WHEN mts.long_pass IS NULL THEN 0 ELSE mts.long_pass END
+     , CASE WHEN mts.long_pass_succeeded IS NULL THEN 0 ELSE mts.long_pass_succeeded END
+     , CASE WHEN mts.forward_pass IS NULL THEN 0 ELSE mts.forward_pass END
+     , CASE WHEN mts.forward_pass_succeeded IS NULL THEN 0 ELSE mts.forward_pass_succeeded END
+     , CASE WHEN mts.backward_pass IS NULL THEN 0 ELSE mts.backward_pass END
+     , CASE WHEN mts.backward_pass_succeeded IS NULL THEN 0 ELSE mts.backward_pass_succeeded END
+     , CASE WHEN mts.sideways_pass IS NULL THEN 0 ELSE mts.sideways_pass END
+     , CASE WHEN mts.sideways_pass_succeeded IS NULL THEN 0 ELSE mts.sideways_pass_succeeded END
+     , CASE WHEN mts.tackle IS NULL THEN 0 ELSE mts.tackle END
+     , CASE WHEN mts.tackle_succeeded IS NULL THEN 0 ELSE mts.tackle_succeeded END
+     , CASE WHEN mts.aerial_duel IS NULL THEN 0 ELSE mts.aerial_duel END
+     , CASE WHEN mts.aerial_duel_succeeded IS NULL THEN 0 ELSE mts.aerial_duel_succeeded END
+     , CASE WHEN mts.ground_duel IS NULL THEN 0 ELSE mts.ground_duel END
+     , CASE WHEN mts.ground_duel_succeeded IS NULL THEN 0 ELSE mts.ground_duel_succeeded END
+     , CASE WHEN mts.intercept IS NULL THEN 0 ELSE mts.intercept END
+     , CASE WHEN mts.clearance IS NULL THEN 0 ELSE mts.clearance END
+     , CASE WHEN mts."recovery" IS NULL THEN 0 ELSE mts."recovery" END
+     , CASE WHEN mts.intervention IS NULL THEN 0 ELSE mts.intervention END
+     , CASE WHEN mts.take_on IS NULL THEN 0 ELSE mts.take_on END
+     , CASE WHEN mts.take_on_succeeded IS NULL THEN 0 ELSE mts.take_on_succeeded END
+     , CASE WHEN mts.mistake IS NULL THEN 0 ELSE mts.mistake END
+     , CASE WHEN mts.block IS NULL THEN 0 ELSE mts.block END
+     , CASE WHEN mts.foul IS NULL THEN 0 ELSE mts.foul END
+     , CASE WHEN mts.foul_won IS NULL THEN 0 ELSE mts.foul_won END
+     , CASE WHEN mts.offside IS NULL THEN 0 ELSE mts.offside END
+     , CASE WHEN mts.yellow_card IS NULL THEN 0 ELSE mts.yellow_card END
+     , CASE WHEN mts.red_card IS NULL THEN 0 ELSE mts.red_card END
+     , CASE WHEN mts.own_goal IS NULL THEN 0 ELSE mts.own_goal END
+     , CASE WHEN mts.goal_conceded IS NULL THEN 0 ELSE mts.goal_conceded END
+     , CASE WHEN mts.goal_kick IS NULL THEN 0 ELSE mts.goal_kick END
+     , CASE WHEN mts.goal_kick_succeeded IS NULL THEN 0 ELSE mts.goal_kick_succeeded END
+     , CASE WHEN mts.aerial_clearance IS NULL THEN 0 ELSE mts.aerial_clearance END
+     , CASE WHEN mts.aerial_clearance_succeeded IS NULL THEN 0 ELSE mts.aerial_clearance_succeeded END
+     , CASE WHEN mts.save_by_catching IS NULL THEN 0 ELSE mts.save_by_catching END
+     , CASE WHEN mts.save_by_punching IS NULL THEN 0 ELSE mts.save_by_punching END
+     , CASE WHEN mts.possession IS NULL THEN 0 ELSE mts.possession END
+;

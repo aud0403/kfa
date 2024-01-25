@@ -1,0 +1,569 @@
+/*
+ * instrctr_se_cde(강사구분코드) M1 : 주강사1, M2 : 주강사2, A1 : 보조강사1, A2 : 보조강사2
+ * 등록 강사 left outer join 강사구분별 과정정보
+ * 건수가 적어서 union 사용
+ */
+SELECT CASE WHEN b.stdr_year IS NULL THEN '^' ELSE b.stdr_year END AS stdr_year
+     , CASE WHEN a.coach_instrctr_id IS NULL THEN '^' ELSE a.coach_instrctr_id END AS coach_instrctr_id
+     , CASE WHEN b.instrctr_se_cde IS NULL THEN '^' ELSE b.instrctr_se_cde END AS instrctr_se_cde
+     , CASE WHEN a.instrctr_ty_cde IS NULL THEN '^' ELSE a.instrctr_ty_cde END AS instrctr_ty_cde
+     , CASE WHEN a.wnmpy_outcmpny_se_cde IS NULL THEN '^' ELSE a.wnmpy_outcmpny_se_cde END AS wnmpy_outcmpny_se_cde
+     , CASE WHEN b.crse_cde IS NULL THEN '^' ELSE b.crse_cde END AS crse_cde
+     , CASE WHEN b.crse_odr IS NULL THEN -1 ELSE CAST(b.crse_odr AS NUMERIC) END AS crse_odr
+     , CASE WHEN b.mnnst_cde IS NULL THEN '^' ELSE b.mnnst_cde END AS mnnst_cde
+     , CASE WHEN b.edc_stle_cde IS NULL THEN '^' ELSE b.edc_stle_cde END AS edc_stle_cde
+     , CASE WHEN b.crse_cl_cde IS NULL THEN '^' ELSE b.crse_cl_cde || '_' || b.mnnst_cde END AS crse_cl_cde
+     , CASE WHEN b.crse_ty_cde IS NULL THEN '^' ELSE b.crse_ty_cde END AS crse_ty_cde
+     , CASE WHEN b.recomend_crse_at IS NULL THEN '^' ELSE b.recomend_crse_at END AS recomend_crse_at
+     , CASE WHEN b.essntl_crse_at IS NULL THEN '^' ELSE b.essntl_crse_at END AS essntl_crse_at
+     , CASE WHEN b.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE b.mobile_parlelsm_crse_at END AS mobile_parlelsm_crse_at
+     , CASE WHEN b.lctre_abl_at IS NULL THEN '^' ELSE b.lctre_abl_at END AS lctre_abl_at
+     , CASE WHEN b.crse_se_cde IS NULL THEN '^' ELSE b.crse_se_cde || '_' || b.mnnst_cde END AS crse_se_cde
+     , CASE WHEN b.cmmn_crse_at IS NULL THEN '^' ELSE b.cmmn_crse_at END AS cmmn_crse_at
+     , CASE WHEN b.choise_crse_at IS NULL THEN '^' ELSE b.choise_crse_at END AS choise_crse_at
+     , CASE WHEN b.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE b.partcpt_posbl_sexdstn_cde END AS partcpt_posbl_sexdstn_cde
+     , CASE WHEN b.edc_progrm_cde IS NULL THEN '^' ELSE CAST(b.edc_progrm_cde AS TEXT) END AS edc_progrm_cde
+     , CASE WHEN b.odr_dplct_perm_at IS NULL THEN '^' ELSE b.odr_dplct_perm_at END AS odr_dplct_perm_at
+     , CASE WHEN b.crse_group_se_cde IS NULL THEN '^' ELSE b.crse_group_se_cde END AS crse_group_se_cde
+     , CASE WHEN b.crqfc_se_cde IS NULL THEN '^' ELSE b.crqfc_se_cde END AS crqfc_se_cde
+     , CASE WHEN b.crqfc_group_cde IS NULL THEN '^' ELSE b.crqfc_group_cde END AS crqfc_group_cde
+     , CASE WHEN b.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(b.crqfc_mntnc_pd_cde AS TEXT) END AS crqfc_mntnc_pd_cde
+     , CASE WHEN b.lrn_progrs_mth_cde IS NULL THEN '^' ELSE b.lrn_progrs_mth_cde END AS lrn_progrs_mth_cde
+     , CASE WHEN b.edc_place_cde IS NULL THEN '^' ELSE b.edc_place_cde END AS edc_place_cde
+     , CASE WHEN b.edc_garden_cde IS NULL THEN '^' ELSE CAST(b.edc_garden_cde AS TEXT) END AS edc_garden_cde
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 1, 8) END AS edc_begin_de
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 1, 8) END AS edc_end_de
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 8, 4) END AS edc_begin_tmzon_cde
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 8, 4) END AS edc_end_tmzon_cde
+     , CASE WHEN b.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(b.compl_stdr_score_cde AS TEXT) END AS compl_stdr_score_cde
+     , CASE WHEN b.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(b.mendng_edc_score_cde AS TEXT) END AS mendng_edc_score_cde
+     , CASE WHEN b.compl_stdr_cde IS NULL THEN '^' ELSE b.compl_stdr_cde END AS compl_stdr_cde
+     , b.edc_instt_nm
+     , b.edc_place_nm
+     , b.edc_begin_de_hm
+     , b.edc_end_de_hm
+     , 1 AS instrctr_co
+  FROM (
+       SELECT ft.userid AS coach_instrctr_id, ft.gubun AS wnmpy_outcmpny_se_cde
+            , ft.tutor_type AS instrctr_ty_cde, fts.subj AS crse_cde
+         FROM fb_tutor ft
+              LEFT OUTER JOIN
+              fb_tutor_subj fts
+           ON ft.userid = fts.userid 
+       ) a
+         LEFT OUTER join
+       (
+       SELECT fss."YEAR" AS stdr_year
+             , fs.subj AS crse_cde
+             , fss.subjseq AS crse_odr
+             , fsgc.grcode AS mnnst_cde
+             , fs.subj_type AS edc_stle_cde
+             , fs.subjclass AS crse_cl_cde
+             , fs.content_type AS crse_ty_cde
+             , fs.isrecom AS recomend_crse_at
+             , fs.isrequi AS essntl_crse_at
+             , fs.mobile_yn AS mobile_parlelsm_crse_at
+             , fs.close_yn AS lctre_abl_at
+             , fs.subjgubun AS crse_se_cde
+             , fs.iscommon AS cmmn_crse_at
+             , fs.isselect AS choise_crse_at
+             , fs.gender AS partcpt_posbl_sexdstn_cde
+             , fs.subjprogram AS edc_progrm_cde
+             , fs.overlap_yn AS odr_dplct_perm_at
+             , fss.grgubun AS crse_group_se_cde
+             , fsgb.license_gubun AS crqfc_se_cde
+             , fsgb.license_group AS crqfc_group_cde
+             , fsgb.license_period AS crqfc_mntnc_pd_cde
+             , fss.edu_type AS lrn_progrs_mth_cde
+             , fss.subj_location AS edc_place_cde
+             , fss.edu_cnt AS edc_garden_cde
+             , fss.grade_total AS compl_stdr_score_cde
+             , fss.bosu_grade AS mendng_edc_score_cde
+             , fsq.code AS compl_stdr_cde
+             , fss.agencynm AS edc_instt_nm
+             , fss.subj_place AS edc_place_nm
+             , SUBSTR(fss.edu_start, 1, 12) AS edc_begin_de_hm
+             , SUBSTR(fss.edu_end, 1, 12) AS edc_end_de_hm
+             , fss.subj_tutor AS coach_instrctr_id
+             , 'M1' AS instrctr_se_cde
+          FROM fb_subj fs
+               LEFT OUTER JOIN
+               fb_subjseq fss
+            ON fs.subj = fss.subj
+               LEFT OUTER JOIN
+               fb_subj_grcode fsgc
+            ON fs.subj = fsgc.subj
+               LEFT OUTER JOIN
+               fb_subj_gubun fsgb
+            ON fs.subjgubun = fsgb.gubun
+               LEFT OUTER JOIN
+               fb_subjseq_qualification fsq
+            ON fss.subj = fsq.subj
+           AND fss.subjseq = fsq.subjseq
+         WHERE fss.subj_tutor IS NOT NULL
+       ) b
+     ON a.coach_instrctr_id = b.coach_instrctr_id
+    AND a.crse_cde = b.crse_cde
+ GROUP by CASE WHEN b.stdr_year IS NULL THEN '^' ELSE b.stdr_year END 
+     , CASE WHEN a.coach_instrctr_id IS NULL THEN '^' ELSE a.coach_instrctr_id END
+     , CASE WHEN b.instrctr_se_cde IS NULL THEN '^' ELSE b.instrctr_se_cde END
+     , CASE WHEN a.instrctr_ty_cde IS NULL THEN '^' ELSE a.instrctr_ty_cde END
+     , CASE WHEN a.wnmpy_outcmpny_se_cde IS NULL THEN '^' ELSE a.wnmpy_outcmpny_se_cde END
+     , CASE WHEN b.crse_cde IS NULL THEN '^' ELSE b.crse_cde END
+     , CASE WHEN b.crse_odr IS NULL THEN -1 ELSE CAST(b.crse_odr AS NUMERIC) END
+     , CASE WHEN b.mnnst_cde IS NULL THEN '^' ELSE b.mnnst_cde END
+     , CASE WHEN b.edc_stle_cde IS NULL THEN '^' ELSE b.edc_stle_cde END
+     , CASE WHEN b.crse_cl_cde IS NULL THEN '^' ELSE b.crse_cl_cde || '_' || b.mnnst_cde END
+     , CASE WHEN b.crse_ty_cde IS NULL THEN '^' ELSE b.crse_ty_cde END
+     , CASE WHEN b.recomend_crse_at IS NULL THEN '^' ELSE b.recomend_crse_at END
+     , CASE WHEN b.essntl_crse_at IS NULL THEN '^' ELSE b.essntl_crse_at END
+     , CASE WHEN b.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE b.mobile_parlelsm_crse_at END
+     , CASE WHEN b.lctre_abl_at IS NULL THEN '^' ELSE b.lctre_abl_at END
+     , CASE WHEN b.crse_se_cde IS NULL THEN '^' ELSE b.crse_se_cde || '_' || b.mnnst_cde END
+     , CASE WHEN b.cmmn_crse_at IS NULL THEN '^' ELSE b.cmmn_crse_at END
+     , CASE WHEN b.choise_crse_at IS NULL THEN '^' ELSE b.choise_crse_at END
+     , CASE WHEN b.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE b.partcpt_posbl_sexdstn_cde END
+     , CASE WHEN b.edc_progrm_cde IS NULL THEN '^' ELSE CAST(b.edc_progrm_cde AS text) END
+     , CASE WHEN b.odr_dplct_perm_at IS NULL THEN '^' ELSE b.odr_dplct_perm_at END
+     , CASE WHEN b.crse_group_se_cde IS NULL THEN '^' ELSE b.crse_group_se_cde END
+     , CASE WHEN b.crqfc_se_cde IS NULL THEN '^' ELSE b.crqfc_se_cde END
+     , CASE WHEN b.crqfc_group_cde IS NULL THEN '^' ELSE b.crqfc_group_cde END
+     , CASE WHEN b.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(b.crqfc_mntnc_pd_cde AS TEXT) END
+     , CASE WHEN b.lrn_progrs_mth_cde IS NULL THEN '^' ELSE b.lrn_progrs_mth_cde END
+     , CASE WHEN b.edc_place_cde IS NULL THEN '^' ELSE b.edc_place_cde END
+     , CASE WHEN b.edc_garden_cde IS NULL THEN '^' ELSE CAST(b.edc_garden_cde AS TEXT) END
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 1, 8) END
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 1, 8) END
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 8, 4) END
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 8, 4) END
+     , CASE WHEN b.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(b.compl_stdr_score_cde AS TEXT) END
+     , CASE WHEN b.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(b.mendng_edc_score_cde AS TEXT) END
+     , CASE WHEN b.compl_stdr_cde IS NULL THEN '^' ELSE b.compl_stdr_cde END
+     , b.edc_instt_nm
+     , b.edc_place_nm
+     , b.edc_begin_de_hm
+     , b.edc_end_de_hm
+UNION 
+SELECT CASE WHEN b.stdr_year IS NULL THEN '^' ELSE b.stdr_year END AS stdr_year
+     , CASE WHEN a.coach_instrctr_id IS NULL THEN '^' ELSE a.coach_instrctr_id END AS coach_instrctr_id
+     , CASE WHEN b.instrctr_se_cde IS NULL THEN '^' ELSE b.instrctr_se_cde END AS instrctr_se_cde
+     , CASE WHEN a.instrctr_ty_cde IS NULL THEN '^' ELSE a.instrctr_ty_cde END AS instrctr_ty_cde
+     , CASE WHEN a.wnmpy_outcmpny_se_cde IS NULL THEN '^' ELSE a.wnmpy_outcmpny_se_cde END AS wnmpy_outcmpny_se_cde
+     , CASE WHEN b.crse_cde IS NULL THEN '^' ELSE b.crse_cde END AS crse_cde
+     , CASE WHEN b.crse_odr IS NULL THEN -1 ELSE CAST(b.crse_odr AS NUMERIC) END AS crse_odr
+     , CASE WHEN b.mnnst_cde IS NULL THEN '^' ELSE b.mnnst_cde END AS mnnst_cde
+     , CASE WHEN b.edc_stle_cde IS NULL THEN '^' ELSE b.edc_stle_cde END AS edc_stle_cde
+     , CASE WHEN b.crse_cl_cde IS NULL THEN '^' ELSE b.crse_cl_cde || '_' || b.mnnst_cde END AS crse_cl_cde
+     , CASE WHEN b.crse_ty_cde IS NULL THEN '^' ELSE b.crse_ty_cde END AS crse_ty_cde
+     , CASE WHEN b.recomend_crse_at IS NULL THEN '^' ELSE b.recomend_crse_at END AS recomend_crse_at
+     , CASE WHEN b.essntl_crse_at IS NULL THEN '^' ELSE b.essntl_crse_at END AS essntl_crse_at
+     , CASE WHEN b.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE b.mobile_parlelsm_crse_at END AS mobile_parlelsm_crse_at
+     , CASE WHEN b.lctre_abl_at IS NULL THEN '^' ELSE b.lctre_abl_at END AS lctre_abl_at
+     , CASE WHEN b.crse_se_cde IS NULL THEN '^' ELSE b.crse_se_cde || '_' || b.mnnst_cde END AS crse_se_cde
+     , CASE WHEN b.cmmn_crse_at IS NULL THEN '^' ELSE b.cmmn_crse_at END AS cmmn_crse_at
+     , CASE WHEN b.choise_crse_at IS NULL THEN '^' ELSE b.choise_crse_at END AS choise_crse_at
+     , CASE WHEN b.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE b.partcpt_posbl_sexdstn_cde END AS partcpt_posbl_sexdstn_cde
+     , CASE WHEN b.edc_progrm_cde IS NULL THEN '^' ELSE CAST(b.edc_progrm_cde AS TEXT) END AS edc_progrm_cde
+     , CASE WHEN b.odr_dplct_perm_at IS NULL THEN '^' ELSE b.odr_dplct_perm_at END AS odr_dplct_perm_at
+     , CASE WHEN b.crse_group_se_cde IS NULL THEN '^' ELSE b.crse_group_se_cde END AS crse_group_se_cde
+     , CASE WHEN b.crqfc_se_cde IS NULL THEN '^' ELSE b.crqfc_se_cde END AS crqfc_se_cde
+     , CASE WHEN b.crqfc_group_cde IS NULL THEN '^' ELSE b.crqfc_group_cde END AS crqfc_group_cde
+     , CASE WHEN b.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(b.crqfc_mntnc_pd_cde AS TEXT) END AS crqfc_mntnc_pd_cde
+     , CASE WHEN b.lrn_progrs_mth_cde IS NULL THEN '^' ELSE b.lrn_progrs_mth_cde END AS lrn_progrs_mth_cde
+     , CASE WHEN b.edc_place_cde IS NULL THEN '^' ELSE b.edc_place_cde END AS edc_place_cde
+     , CASE WHEN b.edc_garden_cde IS NULL THEN '^' ELSE CAST(b.edc_garden_cde AS TEXT) END AS edc_garden_cde
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 1, 8) END AS edc_begin_de
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 1, 8) END AS edc_end_de
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 8, 4) END AS edc_begin_tmzon_cde
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 8, 4) END AS edc_end_tmzon_cde
+     , CASE WHEN b.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(b.compl_stdr_score_cde AS TEXT) END AS compl_stdr_score_cde
+     , CASE WHEN b.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(b.mendng_edc_score_cde AS TEXT) END AS mendng_edc_score_cde
+     , CASE WHEN b.compl_stdr_cde IS NULL THEN '^' ELSE b.compl_stdr_cde END AS compl_stdr_cde
+     , b.edc_instt_nm
+     , b.edc_place_nm
+     , b.edc_begin_de_hm
+     , b.edc_end_de_hm
+     , 1 AS instrctr_co
+  FROM (
+       SELECT ft.userid AS coach_instrctr_id, ft.gubun AS wnmpy_outcmpny_se_cde
+            , ft.tutor_type AS instrctr_ty_cde, fts.subj AS crse_cde
+         FROM fb_tutor ft
+              LEFT OUTER JOIN
+              fb_tutor_subj fts
+           ON ft.userid = fts.userid 
+       ) a
+         LEFT OUTER join
+       (
+       SELECT fss."YEAR" AS stdr_year
+             , fs.subj AS crse_cde
+             , fss.subjseq AS crse_odr
+             , fsgc.grcode AS mnnst_cde
+             , fs.subj_type AS edc_stle_cde
+             , fs.subjclass AS crse_cl_cde
+             , fs.content_type AS crse_ty_cde
+             , fs.isrecom AS recomend_crse_at
+             , fs.isrequi AS essntl_crse_at
+             , fs.mobile_yn AS mobile_parlelsm_crse_at
+             , fs.close_yn AS lctre_abl_at
+             , fs.subjgubun AS crse_se_cde
+             , fs.iscommon AS cmmn_crse_at
+             , fs.isselect AS choise_crse_at
+             , fs.gender AS partcpt_posbl_sexdstn_cde
+             , fs.subjprogram AS edc_progrm_cde
+             , fs.overlap_yn AS odr_dplct_perm_at
+             , fss.grgubun AS crse_group_se_cde
+             , fsgb.license_gubun AS crqfc_se_cde
+             , fsgb.license_group AS crqfc_group_cde
+             , fsgb.license_period AS crqfc_mntnc_pd_cde
+             , fss.edu_type AS lrn_progrs_mth_cde
+             , fss.subj_location AS edc_place_cde
+             , fss.edu_cnt AS edc_garden_cde
+             , fss.grade_total AS compl_stdr_score_cde
+             , fss.bosu_grade AS mendng_edc_score_cde
+             , fsq.code AS compl_stdr_cde
+             , fss.agencynm AS edc_instt_nm
+             , fss.subj_place AS edc_place_nm
+             , SUBSTR(fss.edu_start, 1, 12) AS edc_begin_de_hm
+             , SUBSTR(fss.edu_end, 1, 12) AS edc_end_de_hm
+             , fss.subj_tutor AS coach_instrctr_id
+             , 'M2' AS instrctr_se_cde
+          FROM fb_subj fs
+               LEFT OUTER JOIN
+               fb_subjseq fss
+            ON fs.subj = fss.subj
+               LEFT OUTER JOIN
+               fb_subj_grcode fsgc
+            ON fs.subj = fsgc.subj
+               LEFT OUTER JOIN
+               fb_subj_gubun fsgb
+            ON fs.subjgubun = fsgb.gubun
+               LEFT OUTER JOIN
+               fb_subjseq_qualification fsq
+            ON fss.subj = fsq.subj
+           AND fss.subjseq = fsq.subjseq
+         WHERE fss.subj_tutor2 IS NOT NULL
+       ) b
+     ON a.coach_instrctr_id = b.coach_instrctr_id
+    AND a.crse_cde = b.crse_cde
+ GROUP by CASE WHEN b.stdr_year IS NULL THEN '^' ELSE b.stdr_year END 
+     , CASE WHEN a.coach_instrctr_id IS NULL THEN '^' ELSE a.coach_instrctr_id END
+     , CASE WHEN b.instrctr_se_cde IS NULL THEN '^' ELSE b.instrctr_se_cde END
+     , CASE WHEN a.instrctr_ty_cde IS NULL THEN '^' ELSE a.instrctr_ty_cde END
+     , CASE WHEN a.wnmpy_outcmpny_se_cde IS NULL THEN '^' ELSE a.wnmpy_outcmpny_se_cde END
+     , CASE WHEN b.crse_cde IS NULL THEN '^' ELSE b.crse_cde END
+     , CASE WHEN b.crse_odr IS NULL THEN -1 ELSE CAST(b.crse_odr AS NUMERIC) END
+     , CASE WHEN b.mnnst_cde IS NULL THEN '^' ELSE b.mnnst_cde END
+     , CASE WHEN b.edc_stle_cde IS NULL THEN '^' ELSE b.edc_stle_cde END
+     , CASE WHEN b.crse_cl_cde IS NULL THEN '^' ELSE b.crse_cl_cde || '_' || b.mnnst_cde END
+     , CASE WHEN b.crse_ty_cde IS NULL THEN '^' ELSE b.crse_ty_cde END
+     , CASE WHEN b.recomend_crse_at IS NULL THEN '^' ELSE b.recomend_crse_at END
+     , CASE WHEN b.essntl_crse_at IS NULL THEN '^' ELSE b.essntl_crse_at END
+     , CASE WHEN b.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE b.mobile_parlelsm_crse_at END
+     , CASE WHEN b.lctre_abl_at IS NULL THEN '^' ELSE b.lctre_abl_at END
+     , CASE WHEN b.crse_se_cde IS NULL THEN '^' ELSE b.crse_se_cde || '_' || b.mnnst_cde END
+     , CASE WHEN b.cmmn_crse_at IS NULL THEN '^' ELSE b.cmmn_crse_at END
+     , CASE WHEN b.choise_crse_at IS NULL THEN '^' ELSE b.choise_crse_at END
+     , CASE WHEN b.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE b.partcpt_posbl_sexdstn_cde END
+     , CASE WHEN b.edc_progrm_cde IS NULL THEN '^' ELSE CAST(b.edc_progrm_cde AS text) END
+     , CASE WHEN b.odr_dplct_perm_at IS NULL THEN '^' ELSE b.odr_dplct_perm_at END
+     , CASE WHEN b.crse_group_se_cde IS NULL THEN '^' ELSE b.crse_group_se_cde END
+     , CASE WHEN b.crqfc_se_cde IS NULL THEN '^' ELSE b.crqfc_se_cde END
+     , CASE WHEN b.crqfc_group_cde IS NULL THEN '^' ELSE b.crqfc_group_cde END
+     , CASE WHEN b.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(b.crqfc_mntnc_pd_cde AS TEXT) END
+     , CASE WHEN b.lrn_progrs_mth_cde IS NULL THEN '^' ELSE b.lrn_progrs_mth_cde END
+     , CASE WHEN b.edc_place_cde IS NULL THEN '^' ELSE b.edc_place_cde END
+     , CASE WHEN b.edc_garden_cde IS NULL THEN '^' ELSE CAST(b.edc_garden_cde AS TEXT) END
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 1, 8) END
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 1, 8) END
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 8, 4) END
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 8, 4) END
+     , CASE WHEN b.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(b.compl_stdr_score_cde AS TEXT) END
+     , CASE WHEN b.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(b.mendng_edc_score_cde AS TEXT) END
+     , CASE WHEN b.compl_stdr_cde IS NULL THEN '^' ELSE b.compl_stdr_cde END
+     , b.edc_instt_nm
+     , b.edc_place_nm
+     , b.edc_begin_de_hm
+     , b.edc_end_de_hm
+union
+SELECT CASE WHEN b.stdr_year IS NULL THEN '^' ELSE b.stdr_year END AS stdr_year
+     , CASE WHEN a.coach_instrctr_id IS NULL THEN '^' ELSE a.coach_instrctr_id END AS coach_instrctr_id
+     , CASE WHEN b.instrctr_se_cde IS NULL THEN '^' ELSE b.instrctr_se_cde END AS instrctr_se_cde
+     , CASE WHEN a.instrctr_ty_cde IS NULL THEN '^' ELSE a.instrctr_ty_cde END AS instrctr_ty_cde
+     , CASE WHEN a.wnmpy_outcmpny_se_cde IS NULL THEN '^' ELSE a.wnmpy_outcmpny_se_cde END AS wnmpy_outcmpny_se_cde
+     , CASE WHEN b.crse_cde IS NULL THEN '^' ELSE b.crse_cde END AS crse_cde
+     , CASE WHEN b.crse_odr IS NULL THEN -1 ELSE CAST(b.crse_odr AS NUMERIC) END AS crse_odr
+     , CASE WHEN b.mnnst_cde IS NULL THEN '^' ELSE b.mnnst_cde END AS mnnst_cde
+     , CASE WHEN b.edc_stle_cde IS NULL THEN '^' ELSE b.edc_stle_cde END AS edc_stle_cde
+     , CASE WHEN b.crse_cl_cde IS NULL THEN '^' ELSE b.crse_cl_cde || '_' || b.mnnst_cde END AS crse_cl_cde
+     , CASE WHEN b.crse_ty_cde IS NULL THEN '^' ELSE b.crse_ty_cde END AS crse_ty_cde
+     , CASE WHEN b.recomend_crse_at IS NULL THEN '^' ELSE b.recomend_crse_at END AS recomend_crse_at
+     , CASE WHEN b.essntl_crse_at IS NULL THEN '^' ELSE b.essntl_crse_at END AS essntl_crse_at
+     , CASE WHEN b.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE b.mobile_parlelsm_crse_at END AS mobile_parlelsm_crse_at
+     , CASE WHEN b.lctre_abl_at IS NULL THEN '^' ELSE b.lctre_abl_at END AS lctre_abl_at
+     , CASE WHEN b.crse_se_cde IS NULL THEN '^' ELSE b.crse_se_cde || '_' || b.mnnst_cde END AS crse_se_cde
+     , CASE WHEN b.cmmn_crse_at IS NULL THEN '^' ELSE b.cmmn_crse_at END AS cmmn_crse_at
+     , CASE WHEN b.choise_crse_at IS NULL THEN '^' ELSE b.choise_crse_at END AS choise_crse_at
+     , CASE WHEN b.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE b.partcpt_posbl_sexdstn_cde END AS partcpt_posbl_sexdstn_cde
+     , CASE WHEN b.edc_progrm_cde IS NULL THEN '^' ELSE CAST(b.edc_progrm_cde AS TEXT) END AS edc_progrm_cde
+     , CASE WHEN b.odr_dplct_perm_at IS NULL THEN '^' ELSE b.odr_dplct_perm_at END AS odr_dplct_perm_at
+     , CASE WHEN b.crse_group_se_cde IS NULL THEN '^' ELSE b.crse_group_se_cde END AS crse_group_se_cde
+     , CASE WHEN b.crqfc_se_cde IS NULL THEN '^' ELSE b.crqfc_se_cde END AS crqfc_se_cde
+     , CASE WHEN b.crqfc_group_cde IS NULL THEN '^' ELSE b.crqfc_group_cde END AS crqfc_group_cde
+     , CASE WHEN b.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(b.crqfc_mntnc_pd_cde AS TEXT) END AS crqfc_mntnc_pd_cde
+     , CASE WHEN b.lrn_progrs_mth_cde IS NULL THEN '^' ELSE b.lrn_progrs_mth_cde END AS lrn_progrs_mth_cde
+     , CASE WHEN b.edc_place_cde IS NULL THEN '^' ELSE b.edc_place_cde END AS edc_place_cde
+     , CASE WHEN b.edc_garden_cde IS NULL THEN '^' ELSE CAST(b.edc_garden_cde AS TEXT) END AS edc_garden_cde
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 1, 8) END AS edc_begin_de
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 1, 8) END AS edc_end_de
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 8, 4) END AS edc_begin_tmzon_cde
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 8, 4) END AS edc_end_tmzon_cde
+     , CASE WHEN b.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(b.compl_stdr_score_cde AS TEXT) END AS compl_stdr_score_cde
+     , CASE WHEN b.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(b.mendng_edc_score_cde AS TEXT) END AS mendng_edc_score_cde
+     , CASE WHEN b.compl_stdr_cde IS NULL THEN '^' ELSE b.compl_stdr_cde END AS compl_stdr_cde
+     , b.edc_instt_nm
+     , b.edc_place_nm
+     , b.edc_begin_de_hm
+     , b.edc_end_de_hm
+     , 1 AS instrctr_co
+  FROM (
+       SELECT ft.userid AS coach_instrctr_id, ft.gubun AS wnmpy_outcmpny_se_cde
+            , ft.tutor_type AS instrctr_ty_cde, fts.subj AS crse_cde
+         FROM fb_tutor ft
+              LEFT OUTER JOIN
+              fb_tutor_subj fts
+           ON ft.userid = fts.userid 
+       ) a
+         LEFT OUTER join
+       (
+       SELECT fss."YEAR" AS stdr_year
+             , fs.subj AS crse_cde
+             , fss.subjseq AS crse_odr
+             , fsgc.grcode AS mnnst_cde
+             , fs.subj_type AS edc_stle_cde
+             , fs.subjclass AS crse_cl_cde
+             , fs.content_type AS crse_ty_cde
+             , fs.isrecom AS recomend_crse_at
+             , fs.isrequi AS essntl_crse_at
+             , fs.mobile_yn AS mobile_parlelsm_crse_at
+             , fs.close_yn AS lctre_abl_at
+             , fs.subjgubun AS crse_se_cde
+             , fs.iscommon AS cmmn_crse_at
+             , fs.isselect AS choise_crse_at
+             , fs.gender AS partcpt_posbl_sexdstn_cde
+             , fs.subjprogram AS edc_progrm_cde
+             , fs.overlap_yn AS odr_dplct_perm_at
+             , fss.grgubun AS crse_group_se_cde
+             , fsgb.license_gubun AS crqfc_se_cde
+             , fsgb.license_group AS crqfc_group_cde
+             , fsgb.license_period AS crqfc_mntnc_pd_cde
+             , fss.edu_type AS lrn_progrs_mth_cde
+             , fss.subj_location AS edc_place_cde
+             , fss.edu_cnt AS edc_garden_cde
+             , fss.grade_total AS compl_stdr_score_cde
+             , fss.bosu_grade AS mendng_edc_score_cde
+             , fsq.code AS compl_stdr_cde
+             , fss.agencynm AS edc_instt_nm
+             , fss.subj_place AS edc_place_nm
+             , SUBSTR(fss.edu_start, 1, 12) AS edc_begin_de_hm
+             , SUBSTR(fss.edu_end, 1, 12) AS edc_end_de_hm
+             , fss.subj_tutor AS coach_instrctr_id
+             , 'A1' AS instrctr_se_cde
+          FROM fb_subj fs
+               LEFT OUTER JOIN
+               fb_subjseq fss
+            ON fs.subj = fss.subj
+               LEFT OUTER JOIN
+               fb_subj_grcode fsgc
+            ON fs.subj = fsgc.subj
+               LEFT OUTER JOIN
+               fb_subj_gubun fsgb
+            ON fs.subjgubun = fsgb.gubun
+               LEFT OUTER JOIN
+               fb_subjseq_qualification fsq
+            ON fss.subj = fsq.subj
+           AND fss.subjseq = fsq.subjseq
+         WHERE fss.subj_tutor_sub IS NOT NULL
+       ) b
+     ON a.coach_instrctr_id = b.coach_instrctr_id
+    AND a.crse_cde = b.crse_cde
+ GROUP by CASE WHEN b.stdr_year IS NULL THEN '^' ELSE b.stdr_year END 
+     , CASE WHEN a.coach_instrctr_id IS NULL THEN '^' ELSE a.coach_instrctr_id END
+     , CASE WHEN b.instrctr_se_cde IS NULL THEN '^' ELSE b.instrctr_se_cde END
+     , CASE WHEN a.instrctr_ty_cde IS NULL THEN '^' ELSE a.instrctr_ty_cde END
+     , CASE WHEN a.wnmpy_outcmpny_se_cde IS NULL THEN '^' ELSE a.wnmpy_outcmpny_se_cde END
+     , CASE WHEN b.crse_cde IS NULL THEN '^' ELSE b.crse_cde END
+     , CASE WHEN b.crse_odr IS NULL THEN -1 ELSE CAST(b.crse_odr AS NUMERIC) END
+     , CASE WHEN b.mnnst_cde IS NULL THEN '^' ELSE b.mnnst_cde END
+     , CASE WHEN b.edc_stle_cde IS NULL THEN '^' ELSE b.edc_stle_cde END
+     , CASE WHEN b.crse_cl_cde IS NULL THEN '^' ELSE b.crse_cl_cde || '_' || b.mnnst_cde END
+     , CASE WHEN b.crse_ty_cde IS NULL THEN '^' ELSE b.crse_ty_cde END
+     , CASE WHEN b.recomend_crse_at IS NULL THEN '^' ELSE b.recomend_crse_at END
+     , CASE WHEN b.essntl_crse_at IS NULL THEN '^' ELSE b.essntl_crse_at END
+     , CASE WHEN b.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE b.mobile_parlelsm_crse_at END
+     , CASE WHEN b.lctre_abl_at IS NULL THEN '^' ELSE b.lctre_abl_at END
+     , CASE WHEN b.crse_se_cde IS NULL THEN '^' ELSE b.crse_se_cde || '_' || b.mnnst_cde END
+     , CASE WHEN b.cmmn_crse_at IS NULL THEN '^' ELSE b.cmmn_crse_at END
+     , CASE WHEN b.choise_crse_at IS NULL THEN '^' ELSE b.choise_crse_at END
+     , CASE WHEN b.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE b.partcpt_posbl_sexdstn_cde END
+     , CASE WHEN b.edc_progrm_cde IS NULL THEN '^' ELSE CAST(b.edc_progrm_cde AS text) END
+     , CASE WHEN b.odr_dplct_perm_at IS NULL THEN '^' ELSE b.odr_dplct_perm_at END
+     , CASE WHEN b.crse_group_se_cde IS NULL THEN '^' ELSE b.crse_group_se_cde END
+     , CASE WHEN b.crqfc_se_cde IS NULL THEN '^' ELSE b.crqfc_se_cde END
+     , CASE WHEN b.crqfc_group_cde IS NULL THEN '^' ELSE b.crqfc_group_cde END
+     , CASE WHEN b.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(b.crqfc_mntnc_pd_cde AS TEXT) END
+     , CASE WHEN b.lrn_progrs_mth_cde IS NULL THEN '^' ELSE b.lrn_progrs_mth_cde END
+     , CASE WHEN b.edc_place_cde IS NULL THEN '^' ELSE b.edc_place_cde END
+     , CASE WHEN b.edc_garden_cde IS NULL THEN '^' ELSE CAST(b.edc_garden_cde AS TEXT) END
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 1, 8) END
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 1, 8) END
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 8, 4) END
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 8, 4) END
+     , CASE WHEN b.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(b.compl_stdr_score_cde AS TEXT) END
+     , CASE WHEN b.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(b.mendng_edc_score_cde AS TEXT) END
+     , CASE WHEN b.compl_stdr_cde IS NULL THEN '^' ELSE b.compl_stdr_cde END
+     , b.edc_instt_nm
+     , b.edc_place_nm
+     , b.edc_begin_de_hm
+     , b.edc_end_de_hm
+UNION
+SELECT CASE WHEN b.stdr_year IS NULL THEN '^' ELSE b.stdr_year END AS stdr_year
+     , CASE WHEN a.coach_instrctr_id IS NULL THEN '^' ELSE a.coach_instrctr_id END AS coach_instrctr_id
+     , CASE WHEN b.instrctr_se_cde IS NULL THEN '^' ELSE b.instrctr_se_cde END AS instrctr_se_cde
+     , CASE WHEN a.instrctr_ty_cde IS NULL THEN '^' ELSE a.instrctr_ty_cde END AS instrctr_ty_cde
+     , CASE WHEN a.wnmpy_outcmpny_se_cde IS NULL THEN '^' ELSE a.wnmpy_outcmpny_se_cde END AS wnmpy_outcmpny_se_cde
+     , CASE WHEN b.crse_cde IS NULL THEN '^' ELSE b.crse_cde END AS crse_cde
+     , CASE WHEN b.crse_odr IS NULL THEN -1 ELSE CAST(b.crse_odr AS NUMERIC) END AS crse_odr
+     , CASE WHEN b.mnnst_cde IS NULL THEN '^' ELSE b.mnnst_cde END AS mnnst_cde
+     , CASE WHEN b.edc_stle_cde IS NULL THEN '^' ELSE b.edc_stle_cde END AS edc_stle_cde
+     , CASE WHEN b.crse_cl_cde IS NULL THEN '^' ELSE b.crse_cl_cde || '_' || b.mnnst_cde END AS crse_cl_cde
+     , CASE WHEN b.crse_ty_cde IS NULL THEN '^' ELSE b.crse_ty_cde END AS crse_ty_cde
+     , CASE WHEN b.recomend_crse_at IS NULL THEN '^' ELSE b.recomend_crse_at END AS recomend_crse_at
+     , CASE WHEN b.essntl_crse_at IS NULL THEN '^' ELSE b.essntl_crse_at END AS essntl_crse_at
+     , CASE WHEN b.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE b.mobile_parlelsm_crse_at END AS mobile_parlelsm_crse_at
+     , CASE WHEN b.lctre_abl_at IS NULL THEN '^' ELSE b.lctre_abl_at END AS lctre_abl_at
+     , CASE WHEN b.crse_se_cde IS NULL THEN '^' ELSE b.crse_se_cde || '_' || b.mnnst_cde END AS crse_se_cde
+     , CASE WHEN b.cmmn_crse_at IS NULL THEN '^' ELSE b.cmmn_crse_at END AS cmmn_crse_at
+     , CASE WHEN b.choise_crse_at IS NULL THEN '^' ELSE b.choise_crse_at END AS choise_crse_at
+     , CASE WHEN b.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE b.partcpt_posbl_sexdstn_cde END AS partcpt_posbl_sexdstn_cde
+     , CASE WHEN b.edc_progrm_cde IS NULL THEN '^' ELSE CAST(b.edc_progrm_cde AS TEXT) END AS edc_progrm_cde
+     , CASE WHEN b.odr_dplct_perm_at IS NULL THEN '^' ELSE b.odr_dplct_perm_at END AS odr_dplct_perm_at
+     , CASE WHEN b.crse_group_se_cde IS NULL THEN '^' ELSE b.crse_group_se_cde END AS crse_group_se_cde
+     , CASE WHEN b.crqfc_se_cde IS NULL THEN '^' ELSE b.crqfc_se_cde END AS crqfc_se_cde
+     , CASE WHEN b.crqfc_group_cde IS NULL THEN '^' ELSE b.crqfc_group_cde END AS crqfc_group_cde
+     , CASE WHEN b.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(b.crqfc_mntnc_pd_cde AS TEXT) END AS crqfc_mntnc_pd_cde
+     , CASE WHEN b.lrn_progrs_mth_cde IS NULL THEN '^' ELSE b.lrn_progrs_mth_cde END AS lrn_progrs_mth_cde
+     , CASE WHEN b.edc_place_cde IS NULL THEN '^' ELSE b.edc_place_cde END AS edc_place_cde
+     , CASE WHEN b.edc_garden_cde IS NULL THEN '^' ELSE CAST(b.edc_garden_cde AS TEXT) END AS edc_garden_cde
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 1, 8) END AS edc_begin_de
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 1, 8) END AS edc_end_de
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 8, 4) END AS edc_begin_tmzon_cde
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 8, 4) END AS edc_end_tmzon_cde
+     , CASE WHEN b.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(b.compl_stdr_score_cde AS TEXT) END AS compl_stdr_score_cde
+     , CASE WHEN b.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(b.mendng_edc_score_cde AS TEXT) END AS mendng_edc_score_cde
+     , CASE WHEN b.compl_stdr_cde IS NULL THEN '^' ELSE b.compl_stdr_cde END AS compl_stdr_cde
+     , b.edc_instt_nm
+     , b.edc_place_nm
+     , b.edc_begin_de_hm
+     , b.edc_end_de_hm
+     , 1 AS instrctr_co
+  FROM (
+       SELECT ft.userid AS coach_instrctr_id, ft.gubun AS wnmpy_outcmpny_se_cde
+            , ft.tutor_type AS instrctr_ty_cde, fts.subj AS crse_cde
+         FROM fb_tutor ft
+              LEFT OUTER JOIN
+              fb_tutor_subj fts
+           ON ft.userid = fts.userid 
+       ) a
+         LEFT OUTER join
+       (
+       SELECT fss."YEAR" AS stdr_year
+             , fs.subj AS crse_cde
+             , fss.subjseq AS crse_odr
+             , fsgc.grcode AS mnnst_cde
+             , fs.subj_type AS edc_stle_cde
+             , fs.subjclass AS crse_cl_cde
+             , fs.content_type AS crse_ty_cde
+             , fs.isrecom AS recomend_crse_at
+             , fs.isrequi AS essntl_crse_at
+             , fs.mobile_yn AS mobile_parlelsm_crse_at
+             , fs.close_yn AS lctre_abl_at
+             , fs.subjgubun AS crse_se_cde
+             , fs.iscommon AS cmmn_crse_at
+             , fs.isselect AS choise_crse_at
+             , fs.gender AS partcpt_posbl_sexdstn_cde
+             , fs.subjprogram AS edc_progrm_cde
+             , fs.overlap_yn AS odr_dplct_perm_at
+             , fss.grgubun AS crse_group_se_cde
+             , fsgb.license_gubun AS crqfc_se_cde
+             , fsgb.license_group AS crqfc_group_cde
+             , fsgb.license_period AS crqfc_mntnc_pd_cde
+             , fss.edu_type AS lrn_progrs_mth_cde
+             , fss.subj_location AS edc_place_cde
+             , fss.edu_cnt AS edc_garden_cde
+             , fss.grade_total AS compl_stdr_score_cde
+             , fss.bosu_grade AS mendng_edc_score_cde
+             , fsq.code AS compl_stdr_cde
+             , fss.agencynm AS edc_instt_nm
+             , fss.subj_place AS edc_place_nm
+             , SUBSTR(fss.edu_start, 1, 12) AS edc_begin_de_hm
+             , SUBSTR(fss.edu_end, 1, 12) AS edc_end_de_hm
+             , fss.subj_tutor AS coach_instrctr_id
+             , 'A2' AS instrctr_se_cde
+          FROM fb_subj fs
+               LEFT OUTER JOIN
+               fb_subjseq fss
+            ON fs.subj = fss.subj
+               LEFT OUTER JOIN
+               fb_subj_grcode fsgc
+            ON fs.subj = fsgc.subj
+               LEFT OUTER JOIN
+               fb_subj_gubun fsgb
+            ON fs.subjgubun = fsgb.gubun
+               LEFT OUTER JOIN
+               fb_subjseq_qualification fsq
+            ON fss.subj = fsq.subj
+           AND fss.subjseq = fsq.subjseq
+         WHERE fss.subj_tutor_sub2 IS NOT NULL
+       ) b
+     ON a.coach_instrctr_id = b.coach_instrctr_id
+    AND a.crse_cde = b.crse_cde
+ GROUP by CASE WHEN b.stdr_year IS NULL THEN '^' ELSE b.stdr_year END 
+     , CASE WHEN a.coach_instrctr_id IS NULL THEN '^' ELSE a.coach_instrctr_id END
+     , CASE WHEN b.instrctr_se_cde IS NULL THEN '^' ELSE b.instrctr_se_cde END
+     , CASE WHEN a.instrctr_ty_cde IS NULL THEN '^' ELSE a.instrctr_ty_cde END
+     , CASE WHEN a.wnmpy_outcmpny_se_cde IS NULL THEN '^' ELSE a.wnmpy_outcmpny_se_cde END
+     , CASE WHEN b.crse_cde IS NULL THEN '^' ELSE b.crse_cde END
+     , CASE WHEN b.crse_odr IS NULL THEN -1 ELSE CAST(b.crse_odr AS NUMERIC) END
+     , CASE WHEN b.mnnst_cde IS NULL THEN '^' ELSE b.mnnst_cde END
+     , CASE WHEN b.edc_stle_cde IS NULL THEN '^' ELSE b.edc_stle_cde END
+     , CASE WHEN b.crse_cl_cde IS NULL THEN '^' ELSE b.crse_cl_cde || '_' || b.mnnst_cde END
+     , CASE WHEN b.crse_ty_cde IS NULL THEN '^' ELSE b.crse_ty_cde END
+     , CASE WHEN b.recomend_crse_at IS NULL THEN '^' ELSE b.recomend_crse_at END
+     , CASE WHEN b.essntl_crse_at IS NULL THEN '^' ELSE b.essntl_crse_at END
+     , CASE WHEN b.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE b.mobile_parlelsm_crse_at END
+     , CASE WHEN b.lctre_abl_at IS NULL THEN '^' ELSE b.lctre_abl_at END
+     , CASE WHEN b.crse_se_cde IS NULL THEN '^' ELSE b.crse_se_cde || '_' || b.mnnst_cde END
+     , CASE WHEN b.cmmn_crse_at IS NULL THEN '^' ELSE b.cmmn_crse_at END
+     , CASE WHEN b.choise_crse_at IS NULL THEN '^' ELSE b.choise_crse_at END
+     , CASE WHEN b.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE b.partcpt_posbl_sexdstn_cde END
+     , CASE WHEN b.edc_progrm_cde IS NULL THEN '^' ELSE CAST(b.edc_progrm_cde AS text) END
+     , CASE WHEN b.odr_dplct_perm_at IS NULL THEN '^' ELSE b.odr_dplct_perm_at END
+     , CASE WHEN b.crse_group_se_cde IS NULL THEN '^' ELSE b.crse_group_se_cde END
+     , CASE WHEN b.crqfc_se_cde IS NULL THEN '^' ELSE b.crqfc_se_cde END
+     , CASE WHEN b.crqfc_group_cde IS NULL THEN '^' ELSE b.crqfc_group_cde END
+     , CASE WHEN b.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(b.crqfc_mntnc_pd_cde AS TEXT) END
+     , CASE WHEN b.lrn_progrs_mth_cde IS NULL THEN '^' ELSE b.lrn_progrs_mth_cde END
+     , CASE WHEN b.edc_place_cde IS NULL THEN '^' ELSE b.edc_place_cde END
+     , CASE WHEN b.edc_garden_cde IS NULL THEN '^' ELSE CAST(b.edc_garden_cde AS TEXT) END
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 1, 8) END
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 1, 8) END
+     , CASE WHEN b.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_begin_de_hm, 8, 4) END
+     , CASE WHEN b.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(b.edc_end_de_hm, 8, 4) END
+     , CASE WHEN b.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(b.compl_stdr_score_cde AS TEXT) END
+     , CASE WHEN b.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(b.mendng_edc_score_cde AS TEXT) END
+     , CASE WHEN b.compl_stdr_cde IS NULL THEN '^' ELSE b.compl_stdr_cde END
+     , b.edc_instt_nm
+     , b.edc_place_nm
+     , b.edc_begin_de_hm
+     , b.edc_end_de_hm
+;

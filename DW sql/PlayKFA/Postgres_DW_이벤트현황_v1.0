@@ -1,0 +1,33 @@
+SELECT CASE WHEN tei.open_date IS NULL THEN '^' ELSE TO_CHAR(tei.open_date, 'YYYY') END AS stdr_year
+     , CASE WHEN teia.user_seq IS NULL THEN -1 ELSE teia.user_seq END AS mber_no
+     , CASE WHEN tei.seq_no IS NULL THEN -1 ELSE tei.seq_no END AS event_no
+     , CASE WHEN teia.del_check != 1 THEN 'N' ELSE 'Y' END AS partcptn_cancl_at
+     , CASE WHEN tei.start_date IS NULL THEN '^' ELSE TO_CHAR(tei.start_date, 'YYYYMMDD') END AS event_begin_de
+     , CASE WHEN tei.start_date IS NULL THEN '^' ELSE TO_CHAR(tei.start_date, 'HH24MI') END AS event_begin_tmzon_cde
+     , CASE WHEN tei.end_date IS NULL THEN '^' ELSE TO_CHAR(tei.end_date, 'YYYYMMDD') END AS event_end_de
+     , CASE WHEN tei.end_date IS NULL THEN '^' ELSE TO_CHAR(tei.end_date, 'HH24MI') END AS event_end_tmzon_cde
+     , CASE WHEN tei.vote_option IS NULL THEN '^' ELSE CAST(tei.vote_option AS TEXT) END AS vote_optn_cde
+     , CASE WHEN tei.event_price_check != 1 THEN 'N' ELSE 'Y' END AS event_pay_at
+     , CASE WHEN tei.event_type IS NULL THEN '^' ELSE CAST(tei.event_type AS TEXT) END AS event_ty_cde
+     , CASE WHEN tei.open_date IS NULL THEN '^' ELSE TO_CHAR(tei.open_date, 'YYYYMMDD') END AS event_othbc_de
+     , CASE WHEN tei.event_price IS NULL THEN 0 ELSE tei.event_price END AS event_pay_amount
+     , CASE WHEN teia.del_check != 1 IS NULL THEN 1 ELSE 0 END AS partcptn_co
+  FROM tbl_event_info tei
+       LEFT OUTER JOIN
+       tbl_event_info_attend teia
+    ON tei.seq_no = teia.content_seq
+ GROUP BY CASE WHEN tei.open_date IS NULL THEN '^' ELSE TO_CHAR(tei.open_date, 'YYYY') END
+     , CASE WHEN teia.user_seq IS NULL THEN -1 ELSE teia.user_seq END
+     , CASE WHEN tei.seq_no IS NULL THEN -1 ELSE tei.seq_no END
+     , CASE WHEN teia.del_check != 1 THEN 'N' ELSE 'Y' END
+     , CASE WHEN tei.start_date IS NULL THEN '^' ELSE TO_CHAR(tei.start_date, 'YYYYMMDD') END
+     , CASE WHEN tei.start_date IS NULL THEN '^' ELSE TO_CHAR(tei.start_date, 'HH24MI') END
+     , CASE WHEN tei.end_date IS NULL THEN '^' ELSE TO_CHAR(tei.end_date, 'YYYYMMDD') END
+     , CASE WHEN tei.end_date IS NULL THEN '^' ELSE TO_CHAR(tei.end_date, 'HH24MI') END
+     , CASE WHEN tei.vote_option IS NULL THEN '^' ELSE CAST(tei.vote_option AS TEXT) END
+     , CASE WHEN tei.event_price_check != 1 THEN 'N' ELSE 'Y' END
+     , CASE WHEN tei.event_type IS NULL THEN '^' ELSE CAST(tei.event_type AS TEXT) END
+     , CASE WHEN tei.open_date IS NULL THEN '^' ELSE TO_CHAR(tei.open_date, 'YYYYMMDD') END
+     , CASE WHEN tei.event_price IS NULL THEN 0 ELSE tei.event_price END
+     , CASE WHEN teia.del_check != 1 IS NULL THEN 1 ELSE 0 END
+;

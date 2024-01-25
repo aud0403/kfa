@@ -1,0 +1,76 @@
+CREATE OR REPLACE FUNCTION kfaacademy.fn_agrde_kfaacademy(vStdrYear VARCHAR, vId VARCHAR)
+RETURNS VARCHAR AS
+$$
+/*******************************************************************************
+ NAME     : fn_agrde_kfaacademy
+ PURPOSE  : kfaacademy 연령대 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2023-02-07   김임선           최초생성
+
+ PARAM    :
+    vStdrYear           VARCHAR
+    vId                 VARCHAR
+
+*******************************************************************************/
+
+DECLARE
+rtnAgrdeCde    VARCHAR;
+stdr_de        DATE;
+brthdy         DATE;
+BEGIN
+    stdr_de = CAST((CAST((vStdrYear||'0101') AS DATE) + INTERVAL '2 YEAR') AS DATE);
+    brthdy = CAST(vId AS DATE);
+
+    IF stdr_de > brthdy then
+    
+        rtnAgrdeCde = CAST(EXTRACT( YEAR FROM AGE(stdr_de, brthdy)) AS TEXT);
+    
+    ELSE rtnAgrdeCde = 'E';
+   
+    END IF;
+
+    RETURN rtnAgrdeCde;
+
+END;
+$$
+LANGUAGE plpgsql
+
+
+
+CREATE OR REPLACE FUNCTION kfaacademy.fn_valid_inspct_kfaacademy(vid character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+/*******************************************************************************
+ NAME     : fn_valid_inspct_kfaacademy
+ PURPOSE  : kfaacademy 유효 검사 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2023-02-07  김임선            최초생성
+
+ PARAM    :
+    vId                 VARCHAR
+
+*******************************************************************************/
+
+DECLARE
+rtValidCde     VARCHAR;
+id_cnvr        VARCHAR = CASE WHEN vId IS NULL OR vId = '^' THEN 'N' ELSE vId END;
+BEGIN
+    
+    IF id_cnvr = 'N' THEN RETURN 'N';
+    END IF;
+    PERFORM id_cnvr::date;
+    RETURN 'P';
+   
+EXCEPTION WHEN OTHERS THEN
+    RETURN 'E';
+   
+END;
+$function$
+;

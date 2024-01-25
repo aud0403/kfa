@@ -1,0 +1,157 @@
+/*
+ * 과거 데이터 엮어야함(FB_KFA_MSTOLD인 듯)
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.crse_cde IS NULL THEN '^' ELSE a.crse_cde END AS crse_cde
+     , CASE WHEN a.crse_odr IS NULL THEN -1 ELSE CAST(a.crse_odr AS NUMERIC) END AS crse_odr
+     , CASE WHEN a.mnnst_cde IS NULL THEN '^' ELSE a.mnnst_cde END AS mnnst_cde
+     , CASE WHEN a.edc_stle_cde IS NULL THEN '^' ELSE a.edc_stle_cde END AS edc_stle_cde
+     , CASE WHEN a.crse_cl_cde IS NULL THEN '^' ELSE a.crse_cl_cde || '_' || a.mnnst_cde END AS crse_cl_cde
+     , CASE WHEN a.crse_ty_cde IS NULL THEN '^' ELSE a.crse_ty_cde END AS crse_ty_cde
+     , CASE WHEN a.recomend_crse_at IS NULL THEN '^' ELSE a.recomend_crse_at END AS recomend_crse_at
+     , CASE WHEN a.essntl_crse_at IS NULL THEN '^' ELSE a.essntl_crse_at END AS essntl_crse_at
+     , CASE WHEN a.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE a.mobile_parlelsm_crse_at END AS mobile_parlelsm_crse_at
+     , CASE WHEN a.lctre_abl_at IS NULL THEN '^' ELSE a.lctre_abl_at END AS lctre_abl_at
+     , CASE WHEN a.crse_se_cde IS NULL THEN '^' ELSE a.crse_se_cde || '_' || a.mnnst_cde END AS crse_se_cde
+     , CASE WHEN a.cmmn_crse_at IS NULL THEN '^' ELSE a.cmmn_crse_at END AS cmmn_crse_at
+     , CASE WHEN a.choise_crse_at IS NULL THEN '^' ELSE a.choise_crse_at END AS choise_crse_at
+     , CASE WHEN a.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE a.partcpt_posbl_sexdstn_cde END AS partcpt_posbl_sexdstn_cde
+     , CASE WHEN a.edc_progrm_cde IS NULL THEN '^' ELSE CAST(a.edc_progrm_cde AS TEXT) || '_' || a.crse_cl_cde || '_' || a.mnnst_cde END AS edc_progrm_cde
+     , CASE WHEN a.kfa_crse_cde IS NULL THEN '^' ELSE a.kfa_crse_cde END AS kfa_crse_cde
+     , CASE WHEN a.odr_dplct_perm_at IS NULL THEN '^' ELSE a.odr_dplct_perm_at END AS odr_dplct_perm_at
+     , CASE WHEN a.crse_group_se_cde IS NULL THEN '^' ELSE a.crse_group_se_cde END AS crse_group_se_cde
+     , CASE WHEN a.crqfc_se_cde IS NULL THEN '^' ELSE a.crqfc_se_cde END AS crqfc_se_cde
+     , CASE WHEN a.crqfc_group_cde IS NULL THEN '^' ELSE a.crqfc_group_cde END AS crqfc_group_cde
+     , CASE WHEN a.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(a.crqfc_mntnc_pd_cde AS TEXT) END AS crqfc_mntnc_pd_cde
+     , CASE WHEN a.emplym_insrnc_at IS NULL THEN '^' ELSE a.emplym_insrnc_at END AS emplym_insrnc_at
+     , CASE WHEN a.lrn_progrs_mth_cde IS NULL THEN '^' ELSE a.lrn_progrs_mth_cde END AS lrn_progrs_mth_cde
+     , CASE WHEN a.edc_place_cde IS NULL THEN '^' ELSE a.edc_place_cde END AS edc_place_cde
+     , CASE WHEN a.edc_garden_cde IS NULL THEN '^' ELSE CAST(a.edc_garden_cde AS TEXT) END AS edc_garden_cde
+     , CASE WHEN a.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(a.edc_begin_de_hm, 1, 8) END AS edc_begin_de
+     , CASE WHEN a.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(a.edc_end_de_hm, 1, 8) END AS edc_end_de
+     , CASE WHEN a.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(a.edc_begin_de_hm, 8, 4) END AS edc_begin_tmzon_cde
+     , CASE WHEN a.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(a.edc_end_de_hm, 8, 4) END AS edc_end_tmzon_cde
+     , CASE WHEN a.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(a.compl_stdr_score_cde AS TEXT) END AS compl_stdr_score_cde
+     , CASE WHEN a.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(a.mendng_edc_score_cde AS TEXT) END AS mendng_edc_score_cde
+     , CASE WHEN a.compl_stdr_cde IS NULL THEN '^' ELSE a.compl_stdr_cde END AS compl_stdr_cde
+     , CASE WHEN a.emplyminsrnc_ltrs_retun_amount IS NULL THEN 0 ELSE a.emplyminsrnc_ltrs_retun_amount END AS emplyminsrnc_ltrs_retun_amount
+     , CASE WHEN a.emplyminsrnc_smlpz_retun_amount IS NULL THEN 0 ELSE a.emplyminsrnc_smlpz_retun_amount END AS emplyminsrnc_smlpz_retun_amount
+     , a.edc_instt_nm
+     , a.edc_place_nm
+     , a.atnlc_apply_begin_de_hm
+     , a.atnlc_apply_end_de_hm
+     , a.edc_begin_de_hm
+     , a.edc_end_de_hm
+     , CASE WHEN a.edc_ct IS NULL THEN 0 ELSE a.edc_ct END AS edc_ct
+     , CASE WHEN a.stayng_ct IS NULL THEN 0 ELSE a.stayng_ct END AS stayng_ct
+     , CASE WHEN a.meal_ct IS NULL THEN 0 ELSE a.meal_ct END AS meal_ct
+     , CASE WHEN a.insrnc_ct IS NULL THEN 0 ELSE a.insrnc_ct END AS insrnc_ct
+     , CASE WHEN a.tot_edc_ct IS NULL THEN 0 ELSE a.tot_edc_ct END AS tot_edc_ct
+     , a.edc_co
+  FROM (
+        SELECT fss."YEAR" AS stdr_year
+             , fs.subj AS crse_cde
+             , fss.subjseq AS crse_odr
+             , fsgc.grcode AS mnnst_cde
+             , fs.subj_type AS edc_stle_cde
+             , fs.subjclass AS crse_cl_cde
+             , fs.content_type AS crse_ty_cde
+             , fs.isrecom AS recomend_crse_at
+             , fs.isrequi AS essntl_crse_at
+             , fs.mobile_yn AS mobile_parlelsm_crse_at
+             , fs.close_yn AS lctre_abl_at
+             , fs.subjgubun AS crse_se_cde
+             , fs.iscommon AS cmmn_crse_at
+             , fs.isselect AS choise_crse_at
+             , fs.gender AS partcpt_posbl_sexdstn_cde
+             , fs.subjprogram AS edc_progrm_cde
+             , fs.kfa_subj AS kfa_crse_cde
+             , fs.overlap_yn AS odr_dplct_perm_at
+             , fss.grgubun AS crse_group_se_cde
+             , fsgb.license_gubun AS crqfc_se_cde
+             , fsgb.license_group AS crqfc_group_cde
+             , fsgb.license_period AS crqfc_mntnc_pd_cde
+             , fss.goyong_yn AS emplym_insrnc_at
+             , fss.edu_type AS lrn_progrs_mth_cde
+             , fss.subj_location AS edc_place_cde
+             , fss.edu_cnt AS edc_garden_cde
+             , fss.grade_total AS compl_stdr_score_cde
+             , fss.bosu_grade AS mendng_edc_score_cde
+             , fsq.code AS compl_stdr_cde
+             , fss.goyong_price_major AS emplyminsrnc_ltrs_retun_amount
+             , fss.goyong_price_mijor AS emplyminsrnc_smlpz_retun_amount
+             , fss.agencynm AS edc_instt_nm
+             , fss.subj_place AS edc_place_nm
+             , SUBSTR(fss.prop_start, 1, 12) AS atnlc_apply_begin_de_hm
+             , SUBSTR(fss.prop_end, 1, 12) AS atnlc_apply_end_de_hm
+             , SUBSTR(fss.edu_start, 1, 12) AS edc_begin_de_hm
+             , SUBSTR(fss.edu_end, 1, 12) AS edc_end_de_hm
+             , fss.edu_price AS edc_ct
+             , fss.room_price AS stayng_ct
+             , fss.food_price AS meal_ct
+             , fss.insurance_price AS insrnc_ct
+             , fss.sum_edu_price AS tot_edc_ct
+             , 1 AS edc_co
+          FROM fb_subj fs
+               LEFT OUTER JOIN
+               fb_subjseq fss
+            ON fs.subj = fss.subj
+               LEFT OUTER JOIN
+               fb_subj_grcode fsgc
+            ON fs.subj = fsgc.subj
+               LEFT OUTER JOIN
+               fb_subj_gubun fsgb
+            ON fs.subjgubun = fsgb.gubun
+               LEFT OUTER JOIN
+               fb_subjseq_qualification fsq
+            ON fss.subj = fsq.subj
+           AND fss.subjseq = fsq.subjseq 
+       ) a
+ GROUP by CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END 
+     , CASE WHEN a.crse_cde IS NULL THEN '^' ELSE a.crse_cde END
+     , CASE WHEN a.crse_odr IS NULL THEN -1 ELSE CAST(a.crse_odr AS NUMERIC) END
+     , CASE WHEN a.mnnst_cde IS NULL THEN '^' ELSE a.mnnst_cde END
+     , CASE WHEN a.edc_stle_cde IS NULL THEN '^' ELSE a.edc_stle_cde END
+     , CASE WHEN a.crse_cl_cde IS NULL THEN '^' ELSE a.crse_cl_cde || '_' || a.mnnst_cde END
+     , CASE WHEN a.crse_ty_cde IS NULL THEN '^' ELSE a.crse_ty_cde END
+     , CASE WHEN a.recomend_crse_at IS NULL THEN '^' ELSE a.recomend_crse_at END
+     , CASE WHEN a.essntl_crse_at IS NULL THEN '^' ELSE a.essntl_crse_at END
+     , CASE WHEN a.mobile_parlelsm_crse_at IS NULL THEN '^' ELSE a.mobile_parlelsm_crse_at END
+     , CASE WHEN a.lctre_abl_at IS NULL THEN '^' ELSE a.lctre_abl_at END
+     , CASE WHEN a.crse_se_cde IS NULL THEN '^' ELSE a.crse_se_cde || '_' || a.mnnst_cde END
+     , CASE WHEN a.cmmn_crse_at IS NULL THEN '^' ELSE a.cmmn_crse_at END
+     , CASE WHEN a.choise_crse_at IS NULL THEN '^' ELSE a.choise_crse_at END
+     , CASE WHEN a.partcpt_posbl_sexdstn_cde IS NULL THEN '^' ELSE a.partcpt_posbl_sexdstn_cde END
+     , CASE WHEN a.edc_progrm_cde IS NULL THEN '^' ELSE CAST(a.edc_progrm_cde AS TEXT) || '_' || a.crse_cl_cde || '_' || a.mnnst_cde END
+     , CASE WHEN a.kfa_crse_cde IS NULL THEN '^' ELSE a.kfa_crse_cde END
+     , CASE WHEN a.odr_dplct_perm_at IS NULL THEN '^' ELSE a.odr_dplct_perm_at END
+     , CASE WHEN a.crse_group_se_cde IS NULL THEN '^' ELSE a.crse_group_se_cde END
+     , CASE WHEN a.crqfc_se_cde IS NULL THEN '^' ELSE a.crqfc_se_cde END
+     , CASE WHEN a.crqfc_group_cde IS NULL THEN '^' ELSE a.crqfc_group_cde END
+     , CASE WHEN a.crqfc_mntnc_pd_cde IS NULL THEN '^' ELSE CAST(a.crqfc_mntnc_pd_cde AS TEXT) END
+     , CASE WHEN a.emplym_insrnc_at IS NULL THEN '^' ELSE a.emplym_insrnc_at END
+     , CASE WHEN a.lrn_progrs_mth_cde IS NULL THEN '^' ELSE a.lrn_progrs_mth_cde END
+     , CASE WHEN a.edc_place_cde IS NULL THEN '^' ELSE a.edc_place_cde END
+     , CASE WHEN a.edc_garden_cde IS NULL THEN '^' ELSE CAST(a.edc_garden_cde AS TEXT) END
+     , CASE WHEN a.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(a.edc_begin_de_hm, 1, 8) END
+     , CASE WHEN a.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(a.edc_end_de_hm, 1, 8) END
+     , CASE WHEN a.edc_begin_de_hm IS NULL THEN '^' ELSE SUBSTR(a.edc_begin_de_hm, 8, 4) END
+     , CASE WHEN a.edc_end_de_hm IS NULL THEN '^' ELSE SUBSTR(a.edc_end_de_hm, 8, 4) END
+     , CASE WHEN a.compl_stdr_score_cde IS NULL THEN '^' ELSE CAST(a.compl_stdr_score_cde AS TEXT) END
+     , CASE WHEN a.mendng_edc_score_cde IS NULL THEN '^' ELSE CAST(a.mendng_edc_score_cde AS TEXT) END
+     , CASE WHEN a.compl_stdr_cde IS NULL THEN '^' ELSE a.compl_stdr_cde END
+     , CASE WHEN a.emplyminsrnc_ltrs_retun_amount IS NULL THEN 0 ELSE a.emplyminsrnc_ltrs_retun_amount END
+     , CASE WHEN a.emplyminsrnc_smlpz_retun_amount IS NULL THEN 0 ELSE a.emplyminsrnc_smlpz_retun_amount END
+     , a.edc_instt_nm
+     , a.edc_place_nm
+     , a.atnlc_apply_begin_de_hm
+     , a.atnlc_apply_end_de_hm
+     , a.edc_begin_de_hm
+     , a.edc_end_de_hm
+     , CASE WHEN a.edc_ct IS NULL THEN 0 ELSE a.edc_ct END
+     , CASE WHEN a.stayng_ct IS NULL THEN 0 ELSE a.stayng_ct END
+     , CASE WHEN a.meal_ct IS NULL THEN 0 ELSE a.meal_ct END
+     , CASE WHEN a.insrnc_ct IS NULL THEN 0 ELSE a.insrnc_ct END
+     , CASE WHEN a.tot_edc_ct IS NULL THEN 0 ELSE a.tot_edc_ct END
+     , a.edc_co
+;

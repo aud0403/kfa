@@ -1,0 +1,123 @@
+/*
+ * 상품현황
+ * tbl_product_option_stock 테이블에서 업데이트날짜가 변경되는 이유는 재고수, 활성화 여부 컬럼 데이터 변경도 있을까요?
+ */
+SELECT CASE WHEN tpi.seq_no IS NULL THEN -1 ELSE tpi.seq_no END AS goods_no
+     , CASE WHEN tpos.seq_no IS NULL THEN -1 ELSE tpos.seq_no END AS goods_optn_no
+     , CASE WHEN tpi.site_cate_seq IS NULL THEN -1 ELSE tpi.site_cate_seq END AS site_no
+     , CASE WHEN tpi.product_main_cate IS NULL THEN -1 ELSE tpi.product_main_cate END AS ctgry_no
+     , CASE WHEN tpi.product_sub_cate IS NULL THEN -1 ELSE tpi.product_sub_cate END AS sub_ctgry_no
+     , CASE WHEN tpi.product_num IS NULL THEN '^' ELSE tpi.product_num END AS goods_esntl_no
+     , CASE WHEN tpi.product_type IS NULL THEN '^' ELSE CAST(tpi.product_type AS TEXT) END AS goods_ty_cde
+     , CASE WHEN tpi.product_stock_type IS NULL THEN '^' ELSE CAST(tpi.product_stock_type AS TEXT) END AS goods_stock_ty_cde
+     , CASE WHEN tpi.promoted IS NULL THEN '^' ELSE CAST(tpi.promoted AS TEXT) END AS promot_cde
+     , CASE WHEN tpi.sales_period_check IS NULL THEN '^' ELSE CAST(tpi.sales_period_check AS text) END AS sle_dat_estbs_cde
+     , CASE WHEN tpi.sale_startdate IS NULL THEN '^' ELSE TO_CHAR(tpi.sale_startdate, 'YYYYMMDD') END AS sle_begin_de
+     , CASE WHEN tpi.sale_enddate IS NULL THEN '^' ELSE TO_CHAR(tpi.sale_enddate, 'YYYYMMDD') END AS sle_end_de
+     , CASE WHEN tpi.del_check IS NULL THEN '^' ELSE CAST(tpi.del_check AS text) END AS delete_cde
+     , CASE WHEN tpi.discount_type IS NULL THEN '^' ELSE CAST(tpi.discount_type AS text) END AS dscnt_ty_cde
+     , CASE WHEN tpi.kfa_independent_fee_active IS NULL THEN '^' ELSE CAST(tpi.kfa_independent_fee_active AS text) END AS kfa_indpndnc_fee_cde
+     , CASE WHEN tpos.add_price_active IS NULL THEN '^' ELSE CAST(tpos.add_price_active AS text) END AS addnl_pc_cde
+     , CASE WHEN tpi.discount_check IS NULL THEN '^' ELSE CAST(tpi.discount_check AS text) END AS dscnt_at
+     , CASE WHEN tpi.kfa_independent_fee IS NULL THEN 0 ELSE tpi.kfa_independent_fee END AS kfa_indpndnc_fee
+     , CASE WHEN tpi.purchase_quantity_count IS NULL THEN 0 ELSE tpi.purchase_quantity_count END AS goods_purchs_term
+     , CASE WHEN tpi.discount_cal_price IS NULL THEN 0 ELSE tpi.discount_cal_price END AS dscnt_pc
+     , CASE WHEN tpi.discount_price IS NULL THEN 0 ELSE tpi.discount_price END AS dscnt_afc_pc
+     , CASE WHEN tpi.discount_rate IS NULL THEN 0 ELSE tpi.discount_rate END AS dscnt_rt
+     , CASE WHEN tpi.price IS NULL THEN 0 ELSE tpi.price END AS pc
+     , CASE WHEN tpos.option_extra_charge IS NULL THEN 0 ELSE tpos.option_extra_charge END AS addnl_pc
+     , 1 AS goods_co
+  FROM tbl_product_info tpi
+       LEFT OUTER JOIN
+       tbl_product_option_stock tpos
+    ON tpi.seq_no = tpos.product_info_seq
+ GROUP BY CASE WHEN tpi.seq_no IS NULL THEN -1 ELSE tpi.seq_no END
+     , CASE WHEN tpos.seq_no IS NULL THEN -1 ELSE tpos.seq_no END
+     , CASE WHEN tpi.site_cate_seq IS NULL THEN -1 ELSE tpi.site_cate_seq END
+     , CASE WHEN tpi.product_main_cate IS NULL THEN -1 ELSE tpi.product_main_cate END
+     , CASE WHEN tpi.product_sub_cate IS NULL THEN -1 ELSE tpi.product_sub_cate END
+     , CASE WHEN tpi.product_num IS NULL THEN '^' ELSE tpi.product_num END
+     , CASE WHEN tpi.product_type IS NULL THEN '^' ELSE CAST(tpi.product_type AS TEXT) END
+     , CASE WHEN tpi.product_stock_type IS NULL THEN '^' ELSE CAST(tpi.product_stock_type AS TEXT) END
+     , CASE WHEN tpi.promoted IS NULL THEN '^' ELSE CAST(tpi.promoted AS TEXT) END
+     , CASE WHEN tpi.sales_period_check IS NULL THEN '^' ELSE CAST(tpi.sales_period_check AS text) END
+     , CASE WHEN tpi.sale_startdate IS NULL THEN '^' ELSE TO_CHAR(tpi.sale_startdate, 'YYYYMMDD') END
+     , CASE WHEN tpi.sale_enddate IS NULL THEN '^' ELSE TO_CHAR(tpi.sale_enddate, 'YYYYMMDD') END
+     , CASE WHEN tpi.del_check IS NULL THEN '^' ELSE CAST(tpi.del_check AS text) END
+     , CASE WHEN tpi.discount_type IS NULL THEN '^' ELSE CAST(tpi.discount_type AS text) END
+     , CASE WHEN tpi.kfa_independent_fee_active IS NULL THEN '^' ELSE CAST(tpi.kfa_independent_fee_active AS text) END
+     , CASE WHEN tpos.add_price_active IS NULL THEN '^' ELSE CAST(tpos.add_price_active AS text) END
+     , CASE WHEN tpi.discount_check IS NULL THEN '^' ELSE CAST(tpi.discount_check AS text) END
+     , CASE WHEN tpi.kfa_independent_fee IS NULL THEN 0 ELSE tpi.kfa_independent_fee END
+     , CASE WHEN tpi.purchase_quantity_count IS NULL THEN 0 ELSE tpi.purchase_quantity_count END
+     , CASE WHEN tpi.discount_cal_price IS NULL THEN 0 ELSE tpi.discount_cal_price END
+     , CASE WHEN tpi.discount_price IS NULL THEN 0 ELSE tpi.discount_price END
+     , CASE WHEN tpi.discount_rate IS NULL THEN 0 ELSE tpi.discount_rate END
+     , CASE WHEN tpi.price IS NULL THEN 0 ELSE tpi.price END
+     , CASE WHEN tpos.option_extra_charge IS NULL THEN 0 ELSE tpos.option_extra_charge END
+;
+
+
+
+
+/*
+ * 상품판매현황
+ */
+SELECT CASE WHEN toin.seq_no IS NULL THEN -1 ELSE toin.seq_no END AS order_no
+     , CASE WHEN toin.export_flag IS NULL THEN '^' ELSE CAST(toin.export_flag AS TEXT) END AS xport_cde
+     , CASE WHEN toin.pg_code IS NULL THEN '^' ELSE toin.pg_code END AS pg_cde
+     , CASE WHEN toin.postcode IS NULL THEN '^' ELSE toin.postcode END AS dlvy_area_zip
+     , CASE WHEN toin.site_cate_seq IS NULL THEN -1 ELSE toin.site_cate_seq END AS site_no
+     , CASE WHEN toin.user_seq IS NULL THEN -1 ELSE toin.user_seq END AS mber_no
+     , CASE WHEN toin.point_order_check IS NULL THEN '^' ELSE CAST(toin.point_order_check AS TEXT) END AS point_use_cde
+     , CASE WHEN toit.delivery_type IS NULL THEN '^' ELSE CAST(toit.delivery_type AS TEXT) END AS dlvy_ty_cde
+     , CASE WHEN toit.export_delivery_state IS NULL THEN '^' ELSE CAST(toit.export_delivery_state AS TEXT) END AS ovsea_dlvy_goods_cde
+     , CASE WHEN toit.product_seq IS NULL THEN -1 ELSE toit.product_seq END AS goods_no
+     , CASE WHEN toit.option_seq IS NULL THEN -1 ELSE toit.option_seq END AS goods_optn_no
+     , CASE WHEN toit.refund_check IS NULL THEN '^' ELSE CAST(toit.refund_check AS TEXT) END AS part_cancl_cde
+     , CASE WHEN toin.state_date_time10 IS NULL THEN '^' ELSE 'Y' END AS refnd_at
+     , CASE WHEN toin.state_date_time7 IS NULL THEN '^' ELSE 'Y' END AS purchs_dcsn_at
+     , CASE WHEN toin.state_date_time7 IS NULL THEN '^' ELSE TO_CHAR(toin.state_date_time7, 'YYYYMMDD') END AS purchs_dcsn_de
+     , CASE WHEN toin.state_date_time10 IS NULL THEN '^' ELSE TO_CHAR(toin.state_date_time10, 'YYYYMMDD') END AS refnd_compt_de
+     , CASE WHEN toin.card_code IS NULL THEN '^' ELSE CAST(toin.card_code AS TEXT) END AS card_cmpny_cde
+     , CASE WHEN toin.delivery_fee IS NULL THEN 0 ELSE toin.delivery_fee END AS dlvy_chrge
+     , CASE WHEN toin.extra_delivery_fee IS NULL THEN 0 ELSE toin.extra_delivery_fee END AS addnl_dlvy_chrge
+     , CASE WHEN toin.point_price IS NULL THEN 0 ELSE toin.point_price END AS point_use_amount
+--     , toit.discount_cal_price AS AA
+--     , toit.option_value AS goods_optn_addnl_pc
+     , CASE WHEN toit.price IS NULL THEN 0 ELSE toit.price END AS goods_pc
+     , CASE WHEN toin.total_price IS NULL THEN 0 ELSE toin.total_price END AS order_tot_pc
+     , CASE WHEN toit.quantity IS NULL THEN 0 ELSE toit.quantity END AS order_co
+--     , CASE WHEN toit.delivery_state IS NULL THEN '^' ELSE toit.delivery_state END AS 
+--     , CASE WHEN toin.del_check IS NULL THEN '^' ELSE toin.del_check END AS 
+--     , CASE WHEN toit.del_check IS NULL THEN '^' ELSE toit.del_check END AS 
+--     , CASE WHEN toit.seq_no IS NULL THEN '^' ELSE toit.seq_no END AS 
+--     , CASE WHEN toin.seq_no IS NULL THEN '^' ELSE toin.seq_no END AS 
+  FROM tbl_order_info toin
+       LEFT OUTER JOIN
+       tbl_order_item toit
+    ON toin.seq_no = toit.order_seq_no
+ GROUP BY CASE WHEN toin.seq_no IS NULL THEN -1 ELSE toin.seq_no END
+     , CASE WHEN toin.export_flag IS NULL THEN '^' ELSE CAST(toin.export_flag AS TEXT) END
+     , CASE WHEN toin.pg_code IS NULL THEN '^' ELSE toin.pg_code END
+     , CASE WHEN toin.postcode IS NULL THEN '^' ELSE toin.postcode END
+     , CASE WHEN toin.site_cate_seq IS NULL THEN -1 ELSE toin.site_cate_seq END
+     , CASE WHEN toin.user_seq IS NULL THEN -1 ELSE toin.user_seq END
+     , CASE WHEN toin.point_order_check IS NULL THEN '^' ELSE CAST(toin.point_order_check AS TEXT) END
+     , CASE WHEN toit.delivery_type IS NULL THEN '^' ELSE CAST(toit.delivery_type AS TEXT) END
+     , CASE WHEN toit.export_delivery_state IS NULL THEN '^' ELSE CAST(toit.export_delivery_state AS TEXT) END
+     , CASE WHEN toit.product_seq IS NULL THEN -1 ELSE toit.product_seq END
+     , CASE WHEN toit.option_seq IS NULL THEN -1 ELSE toit.option_seq END
+     , CASE WHEN toit.refund_check IS NULL THEN '^' ELSE CAST(toit.refund_check AS TEXT) END
+     , CASE WHEN toin.state_date_time10 IS NULL THEN '^' ELSE 'Y' END
+     , CASE WHEN toin.state_date_time7 IS NULL THEN '^' ELSE 'Y' END
+     , CASE WHEN toin.state_date_time7 IS NULL THEN '^' ELSE to_char(toin.state_date_time7, 'YYYYMMDD') END
+     , CASE WHEN toin.state_date_time10 IS NULL THEN '^' ELSE to_char(toin.state_date_time10, 'YYYYMMDD') END
+     , CASE WHEN toin.card_code IS NULL THEN '^' ELSE CAST(toin.card_code AS TEXT) END
+     , CASE WHEN toin.delivery_fee IS NULL THEN 0 ELSE toin.delivery_fee END
+     , CASE WHEN toin.extra_delivery_fee IS NULL THEN 0 ELSE toin.extra_delivery_fee END
+     , CASE WHEN toin.point_price IS NULL THEN 0 ELSE toin.point_price END
+     , CASE WHEN toit.price IS NULL THEN 0 ELSE toit.price END
+     , CASE WHEN toin.total_price IS NULL THEN 0 ELSE toin.total_price END
+     , CASE WHEN toit.quantity IS NULL THEN 0 ELSE toit.quantity END
+;
