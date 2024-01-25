@@ -1,0 +1,484 @@
+alter table ADMIN_MASTER# add constraint pk_ADMIN_MASTER# primary key (	ADMIN_ID	);
+alter table AGENT_APPROVAL# add constraint pk_AGENT_APPROVAL# primary key (	AA_IDX	);
+alter table AGENT_APPROVAL_DETAIL add constraint pk_AGENT_APPROVAL_DETAIL primary key (	AAD_IDX	);
+alter table AGENT_CAREER# add constraint pk_AGENT_CAREER# primary key (	AC_IDX	);
+alter table AGENT_FILE# add constraint pk_AGENT_FILE# primary key (	AF_IDX	);
+alter table AGENT_INFO# add constraint pk_AGENT_INFO# primary key (	AI_IDX	);
+alter table AGENT_INSU_APPV# add constraint pk_AGENT_INSU_APPV# primary key (	AIA_IDX	);
+alter table AGENT_PLY_APPV# add constraint pk_AGENT_PLY_APPV# primary key (	APA_IDX	);
+alter table AGENT_PLY_APPV_TMN# add constraint pk_AGENT_PLY_APPV_TMN# primary key (	APAT_IDX	);
+alter table AGENT_PLY_WORK# add constraint pk_AGENT_PLY_WORK# primary key (	APW_IDX	);
+alter table AGENT_PLY_WORK_TMN# add constraint pk_AGENT_PLY_WORK_TMN# primary key (	APWT_IDX	);
+alter table APPLY_CANCEL_JUN# add constraint pk_APPLY_CANCEL_JUN# primary key (	MATCH_IDX	
+	,USRKEY	
+	,TEAMID	);
+alter table APPLY_COACH add constraint pk_APPLY_COACH primary key (	IDX	
+	,MATCH_IDX	
+	,TEAMID	);
+alter table APPLY_HISTORY# add constraint pk_APPLY_HISTORY# primary key (	IDX	);
+alter table APPLY_HISTORY_JUN# add constraint pk_APPLY_HISTORY_JUN# primary key (	IDX	);
+alter table APPLY_PLAYER_JUN# add constraint pk_APPLY_PLAYER_JUN# primary key (	IDX	);
+alter table APPLY_STAFF# add constraint pk_APPLY_STAFF# primary key (	IDX	);
+alter table APPLY_STAFF_JUN# add constraint pk_APPLY_STAFF_JUN# primary key (	IDX	);
+alter table APPLY_TEAM add constraint pk_APPLY_TEAM primary key (	MATCH_IDX	
+	,TEAMID	
+	,TEAMNAME	);
+alter table APPLY_TEAM_CNT add constraint pk_APPLY_TEAM_CNT primary key (	MATCH_IDX	);
+alter table APPLY_TEAM_JUN# add constraint pk_APPLY_TEAM_JUN# primary key (	MATCH_IDX	
+	,TEAMID	);
+alter table ASSIGN_MATCH_INFO add constraint pk_ASSIGN_MATCH_INFO primary key (	IDX	);
+alter table ASSIGN_MATCH_RELATION add constraint pk_ASSIGN_MATCH_RELATION primary key (	HOST_MATCH_IDX	
+	,IDX	);
+alter table BD_AUTH add constraint pk_BD_AUTH primary key (	AUTH_SUBJECTID	
+	,BOARD_ID	
+	,ROLE_ID	);
+alter table BD_COMMENT add constraint pk_BD_COMMENT primary key (	BC_IDX	);
+alter table BD_ENV add constraint pk_BD_ENV primary key (	BE_ID	);
+alter table BD_FILE add constraint pk_BD_FILE primary key (	BF_BE_ID	
+	,BF_BM_SERIAL	
+	,BF_IDX	);
+alter table BD_MAIN add constraint pk_BD_MAIN primary key (	BM_BE_ID	
+	,BM_SERIAL	);
+alter table BD_POPUP# add constraint pk_BD_POPUP# primary key (	IDX	);
+alter table BD_POPUP_TEMPLATE add constraint pk_BD_POPUP_TEMPLATE primary key (	IDX	);
+alter table BD_ROLE add constraint pk_BD_ROLE primary key (	ROLE_ID	);
+alter table BD_ROLE_AUTHITEM add constraint pk_BD_ROLE_AUTHITEM primary key (	AUTH_ITEMID	
+	,ROLE_ID	);
+alter table BUDGET_CALC_DETAIL add constraint pk_BUDGET_CALC_DETAIL primary key (	IDX	);
+alter table BUDGET_CALC_MONTH add constraint pk_BUDGET_CALC_MONTH primary key (	IDX	);
+alter table BUDGET_CALC_REJECT add constraint pk_BUDGET_CALC_REJECT primary key (	IDX	);
+alter table BUDGET_CALC_SET add constraint pk_BUDGET_CALC_SET primary key (	IDX	);
+alter table BUDGET_CALC_SET_DETAIL# add constraint pk_BUDGET_CALC_SET_DETAIL# primary key (	IDX	);
+alter table BUDGET_REQ_DETAIL add constraint pk_BUDGET_REQ_DETAIL primary key (	IDX	);
+alter table BUDGET_REQ_MONTH add constraint pk_BUDGET_REQ_MONTH primary key (	IDX	);
+alter table BUDGET_REQ_REJECT add constraint pk_BUDGET_REQ_REJECT primary key (	IDX	);
+alter table BUDGET_REQ_SET add constraint pk_BUDGET_REQ_SET primary key (	IDX	);
+alter table BUDGET_STD_TABLE add constraint pk_BUDGET_STD_TABLE primary key (	GUBUN	
+	,MATCH_GRADE_SET	
+	,STD_YEAR	);
+alter table CERTIFICATE_AGENT_MASTER add constraint pk_CERTIFICATE_AGENT_MASTER primary key (	RQT_IDX	);
+alter table CERTIFICATE_APPLICATION# add constraint pk_CERTIFICATE_APPLICATION# primary key (	IDX	);
+alter table CERTIFICATE_APP_HISTORY add constraint pk_CERTIFICATE_APP_HISTORY primary key (	CA_IDX	
+	,IDX	);
+alter table CERTIFICATE_COACH_MASTER# add constraint pk_CERTIFICATE_COACH_MASTER# primary key (	IDX	);
+alter table CERTIFICATE_CODE add constraint pk_CERTIFICATE_CODE primary key (	CODE	);
+alter table CERTIFICATE_MATCH_MASTER add constraint pk_CERTIFICATE_MATCH_MASTER primary key (	IDX	);
+alter table CERTIFICATE_PAY_HISTORY add constraint pk_CERTIFICATE_PAY_HISTORY primary key (	PAY_IDX	);
+alter table CERTIFICATE_REFEREE_MASTER add constraint pk_CERTIFICATE_REFEREE_MASTER primary key (	IDX	);
+alter table CERTIFICATE_REQUEST add constraint pk_CERTIFICATE_REQUEST primary key (	IDX	);
+alter table CERTIFICATE_TEAM_MASTER add constraint pk_CERTIFICATE_TEAM_MASTER primary key (	IDX	);
+alter table CLS_DIAY add constraint pk_CLS_DIAY primary key (	IDX	
+	,NOTM_IDX	);
+alter table CLS_INFO add constraint pk_CLS_INFO primary key (	GRADE	
+	,IDX	
+	,SIDO_CD	
+	,SIGUNGU_CD	);
+alter table CLS_MBR_HST add constraint pk_CLS_MBR_HST primary key (	IDX	
+	,MBR_IDX	
+	,STATUS	);
+alter table CLS_MBR_INFO# add constraint pk_CLS_MBR_INFO# primary key (	CLS_IDX	
+	,FTKEY	
+	,IDX	);
+alter table CLS_NOTM add constraint pk_CLS_NOTM primary key (	CLS_IDX	
+	,IDX	
+	,NOTM_DT	);
+alter table COACH_ACADEMY_INFO add constraint pk_COACH_ACADEMY_INFO primary key (	ACA_IDX	);
+alter table COACH_ACADEMY_PER_INFO# add constraint pk_COACH_ACADEMY_PER_INFO# primary key (	ACA_PER_IDX	);
+alter table COACH_APPLICANTS_PER_EDU# add constraint pk_COACH_APPLICANTS_PER_EDU# primary key (	APP_IDX	);
+alter table COACH_AREA add constraint pk_COACH_AREA primary key (	AREA_IDX	);
+alter table COACH_CAREER_PER_APPLICANT add constraint pk_COACH_CAREER_PER_APPLICANT primary key (	APP_IDX	
+	,CAR_IDX	
+	,EDU_IDX	);
+alter table COACH_CHGPOS_HISTORY# add constraint pk_COACH_CHGPOS_HISTORY# primary key (	IDX	);
+alter table COACH_EDUCATION_HOMEWORK# add constraint pk_COACH_EDUCATION_HOMEWORK# primary key (	EDU_IDX	
+	,IDX	);
+alter table COACH_EDUCATION_INFO add constraint pk_COACH_EDUCATION_INFO primary key (	EDU_IDX	);
+alter table COACH_INFO# add constraint pk_COACH_INFO# primary key (	IDX	);
+alter table COACH_INFO_KFAEDU_MAIN add constraint pk_COACH_INFO_KFAEDU_MAIN primary key (	IDX	);
+alter table COACH_INFO_KFAEDU_SUB add constraint pk_COACH_INFO_KFAEDU_SUB primary key (	IDX	);
+alter table COACH_INSTITUTE# add constraint pk_COACH_INSTITUTE# primary key (	IDX	);
+alter table COACH_LICENSE_INFO add constraint pk_COACH_LICENSE_INFO primary key (	IDX	
+	,LIC_IDX	);
+alter table COACH_RESOURCES# add constraint pk_COACH_RESOURCES# primary key (	JUMIN	);
+alter table COACH_RESOURCES_CAREER# add constraint pk_COACH_RESOURCES_CAREER# primary key (	CLHPE_IDX	);
+alter table COACH_TEAM# add constraint pk_COACH_TEAM# primary key (	IDX	);
+alter table C_COACH_DETAIL_0301 add constraint pk_C_COACH_DETAIL_0301 primary key (	IDX	);
+alter table C_COACH_DETAIL_0302 add constraint pk_C_COACH_DETAIL_0302 primary key (	IDX	);
+alter table C_COACH_DETAIL_0303 add constraint pk_C_COACH_DETAIL_0303 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0201 add constraint pk_C_PLAYER_DETAIL_0201 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0202 add constraint pk_C_PLAYER_DETAIL_0202 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0203 add constraint pk_C_PLAYER_DETAIL_0203 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0204 add constraint pk_C_PLAYER_DETAIL_0204 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0209 add constraint pk_C_PLAYER_DETAIL_0209 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0211 add constraint pk_C_PLAYER_DETAIL_0211 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0212 add constraint pk_C_PLAYER_DETAIL_0212 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0213 add constraint pk_C_PLAYER_DETAIL_0213 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0214 add constraint pk_C_PLAYER_DETAIL_0214 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0215 add constraint pk_C_PLAYER_DETAIL_0215 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0219 add constraint pk_C_PLAYER_DETAIL_0219 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_0602 add constraint pk_C_PLAYER_DETAIL_0602 primary key (	IDX	);
+alter table C_PLAYER_DETAIL_SUB_0204 add constraint pk_C_PLAYER_DETAIL_SUB_0204 primary key (	IDX	);
+alter table C_REFEREE_DETAIL_0405 add constraint pk_C_REFEREE_DETAIL_0405 primary key (	IDX	);
+alter table C_REFEREE_DETAIL_0406 add constraint pk_C_REFEREE_DETAIL_0406 primary key (	IDX	);
+alter table C_TEAM_DETAIL_0101 add constraint pk_C_TEAM_DETAIL_0101 primary key (	IDX	);
+alter table C_TEAM_DETAIL_0103 add constraint pk_C_TEAM_DETAIL_0103 primary key (	IDX	);
+alter table C_TEAM_DETAIL_0104# add constraint pk_C_TEAM_DETAIL_0104# primary key (	IDX	);
+alter table C_TEAM_DETAIL_0105# add constraint pk_C_TEAM_DETAIL_0105# primary key (	IDX	);
+alter table DEPT add constraint pk_DEPT primary key (	IDX	);
+alter table DISCIPLINARY_APPROVAL_DETAIL add constraint pk_DISCIPLINARY_APPROVAL_DETAIL primary key (	IDX	);
+alter table DISCIPLINARY_HISTORY add constraint pk_DISCIPLINARY_HISTORY primary key (	DH_IDX	);
+alter table ELECTOR_HISTORY add constraint pk_ELECTOR_HISTORY primary key (	IDX	);
+alter table ELECTOR_INFO# add constraint pk_ELECTOR_INFO# primary key (	IDX	);
+alter table ELECTOR_INFO_HISTORY_V2 add constraint pk_ELECTOR_INFO_HISTORY_V2 primary key (	IDX	);
+alter table FAVORITE_PROGRAM add constraint pk_FAVORITE_PROGRAM primary key (	PROGRAM_CD	);
+alter table FAVORITE_PROGRAM_AUTH add constraint pk_FAVORITE_PROGRAM_AUTH primary key (	FPA_IDX	);
+alter table FIFA_DTMS_INFO# add constraint pk_FIFA_DTMS_INFO# primary key (	APPLY_IDX	
+	,TEAM_ID_IN	
+	,USRKEY	);
+alter table FIFA_LISTENER add constraint pk_FIFA_LISTENER primary key (	COR_ID	);
+alter table G_AGE_COACH_RATING# add constraint pk_G_AGE_COACH_RATING# primary key (	COACH_IDX	
+	,G_SUMMONS_IDX	);
+alter table G_AGE_PLAYER_RATING# add constraint pk_G_AGE_PLAYER_RATING# primary key (	G_SUMMONS_IDX	
+	,PLAYER_IDX	);
+alter table G_AGE_PRE_COACH# add constraint pk_G_AGE_PRE_COACH# primary key (	IDX	);
+alter table G_AGE_RATING_CD add constraint pk_G_AGE_RATING_CD primary key (	RATING_IDX	);
+alter table G_AGE_SUMMONS_AUTH# add constraint pk_G_AGE_SUMMONS_AUTH# primary key (	IDX	);
+alter table G_AGE_SUMMONS_INFO add constraint pk_G_AGE_SUMMONS_INFO primary key (	G_SUMMONS_IDX	);
+alter table G_AGE_SUMMONS_PLAYER# add constraint pk_G_AGE_SUMMONS_PLAYER# primary key (	IDX	);
+alter table G_AGE_SUMMONS_STAFF# add constraint pk_G_AGE_SUMMONS_STAFF# primary key (	IDX	);
+alter table IDTBL# add constraint pk_IDTBL# primary key (	IDX	);
+alter table IDTBL_CONFIG add constraint pk_IDTBL_CONFIG primary key (	ID	);
+alter table IDTBL_HISTORY# add constraint pk_IDTBL_HISTORY# primary key (	IDX	);
+alter table IDTBL_MARKETING# add constraint pk_IDTBL_MARKETING# primary key (	M_IDT_IDX	);
+alter table IDTBL_SLEEP# add constraint pk_IDTBL_SLEEP# primary key (	IDX	);
+alter table INTL_ASSO_INFO add constraint pk_INTL_ASSO_INFO primary key (	IAI_IDX	);
+alter table INTL_TRNF_CERTI add constraint pk_INTL_TRNF_CERTI primary key (	ITC_IDX	);
+alter table ITG_STL add constraint pk_ITG_STL primary key (	FTKEY	
+	,IS_IDX	);
+alter table JN_CHANGENAME_HISTORY# add constraint pk_JN_CHANGENAME_HISTORY# primary key (	IDX	);
+alter table JUN_EVENT_ADMIN add constraint pk_JUN_EVENT_ADMIN primary key (	ADMIN_ID	
+	,EDU_IDX	);
+alter table JUN_EVENT_APPLY# add constraint pk_JUN_EVENT_APPLY# primary key (	IDX	);
+alter table JUN_EVENT_INFO add constraint pk_JUN_EVENT_INFO primary key (	IDX	);
+alter table LEAGUE_OPERATOR# add constraint pk_LEAGUE_OPERATOR# primary key (	OPERATOR_IDX	);
+alter table MASTER_PAY_TYPE add constraint pk_MASTER_PAY_TYPE primary key (	ACT_YEAR	
+	,IDX	);
+alter table MASTER_TM_TYPE add constraint pk_MASTER_TM_TYPE primary key (	IDX	);
+alter table MATCH_ACCIDENT_REPORT add constraint pk_MATCH_ACCIDENT_REPORT primary key (	SINGLE_IDX	);
+alter table MATCH_ASSISTANT_INFO# add constraint pk_MATCH_ASSISTANT_INFO# primary key (	IDX	);
+alter table MATCH_AWARD# add constraint pk_MATCH_AWARD# primary key (	IDX	);
+alter table MATCH_AWARD_ITEM add constraint pk_MATCH_AWARD_ITEM primary key (	AWARD_FRST_GB	
+	,AWARD_SCND_GB	
+	,AWARD_SYS_CD	
+	,AWARD_THRD_GB	);
+alter table MATCH_AWARD_TEAM add constraint pk_MATCH_AWARD_TEAM primary key (	IDX	);
+alter table MATCH_BAN# add constraint pk_MATCH_BAN# primary key (	IDX	);
+alter table MATCH_COACH_RESULT add constraint pk_MATCH_COACH_RESULT primary key (	IDX	);
+alter table MATCH_CODE_TBL add constraint pk_MATCH_CODE_TBL primary key (	IDX	);
+alter table MATCH_COMMISSIONER_EXTIME add constraint pk_MATCH_COMMISSIONER_EXTIME primary key (	MATCH_IDX	
+	,SINGLE_IDX	);
+alter table MATCH_COMMISSIONER_EXTIME_TEMP add constraint pk_MATCH_COMMISSIONER_EXTIME_TEMP primary key (	MATCH_IDX	
+	,REGDATE_TEMP	
+	,SINGLE_IDX	
+	,SSUSRID_TEMP	);
+alter table MATCH_COMMISSIONER_GA_HIST add constraint pk_MATCH_COMMISSIONER_GA_HIST primary key (	IDX	);
+alter table MATCH_COMMISSIONER_INFO# add constraint pk_MATCH_COMMISSIONER_INFO# primary key (	ID	
+	,SERIALNUM	);
+alter table MATCH_COMMISSIONER_LEAGUE_GA add constraint pk_MATCH_COMMISSIONER_LEAGUE_GA primary key (	LPG_IDX	);
+alter table MATCH_COMMISSIONER_SEND_M_MST add constraint pk_MATCH_COMMISSIONER_SEND_M_MST primary key (	MSG_TYPE	
+	,MST_IDX	);
+alter table MATCH_DISCIPLINARY# add constraint pk_MATCH_DISCIPLINARY# primary key (	IDX	);
+alter table MATCH_DISCIPLINARY_MASTER add constraint pk_MATCH_DISCIPLINARY_MASTER primary key (	IDX	);
+alter table MATCH_FORFEIT add constraint pk_MATCH_FORFEIT primary key (	MATCH_IDX	
+	,TEAMID	);
+alter table MATCH_INFO add constraint pk_MATCH_INFO primary key (	IDX	);
+alter table MATCH_LEAGUE add constraint pk_MATCH_LEAGUE primary key (	IDX	);
+alter table MATCH_LEAGUE_TEMP add constraint pk_MATCH_LEAGUE_TEMP primary key (	IDX	);
+alter table MATCH_ONOFF add constraint pk_MATCH_ONOFF primary key (	IDX	);
+alter table MATCH_RANKING add constraint pk_MATCH_RANKING primary key (	IDX	);
+alter table MATCH_RANKING_WINPOINT add constraint pk_MATCH_RANKING_WINPOINT primary key (	WP_IDX	);
+alter table MATCH_REFER add constraint pk_MATCH_REFER primary key (	IDX	);
+alter table MATCH_RESULT_CONFIG add constraint pk_MATCH_RESULT_CONFIG primary key (	INPUTED_YEAR	
+	,MA_KND	);
+alter table MATCH_RNK_STATS_ARCHIVE add constraint pk_MATCH_RNK_STATS_ARCHIVE primary key (	MATCH_IDX	
+	,TEAM_NAME	);
+alter table MATCH_RNK_STATS_CURRENT add constraint pk_MATCH_RNK_STATS_CURRENT primary key (	MATCH_IDX	
+	,TEAM_NAME	);
+alter table MATCH_SCORE# add constraint pk_MATCH_SCORE# primary key (	IDX	);
+alter table MATCH_SINGLE_INFO add constraint pk_MATCH_SINGLE_INFO primary key (	IDX	);
+alter table MATCH_SINGLE_INFO_AUTOMATE add constraint pk_MATCH_SINGLE_INFO_AUTOMATE primary key (	IDX	
+	,MATCH_IDX	);
+alter table MATCH_SINGLE_INFO_NICK_TEAM add constraint pk_MATCH_SINGLE_INFO_NICK_TEAM primary key (	MATCH_IDX	
+	,REGDATE	
+	,TEAM_ID	);
+alter table MATCH_SINGLE_INFO_SCHCAL add constraint pk_MATCH_SINGLE_INFO_SCHCAL primary key (	IDX	);
+alter table MATCH_SINGLE_RESULT add constraint pk_MATCH_SINGLE_RESULT primary key (	MATCH_IDX	
+	,SINGLE_IDX	);
+alter table MATCH_SINGLE_RESULT_AUTH add constraint pk_MATCH_SINGLE_RESULT_AUTH primary key (	ADMIN_ID	
+	,SINGLE_IDX	);
+alter table MATCH_SINGLE_RESULT_LIVE add constraint pk_MATCH_SINGLE_RESULT_LIVE primary key (	SINGLE_IDX	);
+alter table MATCH_SINGLE_RESULT_REPORT add constraint pk_MATCH_SINGLE_RESULT_REPORT primary key (	SINGLE_IDX	);
+alter table MATCH_SINGLE_RESULT_TEMP add constraint pk_MATCH_SINGLE_RESULT_TEMP primary key (	IDX	);
+alter table MATCH_SINGLE_UNIFORM_INFO add constraint pk_MATCH_SINGLE_UNIFORM_INFO primary key (	IDX	);
+alter table MATCH_STADIUM_INFO# add constraint pk_MATCH_STADIUM_INFO# primary key (	IDX	);
+alter table MCH_APL add constraint pk_MCH_APL primary key (	MA_IDX	);
+alter table MCH_APL_ATTC add constraint pk_MCH_APL_ATTC primary key (	MAA_IDX	);
+alter table MCH_APL_DTL add constraint pk_MCH_APL_DTL primary key (	MAD_IDX	);
+alter table MCH_APL_SECT add constraint pk_MCH_APL_SECT primary key (	MAS_IDX	);
+alter table MCH_APL_SECT_PTCP_AGE add constraint pk_MCH_APL_SECT_PTCP_AGE primary key (	MASPA_IDX	);
+alter table MCH_APL_SECT_PTCP_GD add constraint pk_MCH_APL_SECT_PTCP_GD primary key (	MASPG_IDX	);
+alter table MCH_APL_SECT_PTCP_SCHD add constraint pk_MCH_APL_SECT_PTCP_SCHD primary key (	MASPS_IDX	);
+alter table MCH_GRP_CLSS add constraint pk_MCH_GRP_CLSS primary key (	MGC_IDX	);
+alter table MCH_INFO_ATTC add constraint pk_MCH_INFO_ATTC primary key (	MAA_IDX	);
+alter table MCH_INFO_PTCP_AGE add constraint pk_MCH_INFO_PTCP_AGE primary key (	MASPA_IDX	);
+alter table MCH_RNKG_RGLN add constraint pk_MCH_RNKG_RGLN primary key (	MRR_IDX	);
+alter table MGR_PRC add constraint pk_MGR_PRC primary key (	ACTION_USER	
+	,PRC_CD	
+	,PRC_TYPE	);
+alter table MGR_PRC_CD add constraint pk_MGR_PRC_CD primary key (	PRC_CD	);
+alter table NATIONAL_APPLY_COACH add constraint pk_NATIONAL_APPLY_COACH primary key (	IDX	);
+alter table NATIONAL_APPLY_PLAYER# add constraint pk_NATIONAL_APPLY_PLAYER# primary key (	IDX	);
+alter table NATIONAL_CHRONICLE_RECORD add constraint pk_NATIONAL_CHRONICLE_RECORD primary key (	IDX	);
+alter table NATIONAL_COACH_CAREER add constraint pk_NATIONAL_COACH_CAREER primary key (	IDX	);
+alter table NATIONAL_COACH_STAFF# add constraint pk_NATIONAL_COACH_STAFF# primary key (	IDX	);
+alter table NATIONAL_MATCH_COACH_SUMMARY# add constraint pk_NATIONAL_MATCH_COACH_SUMMARY# primary key (	HNAME	
+	,MATCH_GRADE	
+	,POSITION	
+	,USRKEY	);
+alter table NATIONAL_MATCH_INFO add constraint pk_NATIONAL_MATCH_INFO primary key (	IDX	);
+alter table NATIONAL_MATCH_PLAYER_RESULT# add constraint pk_NATIONAL_MATCH_PLAYER_RESULT# primary key (	IDX	);
+alter table NATIONAL_MATCH_PLAYER_SUMMARY# add constraint pk_NATIONAL_MATCH_PLAYER_SUMMARY# primary key (	MATCH_GRADE	
+	,PI_IDX	);
+alter table NATIONAL_MATCH_SCORE# add constraint pk_NATIONAL_MATCH_SCORE# primary key (	IDX	);
+alter table NATIONAL_MATCH_SINGLE_INFO add constraint pk_NATIONAL_MATCH_SINGLE_INFO primary key (	IDX	);
+alter table NATIONAL_MATCH_SINGLE_RESULT add constraint pk_NATIONAL_MATCH_SINGLE_RESULT primary key (	IDX	);
+alter table NATIONAL_SUMMONS_INFO add constraint pk_NATIONAL_SUMMONS_INFO primary key (	IDX	);
+alter table NATIONAL_SUMMONS_PLAYER add constraint pk_NATIONAL_SUMMONS_PLAYER primary key (	IDX	);
+alter table PHOTO_REQUEST# add constraint pk_PHOTO_REQUEST# primary key (	IDX	);
+alter table PHOTO_REQUEST_DETAIL add constraint pk_PHOTO_REQUEST_DETAIL primary key (	IDX	);
+alter table PLAYER_AGEOVER add constraint pk_PLAYER_AGEOVER primary key (	PLAYER_IDX	);
+alter table PLAYER_ANNUAL_OUT add constraint pk_PLAYER_ANNUAL_OUT primary key (	IDX	);
+alter table PLAYER_ANNUAL_UP add constraint pk_PLAYER_ANNUAL_UP primary key (	IDX	);
+alter table PLAYER_APPOINTED# add constraint pk_PLAYER_APPOINTED# primary key (	APPOINTED_TEAMID	
+	,USRKEY	);
+alter table PLAYER_APPOINTED_HISTORY# add constraint pk_PLAYER_APPOINTED_HISTORY# primary key (	APPOINTED_TEAMID	
+	,IDX	
+	,USRKEY	);
+alter table PLAYER_HEALTH# add constraint pk_PLAYER_HEALTH# primary key (	FLAG	
+	,JUMIN	
+	,REGDATE	);
+alter table PLAYER_HEALTH_FUT# add constraint pk_PLAYER_HEALTH_FUT# primary key (	FLAG	
+	,JUMIN	
+	,REGDATE	);
+alter table PLAYER_HISTORY2# add constraint pk_PLAYER_HISTORY2# primary key (	IDX	
+	,JUMIN	);
+alter table PLAYER_HISTORY2_FUT# add constraint pk_PLAYER_HISTORY2_FUT# primary key (	IDX	
+	,JUMIN	);
+alter table PLAYER_INFO# add constraint pk_PLAYER_INFO# primary key (	IDX	
+	,JUMIN	);
+alter table PLAYER_INFO_PRO# add constraint pk_PLAYER_INFO_PRO# primary key (	JUMIN	);
+alter table PLAYER_INFO_PRO_ADD# add constraint pk_PLAYER_INFO_PRO_ADD# primary key (	JOB_CD	
+	,JUMIN	
+	,POS_CD	);
+alter table PLAYER_LOAN# add constraint pk_PLAYER_LOAN# primary key (	LOANOUT_TEAMID	
+	,REG_DT	
+	,USR_KEY	);
+alter table PLAYER_LOAN_HISTORY# add constraint pk_PLAYER_LOAN_HISTORY# primary key (	LOANOUT_TEAMID	
+	,PROCESS_DT	
+	,REG_DT	
+	,USR_KEY	);
+alter table PLAYER_OUTLIST_PRO# add constraint pk_PLAYER_OUTLIST_PRO# primary key (	IDX	
+	,SERIALNUM	);
+alter table PLAYER_REPEATER# add constraint pk_PLAYER_REPEATER# primary key (	JUMIN	
+	,REGDATE	);
+alter table PLAYER_REPEATER_FUT# add constraint pk_PLAYER_REPEATER_FUT# primary key (	JUMIN	
+	,REGDATE	);
+alter table PLAYER_SEMI_PRO_HST# add constraint pk_PLAYER_SEMI_PRO_HST# primary key (	PSPH_IDX	);
+alter table PLY_TEAM_LINK add constraint pk_PLY_TEAM_LINK primary key (	FTKEY	
+	,TT_ID	);
+alter table PRO_ACADEMIC# add constraint pk_PRO_ACADEMIC# primary key (	SEQ	
+	,START_DATE	
+	,SERIALNUM	);
+alter table PRO_CAREER# add constraint pk_PRO_CAREER# primary key (	SDATE	
+	,SEQ	
+	,SERIALNUM	);
+alter table PRO_IMG_HISTORY# add constraint pk_PRO_IMG_HISTORY# primary key (	IDX	);
+alter table PUSH_HISTORY add constraint pk_PUSH_HISTORY primary key (	PH_IDX	);
+alter table REFEREE_APPROVAL_PROCESS add constraint pk_REFEREE_APPROVAL_PROCESS primary key (	APV_SEQ	
+	,REQ_IDX	);
+alter table REFEREE_APPROVAL_REQUEST add constraint pk_REFEREE_APPROVAL_REQUEST primary key (	IDX	);
+alter table REFEREE_APPROVAL_TEMPLATE add constraint pk_REFEREE_APPROVAL_TEMPLATE primary key (	REQ_TYPE	
+	,STEP_SEQ	);
+alter table REFEREE_AREACODE add constraint pk_REFEREE_AREACODE primary key (	REFNO1	);
+alter table REFEREE_ASSE_REPT add constraint pk_REFEREE_ASSE_REPT primary key (	RAR_IDX	);
+alter table REFEREE_ASSE_REPT_EXN add constraint pk_REFEREE_ASSE_REPT_EXN primary key (	RAR_IDX	
+	,REF_POSITION	);
+alter table REFEREE_ASSE_REPT_ITEM add constraint pk_REFEREE_ASSE_REPT_ITEM primary key (	ITEM_CODE	
+	,ITEM_CODE_TYPE	
+	,RAR_IDX	
+	,REF_POSITION	);
+alter table REFEREE_ASSE_REPT_MR add constraint pk_REFEREE_ASSE_REPT_MR primary key (	RAR_IDX	
+	,REF_POSITION	);
+alter table REFEREE_ASSIGN_DEFER add constraint pk_REFEREE_ASSIGN_DEFER primary key (	DEFER_START	
+	,REF_NO	);
+alter table REFEREE_ASSIGN_INFO add constraint pk_REFEREE_ASSIGN_INFO primary key (	IDX	);
+alter table REFEREE_ASSIGN_STOPDATE_INFO add constraint pk_REFEREE_ASSIGN_STOPDATE_INFO primary key (	IDX	);
+alter table REFEREE_CHIEF_REPT add constraint pk_REFEREE_CHIEF_REPT primary key (	MAS_IDX	
+	,MAT_IDX	
+	,MSR_IDX	);
+alter table REFEREE_CHIEF_REPT_RESULT# add constraint pk_REFEREE_CHIEF_REPT_RESULT# primary key (	RCM_IDX	);
+alter table REFEREE_CHIEF_SITU_REPT add constraint pk_REFEREE_CHIEF_SITU_REPT primary key (	RCS_IDX	);
+alter table REFEREE_CODE_TBL add constraint pk_REFEREE_CODE_TBL primary key (	IDX	);
+alter table REFEREE_COOPER_EXAMINEE add constraint pk_REFEREE_COOPER_EXAMINEE primary key (	COOPER_IDX	
+	,IDX	
+	,REF_NO	);
+alter table REFEREE_COOPER_TEST_MST add constraint pk_REFEREE_COOPER_TEST_MST primary key (	IDX	);
+alter table REFEREE_EDUCATION_CONFIG add constraint pk_REFEREE_EDUCATION_CONFIG primary key (	EDU_GUBUN	);
+alter table REFEREE_EDUCATION_INFO add constraint pk_REFEREE_EDUCATION_INFO primary key (	IDX	);
+alter table REFEREE_EDUCATION_INST add constraint pk_REFEREE_EDUCATION_INST primary key (	EDU_IDX	
+	,USRKEY	);
+alter table REFEREE_EDUCATION_PER_INFO# add constraint pk_REFEREE_EDUCATION_PER_INFO# primary key (	EDU_IDX	
+	,USRKEY	);
+alter table REFEREE_EDUCATION_PER_UNDEL add constraint pk_REFEREE_EDUCATION_PER_UNDEL primary key (	IDX	);
+alter table REFEREE_EDUCATION_REPORT add constraint pk_REFEREE_EDUCATION_REPORT primary key (	EDU_IDX	);
+alter table REFEREE_EDUCATION_REPORT_INST add constraint pk_REFEREE_EDUCATION_REPORT_INST primary key (	DAY	
+	,EDU_IDX	);
+alter table REFEREE_GAMEASSIGN_AUTO add constraint pk_REFEREE_GAMEASSIGN_AUTO primary key (	REF_NO	
+	,GAMEASSIGN_GRADE	);
+alter table REFEREE_GAMEASSIGN_AUTO_MAKE add constraint pk_REFEREE_GAMEASSIGN_AUTO_MAKE primary key (	ASSIGN_SEQ	
+	,MATCH_IDX	
+	,REF_NO	);
+alter table REFEREE_GAMEASSIGN_EXCEPT_LIST add constraint pk_REFEREE_GAMEASSIGN_EXCEPT_LIST primary key (	RGEL_IDX	);
+alter table REFEREE_GAMEASSIGN_GROUP add constraint pk_REFEREE_GAMEASSIGN_GROUP primary key (	RGG_IDX	);
+alter table REFEREE_GAMEASSIGN_GROUP_LIST add constraint pk_REFEREE_GAMEASSIGN_GROUP_LIST primary key (	RGGL_IDX	);
+alter table REFEREE_GAMEASSIGN_HIST add constraint pk_REFEREE_GAMEASSIGN_HIST primary key (	ASSIGN_SEQ	);
+alter table REFEREE_GRADE_CODE add constraint pk_REFEREE_GRADE_CODE primary key (	GRADE_CODE	
+	,GRADE_GROUP	);
+alter table REFEREE_INFO# add constraint pk_REFEREE_INFO# primary key (	REF_NO	);
+alter table REFEREE_INFO_YEAR add constraint pk_REFEREE_INFO_YEAR primary key (	INPUTED_YEAR	
+	,REF_NO	);
+alter table REFEREE_INST_INFO# add constraint pk_REFEREE_INST_INFO# primary key (	USRKEY	);
+alter table REFEREE_INST_YEAR add constraint pk_REFEREE_INST_YEAR primary key (	USRKEY	
+	,INPUTED_YEAR	);
+alter table REFEREE_LEAGUE_PARTS_GAME_INFO add constraint pk_REFEREE_LEAGUE_PARTS_GAME_INFO primary key (	LPG_IDX	);
+alter table REFEREE_LEAGUE_RELATION add constraint pk_REFEREE_LEAGUE_RELATION primary key (	MASTER_IDX	);
+alter table REFEREE_OVERSEE_JOIN add constraint pk_REFEREE_OVERSEE_JOIN primary key (	OSJ_IDX	);
+alter table REFEREE_OVERSEE_MST add constraint pk_REFEREE_OVERSEE_MST primary key (	OSM_IDX	);
+alter table REFEREE_OVERSEE_REPORT add constraint pk_REFEREE_OVERSEE_REPORT primary key (	IDX	);
+alter table REFEREE_PAY_HISTORY add constraint pk_REFEREE_PAY_HISTORY primary key (	REF_IDX	
+	,REGDT	);
+alter table REFEREE_PENALTY_HIST# add constraint pk_REFEREE_PENALTY_HIST# primary key (	REF_NO	
+	,WDATE	);
+alter table REFEREE_POSITION add constraint pk_REFEREE_POSITION primary key (	POS_ID	
+	,REF_NO	);
+alter table REFEREE_PUNISHMENT add constraint pk_REFEREE_PUNISHMENT primary key (	PUNISH_IDX	);
+alter table REFEREE_QUALIFICATION add constraint pk_REFEREE_QUALIFICATION primary key (	IDX	
+	,REF_LVL	
+	,REF_NO	
+	,REF_TYPE	);
+alter table REFEREE_RECRUIT_REPT add constraint pk_REFEREE_RECRUIT_REPT primary key (	IDX	
+	,REGDT	);
+alter table REFEREE_SEND_MSG_MST add constraint pk_REFEREE_SEND_MSG_MST primary key (	MST_IDX	);
+alter table REF_EVLA_INFO add constraint pk_REF_EVLA_INFO primary key (	IDX	);
+alter table REF_REG_INFO_PER add constraint pk_REF_REG_INFO_PER primary key (	REG_IDX	
+	,USRKEY	);
+alter table REF_STLA_CALCULATED_EXT add constraint pk_REF_STLA_CALCULATED_EXT primary key (	REF_NO	
+	,SINGLE_IDX	);
+alter table REF_STLA_CALCULATED_INT add constraint pk_REF_STLA_CALCULATED_INT primary key (	REF_NO	
+	,SINGLE_IDX	);
+alter table REF_STLA_MASTER_FLHT add constraint pk_REF_STLA_MASTER_FLHT primary key (	RSMF_IDX	);
+alter table REF_STLA_MASTER_GRADE add constraint pk_REF_STLA_MASTER_GRADE primary key (	MA_KND	
+	,RSMG_CREATE_DT	);
+alter table REGISTER_OC_COMMON add constraint pk_REGISTER_OC_COMMON primary key (	ASSO_CLASS	
+	,TM_ITEM_CD	
+	,TYPE	
+	,USE_FLAG	);
+alter table REGIST_APPLY# add constraint pk_REGIST_APPLY# primary key (	IDX	);
+alter table REGIST_APPLY_COACH# add constraint pk_REGIST_APPLY_COACH# primary key (	IDX	);
+alter table REGIST_APPLY_COACH_DETAIL add constraint pk_REGIST_APPLY_COACH_DETAIL primary key (	IDX	);
+alter table REGIST_APPLY_DETAIL add constraint pk_REGIST_APPLY_DETAIL primary key (	IDX	);
+alter table RESIGN_REQUEST# add constraint pk_RESIGN_REQUEST# primary key (	IDX	);
+alter table RESIGN_REQUEST_DETAIL add constraint pk_RESIGN_REQUEST_DETAIL primary key (	IDX	);
+alter table SDK_FMS_REPORT add constraint pk_SDK_FMS_REPORT primary key (	MSG_ID	);
+alter table SDK_FMS_REPORT_DETAIL add constraint pk_SDK_FMS_REPORT_DETAIL primary key (	MSG_ID	
+	,SUBJOB_ID	);
+alter table SDK_FMS_SEND add constraint pk_SDK_FMS_SEND primary key (	MSG_ID	);
+alter table SDK_MMS_REPORT add constraint pk_SDK_MMS_REPORT primary key (	MSG_ID	);
+alter table SDK_MMS_REPORT_2019 add constraint pk_SDK_MMS_REPORT_2019 primary key (	MSG_ID	);
+alter table SDK_MMS_REPORT_DETAIL add constraint pk_SDK_MMS_REPORT_DETAIL primary key (	MSG_ID	
+	,SUBJOB_ID	);
+alter table SDK_MMS_REPORT_DETAIL_2019 add constraint pk_SDK_MMS_REPORT_DETAIL_2019 primary key (	MSG_ID	
+	,SUBJOB_ID	);
+alter table SDK_MMS_SEND add constraint pk_SDK_MMS_SEND primary key (	MSG_ID	);
+alter table SDK_SMS_REPORT add constraint pk_SDK_SMS_REPORT primary key (	MSG_ID	);
+alter table SDK_SMS_REPORT_DETAIL add constraint pk_SDK_SMS_REPORT_DETAIL primary key (	MSG_ID	
+	,SUBJOB_ID	);
+alter table SDK_SMS_REPORT_DETAIL_2019 add constraint pk_SDK_SMS_REPORT_DETAIL_2019 primary key (	MSG_ID	
+	,SUBJOB_ID	);
+alter table SDK_SMS_SEND add constraint pk_SDK_SMS_SEND primary key (	MSG_ID	);
+alter table SDK_VMS_REPORT add constraint pk_SDK_VMS_REPORT primary key (	MSG_ID	);
+alter table SDK_VMS_REPORT_DETAIL add constraint pk_SDK_VMS_REPORT_DETAIL primary key (	MSG_ID	
+	,SUBJOB_ID	);
+alter table SDK_VMS_SEND add constraint pk_SDK_VMS_SEND primary key (	MSG_ID	);
+alter table SMS_ACCESSGRP add constraint pk_SMS_ACCESSGRP primary key (	GRP_CODE	
+	,USER_ID	);
+alter table SMS_CALLBACK# add constraint pk_SMS_CALLBACK# primary key (	PHONE	);
+alter table SMS_GROUP add constraint pk_SMS_GROUP primary key (	GRP_CODE	);
+alter table SMS_MEMBER add constraint pk_SMS_MEMBER primary key (	SMS_IDX	);
+alter table SOCIAL_SERVICE_REQUEST# add constraint pk_SOCIAL_SERVICE_REQUEST# primary key (	IDX	);
+alter table STUDY_ETHIC_RESULT add constraint pk_STUDY_ETHIC_RESULT primary key (	EDU_NUM	
+	,USRKEY	
+	,STUDY_REGDATE	);
+alter table STUDY_RESULT# add constraint pk_STUDY_RESULT# primary key (	FTKEY	
+	,STUDY_YEAR	);
+alter table SUPERVISOR# add constraint pk_SUPERVISOR# primary key (	IDX	);
+alter table TB_SV_ANSWER add constraint pk_TB_SV_ANSWER primary key (	ANSWERID	);
+alter table TB_SV_MASTER add constraint pk_TB_SV_MASTER primary key (	SURVEYCODE	);
+alter table TB_SV_QUESTION add constraint pk_TB_SV_QUESTION primary key (	QUESTID	);
+alter table TB_SV_RECIPIENT add constraint pk_TB_SV_RECIPIENT primary key (	USERGROUPID	
+	,USERTYPE	
+	,SURVEYCODE	);
+alter table TCKT_INFO add constraint pk_TCKT_INFO primary key (	TCKT_IDX	);
+alter table TEAMTBL# add constraint pk_TEAMTBL# primary key (	ID	);
+alter table TEAMTBL_CLASSIFY add constraint pk_TEAMTBL_CLASSIFY primary key (	IDX	);
+alter table TEAMTBL_HISTORY# add constraint pk_TEAMTBL_HISTORY# primary key (	ID	
+	,IDX	);
+alter table TEAMTBL_INTRODUCE add constraint pk_TEAMTBL_INTRODUCE primary key (	TEAMID	);
+alter table TEAM_APPROVAL# add constraint pk_TEAM_APPROVAL# primary key (	TA_CLASS	
+	,TA_FLAG	
+	,TA_IDX	
+	,TA_TEAMNAME	);
+alter table TEAM_APPROVAL_DETAIL add constraint pk_TEAM_APPROVAL_DETAIL primary key (	IDX	);
+alter table TEAM_APPROVAL_FILE add constraint pk_TEAM_APPROVAL_FILE primary key (	TA_IDX	
+	,THRE_GB	);
+alter table TEAM_BLOG_USER add constraint pk_TEAM_BLOG_USER primary key (	USERID	
+	,USRKEY	
+	,TEAMID	);
+alter table TEAM_UNIFORM add constraint pk_TEAM_UNIFORM primary key (	ID	
+	,UNIFORM_FLAG	);
+alter table TERMS_AGREE_HISTORY add constraint pk_TERMS_AGREE_HISTORY primary key (	TERMS_CD	
+	,USRKEY	);
+alter table TERMS_INFO add constraint pk_TERMS_INFO primary key (	TERMS_CD	);
+alter table TM_ACCOUNT# add constraint pk_TM_ACCOUNT# primary key (	IDX	);
+alter table TM_CLASS add constraint pk_TM_CLASS primary key (	IDX	);
+alter table TM_CODE add constraint pk_TM_CODE primary key (	IDX	);
+alter table TM_CONNECTOR# add constraint pk_TM_CONNECTOR# primary key (	IDX	);
+alter table TM_EXECUTIVE add constraint pk_TM_EXECUTIVE primary key (	IDX	);
+alter table TM_GRADE add constraint pk_TM_GRADE primary key (	IDX	);
+alter table TM_MERGE_HST add constraint pk_TM_MERGE_HST primary key (	TEAMID_MAIN	
+	,TEAMID_SUB	);
+alter table TM_REGISTER add constraint pk_TM_REGISTER primary key (	ACTIVITY	
+	,TEAMID	
+	,TEAMNAME	);
+alter table TM_REGISTER_MASTER add constraint pk_TM_REGISTER_MASTER primary key (	TM_GRADE	
+	,YEAR	);
+alter table TM_REGISTER_V2 add constraint pk_TM_REGISTER_V2 primary key (	ACTIVITY	
+	,TEAMNAME	
+	,TEAMID	);
+alter table TM_YOUTH add constraint pk_TM_YOUTH primary key (	IDX	);
+alter table TRADE_REQUEST# add constraint pk_TRADE_REQUEST# primary key (	IDX	);
+alter table TRADE_REQUEST_DETAIL add constraint pk_TRADE_REQUEST_DETAIL primary key (	GUBUN	
+	,REQUEST_IDX	);
+alter table USERINFO# add constraint pk_USERINFO# primary key (	IDX	);
+alter table USERINFO_SLEEP# add constraint pk_USERINFO_SLEEP# primary key (	IDX	);
+alter table USER_FAVORITES add constraint pk_USER_FAVORITES primary key (	IDX	);
