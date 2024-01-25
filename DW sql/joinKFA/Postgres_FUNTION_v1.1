@@ -1,0 +1,375 @@
+CREATE OR REPLACE FUNCTION joinkfa.fn_agrde(vStdrYear VARCHAR, vId VARCHAR)
+RETURNS VARCHAR AS
+$$
+/*******************************************************************************
+ NAME     : fn_agrde
+ PURPOSE  : 연령대 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2022-10-27  김임선          최초생성
+
+ PARAM    :
+    vStdrYear           VARCHAR
+    vId                 VARCHAR
+
+*******************************************************************************/
+
+DECLARE
+rtnAgrdeCde    VARCHAR;
+id_cnvr        VARCHAR = substr(vId, 1, 6);
+se_cde         VARCHAR = substr(vId, 8, 1);
+stdr_de        DATE;
+brthdy         DATE;
+BEGIN
+    IF se_cde NOT IN ('0', '9') THEN
+
+        stdr_de = CAST((CAST((vStdrYear||'0101') AS DATE) + INTERVAL '2 YEAR') AS DATE);
+
+        CASE
+             WHEN se_cde IN ('1', '2', '5', '6') THEN brthdy = CAST(('19'||id_cnvr) AS DATE);
+             WHEN se_cde IN ('3', '4', '7', '8') THEN brthdy = CAST(('20'||id_cnvr) AS DATE);
+             ELSE rtnAgrdeCde = '^';
+        END CASE;
+
+        IF stdr_de > brthdy THEN
+        	rtnAgrdeCde = CAST(EXTRACT( YEAR FROM AGE(stdr_de, brthdy)) AS TEXT);
+        ELSE rtnAgrdeCde = 'E';
+        END IF;
+    ELSE
+        RETURN 'E';
+
+    END IF;
+    RETURN rtnAgrdeCde;
+
+END;
+$$
+LANGUAGE plpgsql
+
+
+
+/*
+/* 하드코딩 추가 */
+CREATE OR REPLACE FUNCTION joinkfa.fn_agrde(vStdrYear VARCHAR, vId VARCHAR)
+RETURNS VARCHAR AS
+$$
+/*******************************************************************************
+ NAME     : fn_agrde
+ PURPOSE  : 연령대 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2022-10-27  김임선          최초생성
+
+ PARAM    :
+    vStdrYear           VARCHAR
+    vId                 VARCHAR
+
+'990101', '841090', '7921-1', '8430-1' 지도자
+'929014'    심판
+*******************************************************************************/
+
+DECLARE
+rtnAgrdeCde    VARCHAR;
+stdr_year_cnvr VARCHAR = coalesce(vStdrYear, '9999')||'0101';
+id_cnvr        VARCHAR = coalesce(substr(vId, 1, 6), '990101');
+se_cde         VARCHAR = coalesce(substr(vId, 8, 1), '1');
+stdr_de        DATE;
+brthdy         DATE;
+BEGIN
+    IF stdr_year_cnvr != '99990101' and id_cnvr not in ('990101', '841090', '7921-1', '8430-1', '929014', '999999', '888888') THEN
+
+        stdr_de = CAST((CAST((vStdrYear||'0101') AS DATE) + INTERVAL '2 YEAR') AS DATE);
+
+        CASE
+             WHEN se_cde IN ('1', '2', '5', '6') THEN brthdy = CAST(('19'||id_cnvr) AS DATE);
+             WHEN se_cde IN ('3', '4', '7', '8') THEN brthdy = CAST(('20'||id_cnvr) AS DATE);
+             ELSE rtnAgrdeCde = '^';
+        END CASE;
+
+        IF rtnAgrdeCde != '^' THEN
+            rtnAgrdeCde = CAST(EXTRACT( YEAR FROM AGE(stdr_de, brthdy)) AS TEXT);
+        ELSE
+            rtnAgrdeCde = '^';
+        END IF;
+    ELSE
+        rtnAgrdeCde = '^';
+
+    END IF;
+    RETURN rtnAgrdeCde;
+
+END;
+$$
+LANGUAGE plpgsql
+
+
+
+
+/* 원본 */
+CREATE OR REPLACE FUNCTION joinkfa.fn_agrde(vStdrYear VARCHAR, vId VARCHAR)
+RETURNS VARCHAR AS
+$$
+/*******************************************************************************
+ NAME     : fn_agrde
+ PURPOSE  : 연령대 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2022-10-27  김임선          최초생성
+
+ PARAM    :
+    vStdrYear           VARCHAR
+    vId                 VARCHAR
+
+*******************************************************************************/
+
+DECLARE
+rtnAgrdeCde    VARCHAR;
+stdr_year_cnvr VARCHAR = coalesce(vStdrYear, '9999')||'0101';
+id_cnvr        VARCHAR = coalesce(substr(vId, 1, 6), '990101');
+se_cde         VARCHAR = coalesce(substr(vId, 8, 1), '1');
+stdr_de        DATE;
+brthdy         DATE;
+BEGIN
+    IF stdr_year_cnvr != '99990101' and id_cnvr != '990101' THEN
+
+        stdr_de = CAST((CAST((vStdrYear||'0101') AS DATE) + INTERVAL '2 YEAR') AS DATE);
+
+        CASE
+             WHEN se_cde IN ('1', '2', '5', '6') THEN brthdy = CAST(('19'||id_cnvr) AS DATE);
+             WHEN se_cde IN ('3', '4', '7', '8') THEN brthdy = CAST(('20'||id_cnvr) AS DATE);
+             ELSE rtnAgrdeCde = '^';
+        END CASE;
+
+        IF rtnAgrdeCde != '^' THEN
+            rtnAgrdeCde = CAST(EXTRACT( YEAR FROM AGE(stdr_de, brthdy)) AS TEXT);
+        ELSE
+            rtnAgrdeCde = '^';
+        END IF;
+
+    ELSE
+        rtnAgrdeCde = '^';
+
+    END IF;
+
+    RETURN rtnAgrdeCde;
+
+END;
+$$
+LANGUAGE plpgsql
+*/
+
+
+
+
+
+CREATE OR REPLACE FUNCTION joinkfa.fn_sexdstn(vId VARCHAR)
+RETURNS VARCHAR AS
+$$
+/*******************************************************************************
+ NAME     : fn_sexdstn
+ PURPOSE  : 성별 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2022-10-27  김임선          최초생성
+
+ PARAM    :
+    vId                 VARCHAR
+
+*******************************************************************************/
+DECLARE
+rtnSexdstnCde VARCHAR;
+se_cde        VARCHAR = coalesce(substr(vId, 8, 1), '^');
+BEGIN
+
+    CASE
+         WHEN se_cde IN ('1', '3', '5', '7', '9') THEN rtnSexdstnCde = 'M';
+         WHEN se_cde IN ( '2', '4', '6', '8', '0') THEN rtnSexdstnCde = 'F';
+         ELSE rtnSexdstnCde = '^';
+    END CASE;
+
+    RETURN rtnSexdstnCde;
+
+END;
+$$
+LANGUAGE plpgsql
+
+
+
+CREATE OR REPLACE FUNCTION joinkfa.fn_valid_inspct(vId VARCHAR)
+RETURNS VARCHAR AS
+$$
+/*******************************************************************************
+ NAME     : fn_valid_inspct
+ PURPOSE  : 유효 검사 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2022-11-24  김임선          최초생성
+
+ PARAM    :
+    vId                 VARCHAR
+
+*******************************************************************************/
+
+DECLARE
+rtValidCde     VARCHAR;
+id_cnvr        VARCHAR = CASE WHEN vId IS NULL OR vId = '^' THEN 'N' ELSE substr(vId, 1, 6) END;
+BEGIN
+    
+    IF id_cnvr = 'N' THEN RETURN 'N';
+    END IF;
+    PERFORM id_cnvr::date;
+    RETURN 'P';
+   
+EXCEPTION WHEN OTHERS THEN
+    RETURN 'E';
+   
+END;
+$$
+LANGUAGE plpgsql
+
+
+
+
+CREATE OR REPLACE FUNCTION joinkfa.fn_valid_inspct_year(vId VARCHAR)
+RETURNS VARCHAR AS
+$$
+/*******************************************************************************
+ NAME     : fn_valid_inspct_year
+ PURPOSE  : 연도 유효 검사 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2023-03-14  김임선          최초생성
+
+ PARAM    :
+    vId                 VARCHAR
+
+*******************************************************************************/
+
+DECLARE
+rtValidCde     VARCHAR;
+id_cnvr        VARCHAR = CASE WHEN vId IS NULL OR vId = '^' THEN 'N' ELSE vId END;
+BEGIN
+    
+    IF id_cnvr = 'N' THEN RETURN 'N';
+    END IF;
+    PERFORM id_cnvr::date;
+    RETURN 'P';
+   
+EXCEPTION WHEN OTHERS THEN
+    RETURN 'E';
+   
+END;
+$$
+LANGUAGE plpgsql
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 원본 */
+CREATE OR REPLACE FUNCTION joinkfa.fn_agrde(vStdrYear VARCHAR, vId VARCHAR)
+RETURNS VARCHAR AS
+$$
+/*******************************************************************************
+ NAME     : fn_agrde
+ PURPOSE  : 연령대 리턴
+
+ REVISIONS:
+ Ver        Date        Author          Description
+ ---------- ----------- --------------- ------------------------------------
+ 1.0        2022-10-27  김임선          최초생성
+
+ PARAM    :
+    vStdrYear           VARCHAR
+    vId                 VARCHAR
+
+*******************************************************************************/
+
+DECLARE
+rtnAgrdeCde    VARCHAR;
+stdr_year_cnvr VARCHAR = coalesce(vStdrYear, '9999')||'0101';
+id_cnvr        VARCHAR = coalesce(substr(vId, 1, 6), '990101');
+se_cde         VARCHAR = coalesce(substr(vId, 8, 1), '1');
+test           NUMERIC = CASE WHEN SUBSTR(vId, 1, 6) ~ '[^0-9]+' THEN 1
+			                  WHEN CAST(SUBSTR(vId, 3, 2) AS NUMERIC) NOT BETWEEN 1 AND 12 OR CAST(SUBSTR(vId, 5, 2) AS NUMERIC) NOT BETWEEN 1 AND 31 THEN 1
+			                  ELSE 0
+	                      END;
+stdr_de        DATE;
+brthdy         DATE;
+BEGIN
+    IF stdr_year_cnvr != '99990101' AND id_cnvr NOT IN ('990101', '810229', '960230', '900229', '950231', '790229', '710229', '650229', '881131', '901131'
+                                                      , '711131') AND test = 0 THEN
+
+        stdr_de = CAST((CAST((vStdrYear||'0101') AS DATE) + INTERVAL '2 YEAR') AS DATE);
+
+        CASE
+             WHEN se_cde IN ('1', '2', '5', '6') THEN brthdy = CAST(('19'||id_cnvr) AS DATE);
+             WHEN se_cde IN ('3', '4', '7', '8') THEN brthdy = CAST(('20'||id_cnvr) AS DATE);
+             ELSE rtnAgrdeCde = '^';
+        END CASE;
+
+        IF rtnAgrdeCde != '^' THEN
+            rtnAgrdeCde = CAST(EXTRACT( YEAR FROM AGE(stdr_de, brthdy)) AS TEXT);
+        ELSE
+            rtnAgrdeCde = '^';
+        END IF;
+
+    ELSE
+        rtnAgrdeCde = '^';
+
+    END IF;
+
+    RETURN rtnAgrdeCde;
+
+END;
+$$
+LANGUAGE plpgsql
+
+
+
+

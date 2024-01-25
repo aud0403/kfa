@@ -1,0 +1,45 @@
+/*
+ * 등록일시를 기준연도로 함
+ */
+SELECT CASE WHEN a.fst_reg_dt IS NULL THEN '^' ELSE TO_CHAR(a.fst_reg_dt, 'YYYY') END AS stdr_year
+     , CASE WHEN a.apa_idx IS NULL THEN -1 ELSE a.apa_idx END AS cntrct_indx
+     , CASE WHEN a.ausrkey IS NULL THEN '^' ELSE a.ausrkey END AS agent_id
+     , CASE WHEN a.pusrkey IS NULL THEN '^' ELSE a.pusrkey END AS player_id
+     , CASE WHEN fn_valid_inspct(a.pusrkey) = 'P' AND TO_CHAR(a.fst_reg_dt, 'YYYY') != '^' THEN fn_agrde(TO_CHAR(a.fst_reg_dt, 'YYYY'), a.pusrkey)
+        WHEN fn_valid_inspct(a.pusrkey) = 'E' THEN 'E'
+        WHEN fn_valid_inspct(a.pusrkey) = 'N' THEN '^'
+        ELSE '^'
+        END AS player_agrde_cde
+     , CASE WHEN a.step IS NULL THEN '^' ELSE CAST(a.step AS TEXT) END AS confm_step_cde
+     , CASE WHEN a.teamid  IS NULL THEN '^' ELSE a.teamid END AS team_id
+     , CASE WHEN a.s_date  IS NULL THEN '^' ELSE TO_CHAR(a.s_date, 'YYYYMMDD') END AS cntrct_begin_de
+     , CASE WHEN a.e_date  IS NULL THEN '^' ELSE TO_CHAR(a.e_date, 'YYYYMMDD') END AS cntrct_end_de
+     , CASE WHEN a.term IS NULL THEN '^' ELSE a.term END AS cntrct_month_cde
+     , CASE WHEN a.etc01 IS NULL THEN '^' ELSE a.etc01 END AS trans_amount_cde
+     , CASE WHEN a.etc02 IS NULL THEN '^' ELSE a.etc02 END AS anslry_cde
+     , CASE WHEN a.etc03 IS NULL THEN '^' ELSE a.etc03 END AS cntrct_amount_cde
+     , CASE WHEN b.work_price IS NULL THEN 0 ELSE b.work_price END AS agent_emplym_amount
+     , 1 AS cntrct_co
+  FROM "agent_ply_appv#" a
+        LEFT OUTER JOIN 
+       "agent_ply_work#" b
+    ON a.pusrkey = b.pusrkey
+ GROUP BY CASE WHEN a.fst_reg_dt IS NULL THEN '^' ELSE TO_CHAR(a.fst_reg_dt, 'YYYY') END 
+     , CASE WHEN a.apa_idx IS NULL THEN -1 ELSE a.apa_idx END
+     , CASE WHEN a.ausrkey IS NULL THEN '^' ELSE a.ausrkey END
+     , CASE WHEN a.pusrkey IS NULL THEN '^' ELSE a.pusrkey end
+     , CASE WHEN fn_valid_inspct(a.pusrkey) = 'P' AND TO_CHAR(a.fst_reg_dt, 'YYYY') != '^' THEN fn_agrde(TO_CHAR(a.fst_reg_dt, 'YYYY'), a.pusrkey)
+        WHEN fn_valid_inspct(a.pusrkey) = 'E' THEN 'E'
+        WHEN fn_valid_inspct(a.pusrkey) = 'N' THEN '^'
+        ELSE '^'
+        END
+     , CASE WHEN a.step IS NULL THEN '^' ELSE CAST(a.step AS TEXT) END
+     , CASE WHEN a.teamid  IS NULL THEN '^' ELSE a.teamid END
+     , CASE WHEN a.s_date  IS NULL THEN '^' ELSE TO_CHAR(a.s_date, 'YYYYMMDD') END
+     , CASE WHEN a.e_date  IS NULL THEN '^' ELSE TO_CHAR(a.e_date, 'YYYYMMDD') END
+     , CASE WHEN a.term IS NULL THEN '^' ELSE a.term END
+     , CASE WHEN a.etc01 IS NULL THEN '^' ELSE a.etc01 END
+     , CASE WHEN a.etc02 IS NULL THEN '^' ELSE a.etc02 END
+     , CASE WHEN a.etc03 IS NULL THEN '^' ELSE a.etc03 END
+     , CASE WHEN b.work_price IS NULL THEN 0 ELSE b.work_price END
+;

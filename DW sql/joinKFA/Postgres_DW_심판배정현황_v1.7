@@ -1,0 +1,1346 @@
+/*
+ * referee_dffly_score_cde 차원에 'X'로 '테이블컬럼없음', 'N'로 '해당없음' 추가
+ * referee_game_control_score_cde 차원에 'X'로 '테이블컬럼없음', 'N'로 '해당없음' 추가
+ * referee_ftness_score_cde 차원에 'X'로 '테이블컬럼없음', 'N'로 '해당없음' 추가
+ * referee_corpr_score_cde 차원에 'X'로 '테이블컬럼없음', 'N'로 '해당없음' 추가
+ * referee_evl_grad_cde 차원에 'X'로 '테이블컬럼없음', 'N'로 '해당없음' 추가
+ * 경기결과(match_single_result) 심판번호와 referee_info_year(년도별 상태) 심판번호와 일치할 경우 심판급수를 알 수 있음
+ * wnpz_cde 차원에 'N'로 '해당없음' 추가
+ */
+/*
+ * 주심1(HR1) sql, K리그 제외용
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'HR1' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , CASE WHEN rar.mr_lvl IS NULL THEN '^' ELSE CAST(rar.mr_lvl AS TEXT) END AS referee_dffly_score_cde
+     , CASE WHEN rar.mr_te1 IS NULL THEN '^' ELSE CAST(rar.mr_te1 AS TEXT) END AS referee_game_control_score_cde
+     , CASE WHEN rar.mr_te2 IS NULL THEN '^' ELSE CAST(rar.mr_te2 AS TEXT) END AS referee_ftness_score_cde
+     , CASE WHEN rar.mr_te3 IS NULL THEN '^' ELSE CAST(rar.mr_te3 AS TEXT) END AS referee_corpr_score_cde 
+     , 'X' AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN rar.mr_gpa IS NULL THEN 0 ELSE rar.mr_gpa END AS referee_gpa
+     , CASE WHEN b.yellow_card_co IS NULL THEN 0 ELSE b.yellow_card_co END AS yellow_card_co
+     , CASE WHEN c.red_card_co IS NULL THEN 0 ELSE c.red_card_co END AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_main_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_main_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+                   AND mi.ma_knd != '11'
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+       LEFT OUTER JOIN
+       (
+        SELECT match_idx AS cmpet_no, single_idx AS game_no, count(*) AS yellow_card_co
+          FROM "match_score#"
+         WHERE flag IN ('31', '32', '33')
+         GROUP BY match_idx, single_idx
+         ORDER BY match_idx, single_idx
+       ) b
+    ON a.cmpet_no = b.cmpet_no
+   AND a.game_no = b.game_no
+       LEFT OUTER JOIN
+       (
+        SELECT match_idx AS cmpet_no, single_idx AS game_no, count(*) AS red_card_co
+          FROM "match_score#"
+         WHERE flag IN ('41', '71', '76')
+         GROUP BY match_idx, single_idx
+         ORDER BY match_idx, single_idx
+       ) c
+    ON a.cmpet_no = c.cmpet_no
+   AND a.game_no = c.game_no
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.mr_lvl IS NULL THEN '^' ELSE CAST(rar.mr_lvl AS TEXT) END
+     , CASE WHEN rar.mr_te1 IS NULL THEN '^' ELSE CAST(rar.mr_te1 AS TEXT) END
+     , CASE WHEN rar.mr_te2 IS NULL THEN '^' ELSE CAST(rar.mr_te2 AS TEXT) END
+     , CASE WHEN rar.mr_te3 IS NULL THEN '^' ELSE CAST(rar.mr_te3 AS TEXT) END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rar.mr_gpa IS NULL THEN 0 ELSE rar.mr_gpa END
+     , CASE WHEN b.yellow_card_co IS NULL THEN 0 ELSE b.yellow_card_co END
+     , CASE WHEN c.red_card_co IS NULL THEN 0 ELSE c.red_card_co END
+;
+
+
+
+/*
+ * 주심1(HR1) sql, K리그용
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'HR1' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , CASE WHEN rar.mr_lvl IS NULL THEN '^' ELSE CAST(rar.mr_lvl AS TEXT) END AS referee_dffly_score_cde
+     , CASE WHEN rar.mr_te1 IS NULL THEN '^' ELSE CAST(rar.mr_te1 AS TEXT) END AS referee_game_control_score_cde
+     , CASE WHEN rar.mr_te2 IS NULL THEN '^' ELSE CAST(rar.mr_te2 AS TEXT) END AS referee_ftness_score_cde
+     , CASE WHEN rar.mr_te3 IS NULL THEN '^' ELSE CAST(rar.mr_te3 AS TEXT) END AS referee_corpr_score_cde 
+     , 'X' AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN rar.mr_gpa IS NULL THEN 0 ELSE rar.mr_gpa END AS referee_gpa
+     , CASE WHEN b.yellow_card_co IS NULL THEN 0 ELSE b.yellow_card_co END AS yellow_card_co
+     , CASE WHEN c.red_card_co IS NULL THEN 0 ELSE c.red_card_co END AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , CASE WHEN d.foul_co IS NULL THEN 0 ELSE d.foul_co END AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_main_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_main_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+                   AND mi.ma_knd = '11'
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+       LEFT OUTER JOIN
+       (
+        SELECT mat_idx AS cmpet_no, mas_idx AS game_no, count(*) AS yellow_card_co
+          FROM "referee_chief_rept_result#"
+         WHERE flag IN ('31', '32', '33')
+         GROUP BY mat_idx, mas_idx
+         ORDER BY mat_idx, mas_idx
+       ) b
+    ON a.cmpet_no = b.cmpet_no
+   AND a.game_no = b.game_no
+       LEFT OUTER JOIN
+       (
+        SELECT mat_idx AS cmpet_no, mas_idx AS game_no, count(*) AS red_card_co
+          FROM "referee_chief_rept_result#"
+         WHERE flag IN ('41', '71', '76')
+         GROUP BY mat_idx, mas_idx
+         ORDER BY mat_idx, mas_idx
+       ) c
+    ON a.cmpet_no = c.cmpet_no
+   AND a.game_no = c.game_no
+       LEFT OUTER JOIN
+       (
+        SELECT mat_idx AS cmpet_no, mas_idx AS game_no, count(*) AS foul_co
+          FROM "referee_chief_rept_result#"
+         WHERE flag = '91'
+         GROUP BY mat_idx, mas_idx
+         ORDER BY mat_idx, mas_idx
+       ) d
+    ON a.cmpet_no = d.cmpet_no
+   AND a.game_no = d.game_no
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.mr_lvl IS NULL THEN '^' ELSE CAST(rar.mr_lvl AS TEXT) END
+     , CASE WHEN rar.mr_te1 IS NULL THEN '^' ELSE CAST(rar.mr_te1 AS TEXT) END
+     , CASE WHEN rar.mr_te2 IS NULL THEN '^' ELSE CAST(rar.mr_te2 AS TEXT) END
+     , CASE WHEN rar.mr_te3 IS NULL THEN '^' ELSE CAST(rar.mr_te3 AS TEXT) END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rar.mr_gpa IS NULL THEN 0 ELSE rar.mr_gpa END
+     , CASE WHEN b.yellow_card_co IS NULL THEN 0 ELSE b.yellow_card_co END
+     , CASE WHEN c.red_card_co IS NULL THEN 0 ELSE c.red_card_co END
+     , CASE WHEN d.foul_co IS NULL THEN 0 ELSE d.foul_co END
+;
+
+
+
+/*
+ * 주심2(HR2) sql
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'HR2' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , CASE WHEN rar.mr2_lvl IS NULL THEN '^' ELSE CAST(rar.mr2_lvl AS TEXT) END AS referee_dffly_score_cde
+     , CASE WHEN rar.mr2_te1 IS NULL THEN '^' ELSE CAST(rar.mr2_te1 AS TEXT) END AS referee_game_control_score_cde
+     , CASE WHEN rar.mr2_te2 IS NULL THEN '^' ELSE CAST(rar.mr2_te2 AS TEXT) END AS referee_ftness_score_cde
+     , CASE WHEN rar.mr2_te3 IS NULL THEN '^' ELSE CAST(rar.mr2_te3 AS TEXT) END AS referee_corpr_score_cde
+     , 'X' AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN rar.mr2_gpa IS NULL THEN 0 ELSE rar.mr2_gpa END AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_main2_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_main2_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.mr2_lvl IS NULL THEN '^' ELSE CAST(rar.mr2_lvl AS TEXT) END
+     , CASE WHEN rar.mr2_te1 IS NULL THEN '^' ELSE CAST(rar.mr2_te1 AS TEXT) END
+     , CASE WHEN rar.mr2_te2 IS NULL THEN '^' ELSE CAST(rar.mr2_te2 AS TEXT) END
+     , CASE WHEN rar.mr2_te3 IS NULL THEN '^' ELSE CAST(rar.mr2_te3 AS TEXT) END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rar.mr2_gpa IS NULL THEN 0 ELSE rar.mr2_gpa END
+;
+
+
+
+/*
+ * 부심1(AR1) sql
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'AR1' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , CASE WHEN rar.sr1_lvl IS NULL THEN '^' ELSE CAST(rar.sr1_lvl AS TEXT) END AS referee_dffly_score_cde
+     , CASE WHEN rar.sr1_te1 IS NULL THEN '^' ELSE CAST(rar.sr1_te1 AS TEXT) END AS referee_game_control_score_cde
+     , CASE WHEN rar.sr1_te2 IS NULL THEN '^' ELSE CAST(rar.sr1_te2 AS TEXT) END AS referee_ftness_score_cde
+     , CASE WHEN rar.sr1_te3 IS NULL THEN '^' ELSE CAST(rar.sr1_te3 AS TEXT) END AS referee_corpr_score_cde
+     , 'X' AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN rar.sr1_gpa IS NULL THEN 0 ELSE rar.sr1_gpa END AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_sub1_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_sub1_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.sr1_lvl IS NULL THEN '^' ELSE CAST(rar.sr1_lvl AS TEXT) END
+     , CASE WHEN rar.sr1_te1 IS NULL THEN '^' ELSE CAST(rar.sr1_te1 AS TEXT) END
+     , CASE WHEN rar.sr1_te2 IS NULL THEN '^' ELSE CAST(rar.sr1_te2 AS TEXT) END
+     , CASE WHEN rar.sr1_te3 IS NULL THEN '^' ELSE CAST(rar.sr1_te3 AS TEXT) END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rar.sr1_gpa IS NULL THEN 0 ELSE rar.sr1_gpa END
+;
+
+
+
+/*
+ * 부심2(AR2) sql
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'AR2' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , CASE WHEN rar.sr2_lvl IS NULL THEN '^' ELSE CAST(rar.sr2_lvl AS TEXT) END AS referee_dffly_score_cde
+     , CASE WHEN rar.sr2_te1 IS NULL THEN '^' ELSE CAST(rar.sr2_te1 AS TEXT) END AS referee_game_control_score_cde
+     , CASE WHEN rar.sr2_te2 IS NULL THEN '^' ELSE CAST(rar.sr2_te2 AS TEXT) END AS referee_ftness_score_cde
+     , CASE WHEN rar.sr2_te3 IS NULL THEN '^' ELSE CAST(rar.sr2_te3 AS TEXT) END AS referee_corpr_score_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , 'X' AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN rar.sr2_gpa IS NULL THEN 0 ELSE rar.sr2_gpa END AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_sub2_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_sub2_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.sr2_lvl IS NULL THEN '^' ELSE CAST(rar.sr2_lvl AS TEXT) END
+     , CASE WHEN rar.sr2_te1 IS NULL THEN '^' ELSE CAST(rar.sr2_te1 AS TEXT) END
+     , CASE WHEN rar.sr2_te2 IS NULL THEN '^' ELSE CAST(rar.sr2_te2 AS TEXT) END
+     , CASE WHEN rar.sr2_te3 IS NULL THEN '^' ELSE CAST(rar.sr2_te3 AS TEXT) END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rar.sr2_gpa IS NULL THEN 0 ELSE rar.sr2_gpa END
+;
+
+
+
+/*
+ * 추가부심1(AAR1) sql
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'AAR1' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , CASE WHEN rar.sr3_lvl IS NULL THEN '^' ELSE CAST(rar.sr3_lvl AS TEXT) END AS referee_dffly_score_cde
+     , CASE WHEN rar.sr3_te1 IS NULL THEN '^' ELSE CAST(rar.sr3_te1 AS TEXT) END AS referee_game_control_score_cde
+     , CASE WHEN rar.sr3_te2 IS NULL THEN '^' ELSE CAST(rar.sr3_te2 AS TEXT) END AS referee_ftness_score_cde
+     , CASE WHEN rar.sr3_te3 IS NULL THEN '^' ELSE CAST(rar.sr3_te3 AS TEXT) END AS referee_corpr_score_cde
+     , 'X' AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN rar.sr3_gpa IS NULL THEN 0 ELSE rar.sr3_gpa END AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_sub3_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_sub3_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.sr3_lvl IS NULL THEN '^' ELSE CAST(rar.sr3_lvl AS TEXT) END
+     , CASE WHEN rar.sr3_te1 IS NULL THEN '^' ELSE CAST(rar.sr3_te1 AS TEXT) END
+     , CASE WHEN rar.sr3_te2 IS NULL THEN '^' ELSE CAST(rar.sr3_te2 AS TEXT) END
+     , CASE WHEN rar.sr3_te3 IS NULL THEN '^' ELSE CAST(rar.sr3_te3 AS TEXT) END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rar.sr3_gpa IS NULL THEN 0 ELSE rar.sr3_gpa END
+;
+
+
+
+/*
+ * 추가부심2(AAR2) sql
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'AAR2' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , CASE WHEN rar.sr4_lvl IS NULL THEN '^' ELSE CAST(rar.sr4_lvl AS TEXT) END AS referee_dffly_score_cde
+     , CASE WHEN rar.sr4_te1 IS NULL THEN '^' ELSE CAST(rar.sr4_te1 AS TEXT) END AS referee_game_control_score_cde
+     , CASE WHEN rar.sr4_te2 IS NULL THEN '^' ELSE CAST(rar.sr4_te2 AS TEXT) END AS referee_ftness_score_cde
+     , CASE WHEN rar.sr4_te3 IS NULL THEN '^' ELSE CAST(rar.sr4_te3 AS TEXT) END AS referee_corpr_score_cde
+     , 'X' AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN rar.sr4_gpa IS NULL THEN 0 ELSE rar.sr4_gpa END AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_sub4_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_sub4_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.sr4_lvl IS NULL THEN '^' ELSE CAST(rar.sr4_lvl AS TEXT) END
+     , CASE WHEN rar.sr4_te1 IS NULL THEN '^' ELSE CAST(rar.sr4_te1 AS TEXT) END
+     , CASE WHEN rar.sr4_te2 IS NULL THEN '^' ELSE CAST(rar.sr4_te2 AS TEXT) END
+     , CASE WHEN rar.sr4_te3 IS NULL THEN '^' ELSE CAST(rar.sr4_te3 AS TEXT) END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rar.sr4_gpa IS NULL THEN 0 ELSE rar.sr4_gpa END
+;
+
+
+
+/*
+ * 대기심(FO)
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'FO' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , CASE WHEN rar.wr_lvl IS NULL THEN '^' ELSE CAST(rar.wr_lvl AS TEXT) END AS referee_dffly_score_cde
+     , CASE WHEN rar.wr_te1 IS NULL THEN '^' ELSE CAST(rar.wr_te1 AS TEXT) END AS referee_game_control_score_cde
+     , CASE WHEN rar.wr_te2 IS NULL THEN '^' ELSE CAST(rar.wr_te2 AS TEXT) END AS referee_ftness_score_cde
+     , 'X' AS referee_corpr_score_cde
+     , 'X' AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN rar.wr_gpa IS NULL THEN 0 ELSE rar.wr_gpa END AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_standby_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_standby_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.wr_lvl IS NULL THEN '^' ELSE CAST(rar.wr_lvl AS TEXT) END
+     , CASE WHEN rar.wr_te1 IS NULL THEN '^' ELSE CAST(rar.wr_te1 AS TEXT) END
+     , CASE WHEN rar.wr_te2 IS NULL THEN '^' ELSE CAST(rar.wr_te2 AS TEXT) END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rar.wr_gpa IS NULL THEN 0 ELSE rar.wr_gpa END
+;
+
+
+
+/*
+ * var(V) sql
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'V' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , 'X' AS referee_dffly_score_cde
+     , 'X' AS referee_game_control_score_cde
+     , 'X' AS referee_ftness_score_cde
+     , 'X' AS referee_corpr_score_cde
+     , CASE WHEN rar.sr3_grade IS NULL THEN '^' ELSE rar.sr3_grade END AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , 0 AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_var_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_var_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.sr3_grade IS NULL THEN '^' ELSE rar.sr3_grade end
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+;
+
+
+
+/*
+ * avar(AV) sql
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'AV' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , 'X' AS referee_dffly_score_cde
+     , 'X' AS referee_game_control_score_cde
+     , 'X' AS referee_ftness_score_cde
+     , 'X' AS referee_corpr_score_cde
+     , CASE WHEN rar.sr4_grade IS NULL THEN '^' ELSE rar.sr4_grade END AS referee_evl_grad_cde
+     , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , 0 AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT c.stdr_year, c.cmpet_no, c.league_cmpet_se_cde, c.cmpet_class_cde, c.cmpet_knd_cde
+		     , c.game_no, c.game_de, c.referee_no, c.referee_id, d.wnpz_cde, c.idx
+		  FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no
+                     , mi."STYLE" AS league_cmpet_se_cde
+                     , mi.ma_mch_clss AS cmpet_class_cde
+                     , mi.ma_knd AS cmpet_knd_cde
+                     , msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                     , msr.idx
+                     , msr.referee_avar_no AS referee_no
+                     , ri.usrkey AS referee_id
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                       LEFT OUTER join
+                       "referee_info#" ri
+                    ON msr.referee_avar_no = ri.ref_no
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+				) c
+                LEFT OUTER join
+                (
+                 SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                      , ma.match_idx AS cmpet_no
+                      , ma.jumin AS wnpz_trget_id
+                      , ma.status AS wnpz_cde
+                      , ma.teamid AS team_id
+                   FROM "match_award#" ma
+                        LEFT OUTER JOIN
+                        match_info mi
+                     ON ma.match_idx = mi.idx
+                  WHERE ma.flag = 'R'
+                ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.referee_id = d.wnpz_trget_id
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+        LEFT OUTER JOIN
+        referee_asse_rept rar
+    ON a.idx = rar.msr_idx
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no end
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN rar.sr4_grade IS NULL THEN '^' ELSE rar.sr4_grade END
+	 , CASE WHEN a.wnpz_cde IS NULL THEN '^' ELSE a.wnpz_cde END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+;
+
+
+
+/*
+ * 심판평가관(RA) sql
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END AS referee_id
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no END AS referee_no
+     , 'RA' AS referee_se_cde
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END AS referee_wsp_cde
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END AS snd_clss_referee_wsp_cde
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END AS cmpet_no
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END AS game_no
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END AS game_de
+     , 'N' AS referee_dffly_score_cde
+     , 'N' AS referee_game_control_score_cde
+     , 'N' AS referee_ftness_score_cde
+     , 'N' AS referee_corpr_score_cde
+     , 'N' AS referee_evl_grad_cde
+     , 'N' AS wnpz_cde
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , 0 AS referee_gpa
+     , 0 AS yellow_card_co
+     , 0 AS red_card_co
+     , 1 AS game_co
+     , 0 AS lstcs_score
+     , 0 AS foul_co
+     , 0 AS var_co
+     , 0 AS var_revrsl_co
+  FROM (
+        SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+             , mi.idx AS cmpet_no
+             , mi."STYLE" AS league_cmpet_se_cde
+             , mi.ma_mch_clss AS cmpet_class_cde
+             , mi.ma_knd AS cmpet_knd_cde
+             , msi.idx AS game_no
+             , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+             , msr.idx
+             , msr.referee_assessor_no AS referee_no
+             , ri.usrkey AS referee_id
+          FROM match_info mi
+             , match_single_info msi
+             , match_single_result msr
+               LEFT OUTER join
+               "referee_info#" ri
+            ON msr.referee_assessor_no = ri.ref_no
+         WHERE mi.idx = msi.match_idx
+           AND msi.match_idx  = msr.match_idx
+           AND msi.idx = msr.single_idx
+--           AND TO_CHAR(msi.match_dt, 'YYYY') = TO_CHAR(NOW(), 'YYYY') /* 기준연도 조건 */
+        ) a
+        LEFT OUTER JOIN
+        referee_info_year riy
+    ON a.stdr_year = riy.inputed_year
+   AND a.referee_no = riy.ref_no
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE a.referee_id END
+     , CASE WHEN a.referee_no IS NULL THEN -1 ELSE a.referee_no end
+     , CASE WHEN riy.refno4 IS NULL THEN '^' ELSE riy.refno4 END
+     , CASE WHEN riy.refno4_2k IS NULL THEN '^' ELSE riy.refno4_2k END
+     , CASE WHEN a.cmpet_no IS NULL THEN -1 ELSE a.cmpet_no END
+     , CASE WHEN a.cmpet_class_cde IS NULL THEN '^' ELSE a.cmpet_class_cde END
+     , CASE WHEN a.cmpet_knd_cde IS NULL THEN '^' ELSE a.cmpet_knd_cde end
+     , CASE WHEN a.league_cmpet_se_cde IS NULL THEN '^' ELSE a.league_cmpet_se_cde END
+     , CASE WHEN a.game_no IS NULL THEN -1 ELSE a.game_no END
+     , CASE WHEN a.game_de IS NULL THEN '^' ELSE a.game_de END
+     , CASE WHEN a.referee_id IS NULL THEN '^' ELSE fn_sexdstn(a.referee_id) END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.referee_id)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.referee_id) = 'P' AND a.stdr_year IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.stdr_year, a.referee_id) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.referee_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.referee_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+;

@@ -1,0 +1,40 @@
+SELECT CASE WHEN mi.playing_start IS NULL THEN '^' ELSE TO_CHAR(mi.playing_start, 'YYYY') END AS stdr_year
+     , CASE WHEN rsce.match_idx IS NULL THEN -1 ELSE rsce.match_idx END AS cmpet_no
+     , CASE WHEN rsce.single_idx IS NULL THEN -1 ELSE rsce.single_idx END AS game_no
+     , CASE WHEN rsce.ref_no IS NULL THEN -1 ELSE rsce.ref_no END AS referee_no
+     , CASE WHEN rsce.round_info IS NULL THEN '^' ELSE rsce.round_info END AS round_cde
+     , CASE WHEN rsce.area_idx IS NULL THEN -1 ELSE rsce.area_idx END AS stdm_indx
+     , CASE WHEN rsce.ref_type IS NULL THEN '^' ELSE rsce.ref_type END AS referee_rspofc_cde
+     , CASE WHEN rsce.cal_dist IS NULL THEN 0 ELSE rsce.cal_dist END AS bsrp_dstnc
+     , CASE WHEN rsce.cost_dist IS NULL THEN 0 ELSE rsce.cost_dist END AS dstnc_ct
+     , CASE WHEN rsce.cost_flight IS NULL THEN 0 ELSE rsce.cost_flight END AS flight_amount
+     , CASE WHEN rsce.cost_injeju IS NULL THEN 0 ELSE rsce.cost_injeju END AS jj_ise_ct
+     , CASE WHEN rsce.cost_room IS NULL THEN 0 ELSE rsce.cost_room END AS stayng_ct
+     , CASE WHEN rsce.cost_meal IS NULL THEN 0 ELSE rsce.cost_meal END AS meal_ct
+     , CASE WHEN rsce.cal_pay IS NULL THEN 0 ELSE rsce.cal_pay END AS referee_allwnc
+     , CASE WHEN rsce.cal_expenses IS NULL THEN 0 ELSE rsce.cal_expenses END AS excclc_amount
+     , CASE WHEN rsce.result_expenses IS NULL THEN 0 ELSE rsce.result_expenses END AS bsrp_ct
+     , CASE WHEN rsce.result_pay IS NULL THEN 0 ELSE rsce.result_pay END AS allwnc
+     , 1 AS excclc_co
+  FROM ref_stla_calculated_ext rsce
+       LEFT OUTER JOIN
+       match_info mi
+    ON rsce.match_idx = mi.idx
+ GROUP BY CASE WHEN mi.playing_start IS NULL THEN '^' ELSE TO_CHAR(mi.playing_start, 'YYYY') END
+     , CASE WHEN rsce.match_idx IS NULL THEN -1 ELSE rsce.match_idx END
+     , CASE WHEN rsce.single_idx IS NULL THEN -1 ELSE rsce.single_idx END
+     , CASE WHEN rsce.ref_no IS NULL THEN -1 ELSE rsce.ref_no END
+     , CASE WHEN rsce.round_info IS NULL THEN '^' ELSE rsce.round_info END
+     , CASE WHEN rsce.area_idx IS NULL THEN -1 ELSE rsce.area_idx END
+     , CASE WHEN rsce.ref_type IS NULL THEN '^' ELSE rsce.ref_type END
+     , CASE WHEN rsce.cal_dist IS NULL THEN 0 ELSE rsce.cal_dist END
+     , CASE WHEN rsce.cost_dist IS NULL THEN 0 ELSE rsce.cost_dist END
+     , CASE WHEN rsce.cost_flight IS NULL THEN 0 ELSE rsce.cost_flight END
+     , CASE WHEN rsce.cost_injeju IS NULL THEN 0 ELSE rsce.cost_injeju END
+     , CASE WHEN rsce.cost_room IS NULL THEN 0 ELSE rsce.cost_room END
+     , CASE WHEN rsce.cost_meal IS NULL THEN 0 ELSE rsce.cost_meal END
+     , CASE WHEN rsce.cal_pay IS NULL THEN 0 ELSE rsce.cal_pay END
+     , CASE WHEN rsce.cal_expenses IS NULL THEN 0 ELSE rsce.cal_expenses END
+     , CASE WHEN rsce.result_expenses IS NULL THEN 0 ELSE rsce.result_expenses END
+     , CASE WHEN rsce.result_pay IS NULL THEN 0 ELSE rsce.result_pay END
+;

@@ -1,0 +1,57 @@
+/*
+ * 초기 데이터
+ * 과거데이터는 tm_register만 사용함. teamtbl#로 창단일을 알 수 없어 현재 teamtbl#에 있는 모든 데이터를 팀으로 보기 때문에 제대로된 팀 건수를 알 수 없어 엮지 않음
+ */
+SELECT tr.activity AS stdr_year
+     , tr.teamid AS team_id
+     , 'R' AS team_sttus_cde
+     , tr.teamname AS team_nm
+     , tr.tm_grade AS team_grad_cde
+     , tr.tm_area AS team_area_cde
+     , tr.league_area AS team_league_area_cde
+     , mtt.tm_class AS team_class_cde
+     , mtt.asso_class AS team_asoc_grad_cde
+     , mtt.tm_gender_cd AS team_sexdstn_cde
+     , mtt.tm_age_cd AS team_age_cde
+     , mtt.tm_item_cd AS item_cde
+     , mtt.tm_pro_yn AS pro_at
+  FROM tm_register tr
+       LEFT OUTER JOIN master_tm_type mtt
+    ON UPPER(tr.tm_grade) = mtt.tm_grade
+;
+
+/*
+ * 주기별 데이터 : 당행년도 데이터 delete 후 재적재(delete from t_team_info where stdr_year = TO_CHAR(now(), 'YYYY'))
+ * team_sttus_cde => 등록 : R, 미등록 : UR, 해체 : D 
+ */
+SELECT TO_CHAR(now(), 'YYYY') AS stdr_year
+     , t.id AS team_id
+     , CASE WHEN t.id = tr.teamid AND t.tm_status = 'U' THEN 'R' 
+            WHEN t.tm_status = 'D' THEN 'D'
+            ELSE 'UR'
+        END AS team_sttus_cde
+     , t."NAME" AS team_nm
+     , t.tm_area AS team_area_cde
+     , t.tm_grade AS team_grad_cde
+     , t.league_area AS team_league_area_cde
+     , mtt.tm_class AS team_class_cde
+     , mtt.asso_class AS team_asoc_grad_cde
+     , mtt.tm_gender_cd AS team_sexdstn_cde
+     , mtt.tm_age_cd AS team_age_cde
+     , mtt.tm_item_cd AS item_cde
+     , mtt.tm_pro_yn AS pro_at
+     , t.kind_code AS asort_cde
+     , t.kind_code_detail1 AS asort_detail_1_cde
+     , t.kind_code_detail2 AS asort_detail_2_cde
+     , t.k_junior AS pro_junior_at
+     , t.yh_type AS union_team_knd_cde
+--     , t.par_id AS parnts_team_id
+     , t.fifa_id AS fifa_id
+     , TO_CHAR(t.disband_date, 'YYYYMMDD') AS dsmntl_de
+  FROM "teamtbl#" t
+       LEFT OUTER JOIN master_tm_type mtt
+    ON UPPER(t.tm_grade) = mtt.tm_grade
+       LEFT OUTER JOIN tm_register tr
+    ON t.id = tr.teamid 
+   AND tr.activity = TO_CHAR(NOW(), 'YYYY')
+;

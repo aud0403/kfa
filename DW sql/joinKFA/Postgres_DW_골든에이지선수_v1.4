@@ -1,0 +1,185 @@
+/*
+ * 전임지도자은 현재 소지별 최대 9명이 있어 소속팀감독(1명)처럼 엮지 않음
+ */
+SELECT CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END AS stdr_year
+     , CASE WHEN aa.cnvc_no IS NULL THEN -1 ELSE aa.cnvc_no END AS cnvc_no
+     , CASE WHEN aa.cnvc_tme IS NULL THEN -1 ELSE aa.cnvc_tme END AS cnvc_tme
+     , CASE WHEN aa.item_cde IS NULL THEN '^' ELSE aa.item_cde END AS item_cde
+     , CASE WHEN aa.player_id IS NULL THEN '^' ELSE aa.player_id END AS player_id
+     , CASE WHEN aa.player_indx IS NULL THEN -1 ELSE aa.player_indx END AS player_indx
+     , CASE WHEN aa.player_sexdstn_cde IS NULL THEN '^' ELSE aa.player_sexdstn_cde END AS player_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(aa.player_id) = 'P' AND aa.stdr_year IS NOT NULL THEN fn_agrde(aa.stdr_year, aa.player_id)
+            WHEN fn_valid_inspct(aa.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(aa.player_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS player_agrde_cde
+     , CASE WHEN aa.cnvc_cnter_se_cde IS NULL THEN '^' ELSE aa.cnvc_cnter_se_cde END AS cnvc_cnter_se_cde
+     , CASE WHEN aa.cnvc_wdr_cde IS NULL THEN '^' ELSE aa.cnvc_wdr_cde END AS cnvc_wdr_cde
+     , CASE WHEN aa.cnvc_area_cde IS NULL THEN '^' ELSE aa.cnvc_area_cde END AS cnvc_area_cde
+     , CASE WHEN CAST(aa.cnvc_team_grad_cde AS TEXT) IS NULL THEN '^' ELSE CAST(aa.cnvc_team_grad_cde AS TEXT) END AS cnvc_team_grad_cde
+     , CASE WHEN aa.cnvc_sexdstn_cde IS NULL THEN '^' ELSE aa.cnvc_sexdstn_cde END AS cnvc_sexdstn_cde
+     , CASE WHEN aa.use_foot_cde IS NULL THEN '^' ELSE aa.use_foot_cde END AS use_foot_cde
+     , CASE WHEN aa.atend_at IS NULL THEN '^' ELSE aa.atend_at END AS atend_at
+     , CASE WHEN aa.player_gpa_cde IS NULL THEN '^' ELSE aa.player_gpa_cde END AS player_gpa_cde
+     , CASE WHEN aa.traing_begin_dat IS NULL THEN '^' ELSE aa.traing_begin_dat END AS traing_begin_dat
+     , CASE WHEN aa.traing_end_dat IS NULL THEN '^' ELSE aa.traing_end_dat END AS traing_end_dat
+     , CASE WHEN aa.player_traing_begin_dat IS NULL THEN '^' ELSE aa.player_traing_begin_dat END AS player_traing_begin_dat
+     , CASE WHEN aa.player_traing_end_dat IS NULL THEN '^' ELSE aa.player_traing_end_dat END AS player_traing_end_dat
+     , CASE WHEN aa.psitn_team_id IS NULL THEN '^' ELSE aa.psitn_team_id END AS psitn_team_id
+     , CASE WHEN cc.team_grad_cde IS NULL THEN '^' ELSE cc.team_grad_cde END AS psitn_team_grad_cde
+     , CASE WHEN cc.team_area_cde IS NULL THEN '^' ELSE cc.team_area_cde END AS psitn_team_area_cde
+     , CASE WHEN cc.team_class_cde IS NULL THEN '^' ELSE cc.team_class_cde END AS psitn_team_class_cde
+     , CASE WHEN bb.coach_id IS NULL THEN '^' ELSE bb.coach_id END AS psitn_team_mangr_id
+     , CASE WHEN aa.psitn_team_player_postn_cde IS NULL THEN '^' ELSE aa.psitn_team_player_postn_cde END AS psitn_team_player_postn_cde
+     , CASE WHEN aa.cnvc_sttus_cde IS NULL THEN '^' ELSE aa.cnvc_sttus_cde END AS cnvc_sttus_cde
+     , CASE WHEN aa.cnvc_no IS NULL AND aa.player_indx IS NULL THEN '^' ELSE CAST(aa.cnvc_no AS TEXT) || '_' || CAST(aa.player_indx AS TEXT) END AS evl_opinion_cde
+     , CASE WHEN aa.traing_place_nm IS NULL THEN '^' ELSE aa.traing_place_nm END AS traing_place_nm
+     , aa.psitn_team_nm AS psitn_team_nm
+     , CASE WHEN aa.height IS NULL THEN 0 ELSE aa.height END AS height
+     , CASE WHEN aa.bdwgh IS NULL THEN 0 ELSE aa.bdwgh END AS bdwgh
+     , CASE WHEN aa.cnvc_co IS NULL THEN 0 ELSE aa.cnvc_co END AS cnvc_co
+  FROM (
+        SELECT a.cnvc_no AS cnvc_no
+             , a.item_cde AS item_cde
+             , a.cnvc_cnter_se_cde AS cnvc_cnter_se_cde
+             , a.cnvc_wdr_cde AS cnvc_wdr_cde
+             , a.cnvc_area_cde AS cnvc_area_cde
+             , a.cnvc_team_grad_cde AS cnvc_team_grad_cde
+             , a.cnvc_sexdstn_cde AS cnvc_sexdstn_cde
+             , a.traing_begin_dat AS traing_begin_dat
+             , a.traing_end_dat AS traing_end_dat
+             , a.traing_place_nm AS traing_place_nm
+             , a.cnvc_tme AS cnvc_tme
+             , a.stdr_year AS stdr_year
+             , a.player_indx AS player_indx
+             , a.player_sexdstn_cde AS player_sexdstn_cde
+             , a.player_id AS player_id
+             , a.psitn_team_id AS psitn_team_id
+             , a.psitn_team_nm AS psitn_team_nm
+             , a.psitn_team_player_postn_cde AS psitn_team_player_postn_cde
+             , a.height AS height
+             , a.bdwgh AS bdwgh
+             , a.use_foot_cde AS use_foot_cde
+             , a.player_traing_begin_dat AS player_traing_begin_dat
+             , a.player_traing_end_dat AS player_traing_end_dat
+             , a.cnvc_sttus_cde
+             , gapr.player_gpa AS player_gpa_cde 
+             , gapr.player_attend_yn AS atend_at 
+             , 1 AS cnvc_co
+          FROM (
+                SELECT gasi.g_summons_idx AS cnvc_no
+                     , gasi.tm_item_cd AS item_cde
+                     , gasi.summons_center_cd AS cnvc_cnter_se_cde
+                     , gasi.summons_wide_area_cd AS cnvc_wdr_cde
+                     , gasi.summons_area_cd AS cnvc_area_cde
+                     , gasi.summons_tm_grade_age AS cnvc_team_grad_cde
+                     , gasi.summons_zender AS cnvc_sexdstn_cde
+                     , TO_CHAR(gasi.summons_s_dt, 'YYYYMMDD') AS traing_begin_dat
+                     , TO_CHAR(gasi.summons_e_dt, 'YYYYMMDD') AS traing_end_dat
+                     , gasi.summons_place AS traing_place_nm
+                     , gasi.summons_category AS cnvc_tme
+                     , gasi.activity AS stdr_year
+                     , gasp.player_idx AS player_indx
+                     , gasp.player_zender AS player_sexdstn_cde
+                     , gasp.ftkey AS player_id
+                     , gasp.org_teamid AS psitn_team_id
+                     , gasp.org_teamnm AS psitn_team_nm
+                     , gasp.org_position AS psitn_team_player_postn_cde
+                     , CAST(gasp.height AS NUMERIC) AS height
+                     , CAST(gasp.weight AS NUMERIC) AS bdwgh
+                     , gasp.use_footed AS use_foot_cde
+                     , TO_CHAR(gasp.summons_start_dt, 'YYYYMMDD') AS player_traing_begin_dat
+                     , TO_CHAR(gasp.summons_end_dt, 'YYYYMMDD') AS player_traing_end_dat
+                     , CASE WHEN gasi.summons_reg_status = '0' THEN '0'
+                            WHEN gasi.summons_reg_status = '1' AND gasi.summons_asse_status IS NULL THEN '1'
+                            WHEN gasi.summons_reg_status = '1' AND gasi.summons_asse_status = '0' THEN '2'
+                            WHEN gasi.summons_reg_status = '1' AND gasi.summons_asse_status = '1' THEN '3'
+                            ELSE '^'
+                       END AS cnvc_sttus_cde
+                  FROM g_age_summons_info gasi
+                     , "g_age_summons_player#" gasp
+                 WHERE gasi.g_summons_idx = gasp.g_summons_idx
+--                   AND gasi.activity = TO_CHAR(NOW() , 'YYYY') /* 기준연도 조건 */
+                ) a LEFT OUTER JOIN "g_age_player_rating#" gapr
+             ON a.cnvc_no = gapr.g_summons_idx
+            AND a.player_indx = gapr.player_idx
+       ) aa LEFT OUTER JOIN
+       (
+        SELECT a.stdr_year, a.coach_id, a.psitn_team_id, a.coach_clsf_cde, a.psitn_team_area_cde, a.psitn_team_grad_cde
+             , a.psitn_team_class_cde, a.team_regist_de, b.team_secsn_de
+          FROM (
+                SELECT ct.activity AS stdr_year, ct.jumin AS coach_id, ct.after_teamid AS psitn_team_id
+                     , ct.after_position_id AS coach_clsf_cde
+                     , ct.tm_area AS psitn_team_area_cde, ct.tm_grade AS psitn_team_grad_cde, ct.tm_class AS psitn_team_class_cde
+                     , TO_CHAR(ct.regdate, 'YYYYMMDD') AS team_regist_de
+                  FROM "coach_team#" ct
+                 WHERE ct.status = '등록'
+                ) a LEFT OUTER JOIN
+                (
+                 SELECT ct.activity AS stdr_year, ct.jumin AS coach_id
+                      , CASE WHEn ct.before_teamid IS NULL THEN ct.after_teamid ELSE ct.before_teamid END AS psitn_team_id
+                      , CASE WHEN ct.before_position_id IS NULL THEN ct.after_position_id ELSE ct.before_position_id END AS coach_clsf_cde
+                      , ct.tm_area AS psitn_team_area_cde, ct.tm_grade AS psitn_team_grad_cde, ct.tm_class AS psitn_team_class_cde
+                      , TO_CHAR(ct.regdate, 'YYYYMMDD') AS team_secsn_de
+                  FROM "coach_team#" ct
+                 WHERE ct.status = '탈퇴'
+                ) b
+            ON a.stdr_year = b.stdr_year
+           AND a.coach_id = b.coach_id
+           AND a.psitn_team_id = b.psitn_team_id
+           AND a.coach_clsf_cde = b.coach_clsf_cde
+           AND a.team_regist_de <= COALESCE(b.team_secsn_de, '99991231') /* 등록이 없는 경우 제외하기 위함. */
+         WHERE a.coach_clsf_cde = '1'
+         ORDER BY a.stdr_year
+        ) bb
+    ON aa.stdr_year = bb.stdr_year
+   AND aa.psitn_team_id = bb.psitn_team_id
+   AND aa.player_traing_begin_dat BETWEEN bb.team_regist_de AND COALESCE(bb.team_secsn_de, '99991231')
+       LEFT OUTER JOIN
+       (
+        SELECT stdr_year, team_id, team_nm, team_area_cde, team_grad_cde, team_league_area_cde, team_class_cde
+             , team_asoc_grad_cde, team_sexdstn_cde, team_age_cde, item_cde, pro_at, asort_cde AS team_asort_cde, asort_detail_1_cde AS team_asort_detail_1_cde
+             , asort_detail_2_cde AS team_asort_detail_2_cde, pro_junior_at, union_team_knd_cde, parnts_team_id, fifa_id, dsmntl_de
+          FROM t_team_info tti
+        ) cc
+    ON aa.stdr_year = cc.stdr_year
+   AND aa.psitn_team_id = cc.team_id
+ WHERE aa.player_traing_begin_dat <= COALESCE(bb.team_secsn_de, '99991231')
+ GROUP BY CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END
+     , CASE WHEN aa.cnvc_no IS NULL THEN -1 ELSE aa.cnvc_no END
+     , CASE WHEN aa.cnvc_tme IS NULL THEN -1 ELSE aa.cnvc_tme end
+     , CASE WHEN aa.item_cde IS NULL THEN '^' ELSE aa.item_cde END
+     , CASE WHEN aa.player_id IS NULL THEN '^' ELSE aa.player_id end
+     , CASE WHEN aa.player_indx IS NULL THEN -1 ELSE aa.player_indx END
+     , CASE WHEN aa.player_sexdstn_cde IS NULL THEN '^' ELSE aa.player_sexdstn_cde END
+     , CASE WHEN fn_valid_inspct(aa.player_id) = 'P' AND aa.stdr_year IS NOT NULL THEN fn_agrde(aa.stdr_year, aa.player_id)
+            WHEN fn_valid_inspct(aa.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(aa.player_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN aa.cnvc_cnter_se_cde IS NULL THEN '^' ELSE aa.cnvc_cnter_se_cde END
+     , CASE WHEN aa.cnvc_wdr_cde IS NULL THEN '^' ELSE aa.cnvc_wdr_cde END
+     , CASE WHEN aa.cnvc_area_cde IS NULL THEN '^' ELSE aa.cnvc_area_cde END
+     , CASE WHEN CAST(aa.cnvc_team_grad_cde AS TEXT) IS NULL THEN '^' ELSE CAST(aa.cnvc_team_grad_cde AS TEXT) END
+     , CASE WHEN aa.cnvc_sexdstn_cde IS NULL THEN '^' ELSE aa.cnvc_sexdstn_cde END
+     , CASE WHEN aa.use_foot_cde IS NULL THEN '^' ELSE aa.use_foot_cde END
+     , CASE WHEN aa.atend_at IS NULL THEN '^' ELSE aa.atend_at END
+     , CASE WHEN aa.player_gpa_cde IS NULL THEN '^' ELSE aa.player_gpa_cde END
+     , CASE WHEN aa.traing_begin_dat IS NULL THEN '^' ELSE aa.traing_begin_dat END
+     , CASE WHEN aa.traing_end_dat IS NULL THEN '^' ELSE aa.traing_end_dat END
+     , CASE WHEN aa.player_traing_begin_dat IS NULL THEN '^' ELSE aa.player_traing_begin_dat END
+     , CASE WHEN aa.player_traing_end_dat IS NULL THEN '^' ELSE aa.player_traing_end_dat END
+     , CASE WHEN aa.psitn_team_id IS NULL THEN '^' ELSE aa.psitn_team_id END
+     , CASE WHEN cc.team_grad_cde IS NULL THEN '^' ELSE cc.team_grad_cde END
+     , CASE WHEN cc.team_area_cde IS NULL THEN '^' ELSE cc.team_area_cde END
+     , CASE WHEN cc.team_class_cde IS NULL THEN '^' ELSE cc.team_class_cde END
+     , CASE WHEN bb.coach_id IS NULL THEN '^' ELSE bb.coach_id END
+     , CASE WHEN aa.psitn_team_player_postn_cde IS NULL THEN '^' ELSE aa.psitn_team_player_postn_cde END
+     , CASE WHEN aa.cnvc_sttus_cde IS NULL THEN '^' ELSE aa.cnvc_sttus_cde END
+     , CASE WHEN aa.cnvc_no IS NULL AND aa.player_indx IS NULL THEN '^' ELSE CAST(aa.cnvc_no AS TEXT) || '_' || CAST(aa.player_indx AS TEXT) END
+     , CASE WHEN aa.traing_place_nm IS NULL THEN '^' ELSE aa.traing_place_nm END
+     , aa.psitn_team_nm
+     , CASE WHEN aa.height IS NULL THEN 0 ELSE aa.height END
+     , CASE WHEN aa.bdwgh IS NULL THEN 0 ELSE aa.bdwgh END
+     , CASE WHEN aa.cnvc_co IS NULL THEN 0 ELSE aa.cnvc_co END
+;

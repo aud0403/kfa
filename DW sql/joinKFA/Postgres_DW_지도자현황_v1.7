@@ -1,0 +1,215 @@
+/*
+ * 지도자가 자격을 여러개 취득했을 경우가 있어 지도자현황 팩트를 아래 두 개의 팩트 테이블로 분리함 
+ */
+/*
+ * 지도자자격현황 메인(3만건 미만으로 일괄적재)
+ */
+SELECT CASE WHEN cli.issue_date IS NULL THEN '^' ELSE TO_CHAR(cli.issue_date, 'YYYY') END AS stdr_year
+     , CASE WHEN ci.jumin IS NULL THEN '^' ELSE ci.jumin END AS coach_id
+     , CASE WHEN cli.idx IS NULL THEN -1 ELSE cli.idx END AS coach_indx
+     , CASE WHEN ci.gender IS NULL THEN '^' ELSE ci.gender END AS coach_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(ci.jumin) = 'P' AND cli.issue_date IS NOT NULL THEN fn_agrde(TO_CHAR(cli.issue_date, 'YYYY'), ci.jumin)
+            WHEN fn_valid_inspct(ci.jumin) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(ci.jumin) = 'N' THEN '^'
+            ELSE '^'
+        END AS coach_agrde_cde
+     , CASE WHEN fn_valid_inspct(ci.jumin) = 'P' AND cli.issue_date IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(TO_CHAR(cli.issue_date, 'YYYY'), ci.jumin) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(ci.jumin) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(ci.jumin) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , CASE WHEN cli.license IS NULL THEN '^' ELSE cli.license END AS coach_qualf_no
+     , CASE WHEN cli.lic_gubun IS NULL THEN '^' ELSE cli.lic_gubun END AS coach_qualf_issu_instt_cde
+     , CASE WHEN cli.item_cd IS NULL THEN '^' ELSE cli.item_cd END AS coach_qualf_item_cde
+     , CASE WHEN CAST(cli.lic_type_cd AS TEXT) IS NULL THEN '^' ELSE CAST(cli.lic_type_cd AS TEXT) END AS coach_qualf_ty_cde
+     , CASE WHEN cli."CLASS" IS NULL THEN '^' ELSE cli."CLASS" END AS coach_qualf_wsp_cde
+     , CASE WHEN cli.issue_date IS NULL THEN '^' ELSE TO_CHAR(cli.issue_date, 'YYYYMMDD') END AS coach_qualf_acqs_dat
+     , CASE WHEN cli.refresh_date IS NULL THEN '^' ELSE TO_CHAR(cli.refresh_date, 'YYYYMMDD') END AS coach_qualf_updt_dat
+     , CASE WHEN cli.status IS NULL THEN '^' ELSE status END AS qualf_mntnc_at
+     , CASE WHEN ci.country_cd IS NULL THEN '^' ELSE ci.country_cd END AS nation_cde
+     , CASE WHEN ci.ad_serial IS NULL THEN '^' ELSE ci.ad_serial END AS ad_issu_no
+     , 1 AS qualf_co
+  FROM "coach_info#" CI
+       LEFT OUTER JOIN coach_license_info CLI
+    ON ci.idx = cli.idx
+ GROUP BY CASE WHEN cli.issue_date IS NULL THEN '^' ELSE TO_CHAR(cli.issue_date, 'YYYY') END
+     , CASE WHEN ci.jumin IS NULL THEN '^' ELSE ci.jumin END
+     , CASE WHEN cli.idx IS NULL THEN -1 ELSE cli.idx END
+     , CASE WHEN ci.gender IS NULL THEN '^' ELSE ci.gender end
+     , CASE WHEN fn_valid_inspct(ci.jumin) = 'P' AND cli.issue_date IS NOT NULL THEN fn_agrde(TO_CHAR(cli.issue_date, 'YYYY'), ci.jumin)
+            WHEN fn_valid_inspct(ci.jumin) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(ci.jumin) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(ci.jumin) = 'P' AND cli.issue_date IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(TO_CHAR(cli.issue_date, 'YYYY'), ci.jumin) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(ci.jumin) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(ci.jumin) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN cli.license IS NULL THEN '^' ELSE cli.license END
+     , CASE WHEN cli.lic_gubun IS NULL THEN '^' ELSE cli.lic_gubun END
+     , CASE WHEN cli.item_cd IS NULL THEN '^' ELSE cli.item_cd END
+     , CASE WHEN CAST(cli.lic_type_cd AS TEXT) IS NULL THEN '^' ELSE CAST(cli.lic_type_cd AS TEXT) END
+     , CASE WHEN cli."CLASS" IS NULL THEN '^' ELSE cli."CLASS" END
+     , CASE WHEN cli.issue_date IS NULL THEN '^' ELSE TO_CHAR(cli.issue_date, 'YYYYMMDD') END
+     , CASE WHEN cli.refresh_date IS NULL THEN '^' ELSE TO_CHAR(cli.refresh_date, 'YYYYMMDD') END
+     , CASE WHEN cli.status IS NULL THEN '^' ELSE status END
+     , CASE WHEN ci.country_cd IS NULL THEN '^' ELSE ci.country_cd END
+     , CASE WHEN ci.ad_serial IS NULL THEN '^' ELSE ci.ad_serial END
+;
+
+
+
+/*
+ * 지도자팀대회현황 메인(당해년도 DELETE 후 적재
+ * 지도자 팀 등록일자, 탈퇴일자는 COACH_TEAM#에 STATUS(등록/탈퇴별 REGDATE로 확인하면 됨)
+ * 경고사유코드는 match_score#에서 코드가 아니라 텍스트라서 주석 처리
+ * coach_rcord_se_occrrnc_time는 숫자가 아닌 값은 0으로 처리
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.coach_id IS NULL THEN '^' ELSE a.coach_id END AS coach_id
+     , CASE WHEN a.coach_indx IS NULL THEN -1 ELSE a.coach_indx END AS coach_indx
+     , CASE WHEN a.coach_sexdstn_cde IS NULL THEN '^' ELSE a.coach_sexdstn_cde END AS coach_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.coach_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.coach_id)
+            WHEN fn_valid_inspct(a.coach_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.coach_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS coach_agrde_cde
+     , CASE WHEN a.psitn_team_id IS NULL THEN '^' ELSE a.psitn_team_id END AS psitn_team_id
+     , CASE WHEN a.coach_clsf_cde IS NULL THEN '^' ELSE a.coach_clsf_cde END AS coach_clsf_cde
+     , CASE WHEN a.psitn_team_area_cde IS NULL THEN '^' ELSE a.psitn_team_area_cde END AS psitn_team_area_cde
+     , CASE WHEN a.psitn_team_grad_cde IS NULL THEN '^' ELSE a.psitn_team_grad_cde END AS psitn_team_grad_cde
+     , CASE WHEN a.psitn_team_class_cde IS NULL THEN '^' ELSE a.psitn_team_class_cde END AS psitn_team_class_cde
+     , CASE WHEN b.cmpet_no IS NULL THEN -1 ELSE b.cmpet_no END AS cmpet_no
+     , CASE WHEN b.cmpet_class_cde IS NULL THEN '^' ELSE b.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN b.cmpet_knd_cde IS NULL THEN '^' ELSE b.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN b.league_cmpet_se_cde IS NULL THEN '^' ELSE b.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN b.game_no IS NULL THEN -1 ELSE b.game_no END AS game_no
+     , CASE WHEN b.game_de IS NULL THEN '^' ELSE b.game_de END AS game_de
+     , CASE WHEN b.game_atndnc_at IS NULL THEN '^' ELSE b.game_atndnc_at END AS game_atndnc_at
+--     , CASE WHEN b.home_team_at IS NULL THEN '^' ELSE b.home_team_at END AS home_team_at
+     , CASE WHEN b.coach_rcord_se_cde IS NULL THEN '^' ELSE b.coach_rcord_se_cde END AS coach_rcord_se_cde
+--     , CASE WHEN b.warn_resn_cde IS NULL THEN '^' ELSE b.warn_resn_cde END AS warn_resn_cde
+     , CASE WHEN b.bnch_at IS NULL THEN '^' ELSE b.bnch_at END AS bnch_at
+     , CASE WHEN a.doping_edc_compl_at IS NULL THEN '^' ELSE a.doping_edc_compl_at END AS doping_edc_compl_at
+     , CASE WHEN a.hnrt_edc_compl_at IS NULL THEN '^' ELSE a.hnrt_edc_compl_at END AS hnrt_edc_compl_at
+     , CASE WHEN a.team_regist_de IS NULL THEN '^' ELSE a.team_regist_de END AS team_regist_de
+     , CASE WHEN a.team_secsn_de IS NULL THEN '^' ELSE a.team_secsn_de END AS team_secsn_de
+	 , CASE WHEN b.wnpz_cde IS NULL THEN '^' ELSE b.wnpz_cde END AS wnpz_cde
+     , CASE WHEN b.coach_rcord_se_occrrnc_time IS NULL THEN 0 ELSE b.coach_rcord_se_occrrnc_time END AS coach_rcord_se_occrrnc_time
+     , CASE WHEN b.game_co IS NULL THEN 0 ELSE b.game_co END AS game_co
+  FROM (
+        SELECT aa.stdr_year, aa.coach_id, ci.idx AS coach_indx, ci.gender AS coach_sexdstn_cde, aa.psitn_team_id, aa.coach_clsf_cde
+             , aa.psitn_team_area_cde, aa.psitn_team_grad_cde, aa.psitn_team_class_cde, aa.team_regist_de, aa.team_secsn_de
+             , sr.study_yn AS doping_edc_compl_at, sr.study2_yn AS hnrt_edc_compl_at
+          FROM (
+                SELECT a.stdr_year, a.coach_id, a.psitn_team_id, a.coach_clsf_cde, a.psitn_team_area_cde, a.psitn_team_grad_cde
+                     , a.psitn_team_class_cde, a.team_regist_de, b.team_secsn_de
+                  FROM (
+                         SELECT ct.activity AS stdr_year, ct.jumin AS coach_id, ct.after_teamid AS psitn_team_id
+                              , ct.after_position_id AS coach_clsf_cde, ct.tm_area AS psitn_team_area_cde
+                              , ct.tm_grade AS psitn_team_grad_cde, ct.tm_class AS psitn_team_class_cde, TO_CHAR(ct.regdate, 'YYYYMMDD') AS team_regist_de
+                           FROM "coach_team#" ct
+                          WHERE ct.status = '등록'
+                       ) a LEFT OUTER JOIN
+                       (
+                         SELECT ct.activity AS stdr_year, ct.jumin AS coach_id
+                              , cASe when ct.before_teamid IS NULL THEN ct.after_teamid ELSE ct.before_teamid END AS psitn_team_id
+                              , cASe when ct.before_position_id IS NULL THEN ct.after_position_id ELSE ct.before_position_id END AS coach_clsf_cde
+                              , ct.tm_area AS psitn_team_area_cde, ct.tm_grade AS psitn_team_grad_cde
+                              , ct.tm_class AS psitn_team_class_cde, TO_CHAR(ct.regdate, 'YYYYMMDD') AS team_secsn_de
+                           FROM "coach_team#" ct
+                          WHERE ct.status = '탈퇴'
+                       ) b
+                    ON a.stdr_year = b.stdr_year
+                   AND a.coach_id = b.coach_id
+                   AND a.psitn_team_id = b.psitn_team_id
+                   AND a.coach_clsf_cde = b.coach_clsf_cde
+                   AND a.team_regist_de <= COALESCE(b.team_secsn_de, '99991231') /* 등록이 없는 경우 제외하기 위함. */
+                 ORDER BY a.stdr_year
+               ) aa LEFT OUTER JOIN "study_result#" sr
+            ON aa.stdr_year = sr.study_year
+           AND aa.coach_id = sr.ftkey
+               LEFT OUTER JOIN "coach_info#" ci
+            ON sr.ftkey = ci.jumin
+       ) a
+         LEFT OUTER JOIN
+       (
+	    SELECT c.stdr_year, c.cmpet_no, c.cmpet_class_cde, c.game_no, c.game_de, c.coach_indx, c.coach_id
+		     , c.psitn_team_id, c.game_atndnc_at, c.bnch_at, c.coach_rcord_se_cde, c.coach_rcord_se_occrrnc_time
+			 , c.home_team_at, c.warn_resn_cde, c.league_cmpet_se_cde, c.cmpet_knd_cde, c.game_co, d.wnpz_cde
+	     FROM (   
+               SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                    , mi.idx AS cmpet_no, mi.ma_mch_clss AS cmpet_class_cde, msi.idx AS game_no
+			        , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de
+                    , mcr.coach_idx AS coach_indx, mcr.usrkey AS coach_id, mcr.teamid AS psitn_team_id
+			        , mcr.attend_yn AS game_atndnc_at, ms.opt1 AS bnch_at, ms.flag AS coach_rcord_se_cde
+                    , CASE WHEN ms."TIME" ~ '[^0-9]' THEN 0 ELSE CAST(ms."TIME" AS numeric) END AS coach_rcord_se_occrrnc_time
+                    , ms.gubun AS home_team_at, ms.reason AS warn_resn_cde
+                    , mi."STYLE" AS league_cmpet_se_cde, mi.ma_knd AS cmpet_knd_cde
+                    , 1 AS game_co
+                FROM match_info mi
+                   , match_single_info msi
+                     LEFT OUTER JOIN match_coach_result mcr
+                  ON msi.match_idx = mcr.match_idx
+                 AND msi.idx = mcr.single_idx
+                     LEFT OUTER JOIN "match_score#" ms
+                  ON mcr.match_idx = ms.match_idx
+                 AND mcr.single_idx = ms.single_idx
+                 AND mcr.acoach_idx = ms.aplayer_idx
+               WHERE mi.idx = msi.match_idx 
+			  ) c
+              LEFT OUTER join
+              (
+               SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                    , ma.match_idx AS cmpet_no
+                    , ma.jumin AS wnpz_trget_id
+                    , ma.status AS wnpz_cde
+                    , ma.teamid AS team_id
+                 FROM "match_award#" ma
+                      LEFT OUTER JOIN
+                      match_info mi
+                   ON ma.match_idx = mi.idx
+                WHERE ma.flag = 'C'
+              ) d
+            ON c.stdr_year = d.stdr_year
+           AND c.cmpet_no = d.cmpet_no
+           AND c.coach_id = d.wnpz_trget_id
+           AND c.psitn_team_id = d.team_id
+       ) b
+    ON a.stdr_year = b.stdr_year
+   AND a.coach_indx = b.coach_indx
+   AND a.psitn_team_id = b.psitn_team_id
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.coach_id IS NULL THEN '^' ELSE a.coach_id END
+     , CASE WHEN a.coach_indx IS NULL THEN -1 ELSE a.coach_indx END
+     , CASE WHEN a.coach_sexdstn_cde IS NULL THEN '^' ELSE a.coach_sexdstn_cde end
+     , CASE WHEN fn_valid_inspct(a.coach_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.coach_id)
+            WHEN fn_valid_inspct(a.coach_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.coach_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN a.psitn_team_id IS NULL THEN '^' ELSE a.psitn_team_id END
+     , CASE WHEN a.coach_clsf_cde IS NULL THEN '^' ELSE a.coach_clsf_cde END
+     , CASE WHEN a.psitn_team_area_cde IS NULL THEN '^' ELSE a.psitn_team_area_cde END
+     , CASE WHEN a.psitn_team_grad_cde IS NULL THEN '^' ELSE a.psitn_team_grad_cde END
+     , CASE WHEN a.psitn_team_class_cde IS NULL THEN '^' ELSE a.psitn_team_class_cde END
+     , CASE WHEN b.cmpet_no IS NULL THEN -1 ELSE b.cmpet_no END
+     , CASE WHEN b.cmpet_class_cde IS NULL THEN '^' ELSE b.cmpet_class_cde END
+     , CASE WHEN b.cmpet_knd_cde IS NULL THEN '^' ELSE b.cmpet_knd_cde END
+     , CASE WHEN b.league_cmpet_se_cde IS NULL THEN '^' ELSE b.league_cmpet_se_cde END
+     , CASE WHEN b.game_no IS NULL THEN -1 ELSE b.game_no END
+     , CASE WHEN b.game_de IS NULL THEN '^' ELSE b.game_de END
+     , CASE WHEN b.game_atndnc_at IS NULL THEN '^' ELSE b.game_atndnc_at END
+--     , CASE WHEN b.home_team_at IS NULL THEN '^' ELSE b.home_team_at END
+     , CASE WHEN b.coach_rcord_se_cde IS NULL THEN '^' ELSE b.coach_rcord_se_cde END
+--     , CASE WHEN b.warn_resn_cde IS NULL THEN '^' ELSE b.warn_resn_cde END
+     , CASE WHEN b.bnch_at IS NULL THEN '^' ELSE b.bnch_at END
+     , CASE WHEN a.doping_edc_compl_at IS NULL THEN '^' ELSE a.doping_edc_compl_at END
+     , CASE WHEN a.hnrt_edc_compl_at IS NULL THEN '^' ELSE a.hnrt_edc_compl_at end
+     , CASE WHEN a.team_regist_de IS NULL THEN '^' ELSE a.team_regist_de END
+     , CASE WHEN a.team_secsn_de IS NULL THEN '^' ELSE a.team_secsn_de END
+	 , CASE WHEN b.wnpz_cde IS NULL THEN '^' ELSE b.wnpz_cde END
+     , CASE WHEN b.coach_rcord_se_occrrnc_time IS NULL THEN 0 ELSE b.coach_rcord_se_occrrnc_time END
+     , CASE WHEN b.game_co IS NULL THEN 0 ELSE b.game_co END
+;

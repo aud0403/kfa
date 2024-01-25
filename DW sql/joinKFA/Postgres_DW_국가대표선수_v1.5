@@ -1,0 +1,214 @@
+/*
+ * (소집) LEFT OUTER JOIN (경기) LEFT OUTER JOIN (선수경기결과) => 소집만 되는 경우가 있어 변경
+ * 소집이 되어야 경기를 뛸 수 있으므로 소집이 기준 테이블이 됨
+ * !!!!!!!NATIONAL_SUMMONS_PLAYER 의 PLAYER_IDX로 USRKEY 찾을 수 있지만 NULL인 경우가 있음, 운영팀에서 UPDATE 안 해주면 쿼리 수정해야함!!!!!!!
+ * 기준연도는 소집되어서 출전하지 못 하는 선수가 있으므로 NATIONAL_SUMMONS_INFO에 소집일로 함.
+ * 해체일은 2013년도 이전 데이터의 경우 사용하기 어려워 일괄적재를 원칙으로하고 추후 변경된다면 기준연도를 소집일과 해체일 연도가 다른 경우가 존재하여 소집일, 해체일 둘다 봐야할 것 같음
+ * national_match_player_result#의 선수 position이 제대로 입력되지 않아 national_summons_player의 선수 position을 사용함
+ * 대회등급을 팀등급으로 사용함
+ * playng_time, player_rcord_occrrnc_time, rcord_occrrnc_addnl_time는 숫자가 아닌 값은 0으로 처리
+ */
+SELECT aaa.stdr_year
+     , aaa.cnvc_no
+     , aaa.player_id
+     , aaa.player_indx
+     , CASE WHEN aaa.player_id IS NULL THEN '^' ELSE fn_sexdstn(aaa.player_id) END AS player_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(aaa.player_id) = 'P' AND fn_valid_inspct_year(aaa.stdr_year||'0101') = 'P' THEN fn_agrde(aaa.stdr_year, aaa.player_id)
+            WHEN fn_valid_inspct(aaa.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_year(aaa.stdr_year||'0101') = 'E' THEN 'E'
+            WHEN fn_valid_inspct(aaa.player_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS player_agrde_cde
+     , aaa.cmpet_no
+     , aaa.game_no
+     , aaa.game_de
+     , aaa.amatch_at
+     , CASE WHEN bbb.jn IS NULL THEN '^' ELSE bbb.jn END AS nl_team_mangr_id
+     , aaa.nl_team_grad_cde
+     , aaa.psitn_team_id
+     , aaa.psitn_team_area_cde
+     , aaa.psitn_team_class_cde
+     , aaa.psitn_team_grad_cde
+     , CASE WHEN ccc.coach_id IS NULL THEN '^' ELSE ccc.coach_id END AS psitn_team_mangr_id
+     , aaa.psitn_team_nation_cde
+     , aaa.player_cnvc_begin_dat
+     , aaa.player_cnvc_end_dat
+     , aaa.player_postn_cde
+     , aaa.entry_se_cde
+     , aaa.capt_at
+     , aaa.panalty_kick_at
+     , aaa.shot_on_target_at
+     , aaa.player_rcord_se_cde
+     , aaa.player_rcord_occrrnc_time
+     , aaa.rcord_occrrnc_addnl_time
+     , aaa.player_grade_cde
+     , aaa.entry_no
+     , aaa.playng_time
+     , aaa.psitn_team_nm
+     , bbb.hname AS nl_team_mangr_nm
+     , aaa.game_co
+  FROM (
+        SELECT CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END AS stdr_year
+             , CASE WHEN aa.cnvc_no IS NULL THEN -1 ELSE aa.cnvc_no END AS cnvc_no
+             , CASE WHEN COALESCE(aa.player_id, bb.player_id) IS NULL THEN '^' ELSE COALESCE(aa.player_id, bb.player_id) END AS player_id
+             , CASE WHEN aa.player_indx IS NULL THEN -1 ELSE aa.player_indx END AS player_indx
+             , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END AS cmpet_no
+             , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END AS game_no
+             , CASE when aa.game_de IS NULL THEN '^' ELSE aa.game_de END AS game_de
+             , CASE WHEN aa.amatch_at IS NULL THEN '^' ELSE aa.amatch_at END AS amatch_at
+             , CASE WHEN aa.nl_team_grad_cde IS NULL THEN '^' ELSE aa.nl_team_grad_cde END AS nl_team_grad_cde
+             , CASE WHEN aa.psitn_team_id IS NULL THEN '^' ELSE aa.psitn_team_id END AS psitn_team_id
+             , CASE WHEN aa.psitn_team_area_cde IS NULL THEN '^' ELSE aa.psitn_team_area_cde END AS psitn_team_area_cde
+             , CASE WHEN aa.psitn_team_class_cde IS NULL THEN '^' ELSE aa.psitn_team_class_cde END AS psitn_team_class_cde
+             , CASE WHEN aa.psitn_team_grad_cde IS NULL THEN '^' ELSE aa.psitn_team_grad_cde END AS psitn_team_grad_cde
+             , CASE WHEN aa.psitn_team_nation_cde IS NULL THEN '^' ELSE aa.psitn_team_nation_cde END AS psitn_team_nation_cde
+             , CASE WHEN aa.player_cnvc_begin_dat IS NULL THEN '^' ELSE aa.player_cnvc_begin_dat END AS player_cnvc_begin_dat
+             , CASE WHEN aa.player_cnvc_end_dat IS NULL THEN '^' ELSE aa.player_cnvc_end_dat END AS player_cnvc_end_dat
+             , CASE WHEN aa.player_postn_cde IS NULL THEN '^' ELSE aa.player_postn_cde END AS player_postn_cde
+             , CASE WHEN bb.entry_se_cde IS NULL THEN '^' ELSE bb.entry_se_cde END AS entry_se_cde
+             , CASE WHEN bb.capt_at IS NULL THEN '^' ELSE bb.capt_at END AS capt_at
+             , CASE WHEN bb.panalty_kick_at IS NULL THEN '^' ELSE bb.panalty_kick_at END AS panalty_kick_at
+             , CASE WHEN bb.shot_on_target_at IS NULL THEN '^' ELSE bb.shot_on_target_at END AS shot_on_target_at
+             , CASE WHEN bb.player_rcord_se_cde IS NULL THEN '^' ELSE bb.player_rcord_se_cde END AS player_rcord_se_cde
+             , CASE WHEN bb.player_rcord_occrrnc_time IS NULL THEN 0 ELSE bb.player_rcord_occrrnc_time END AS player_rcord_occrrnc_time
+             , CASE WHEN bb.rcord_occrrnc_addnl_time IS NULL THEN 0 ELSE bb.rcord_occrrnc_addnl_time END AS rcord_occrrnc_addnl_time
+             , CASE WHEN aa.player_grade_cde IS NULL THEN '^' ELSE aa.player_grade_cde END AS player_grade_cde
+             , CASE WHEN bb.entry_no IS NULL THEN '^' ELSE bb.entry_no END AS entry_no
+             , CASE WHEN bb.playng_time IS NULL THEN 0 ELSE bb.playng_time END AS playng_time
+             , aa.psitn_team_nm
+             , CASE WHEN bb.game_co IS NULL THEN 0 ELSE bb.game_co END AS game_co
+          FROM (
+                SELECT a.stdr_year AS stdr_year
+                     , a.cnvc_no AS cnvc_no
+                     , a.player_id AS player_id
+                     , a.player_indx AS player_indx
+                     , b.cmpet_no AS cmpet_no
+                     , b.game_no AS game_no
+                     , b.game_de AS game_de
+                     , b.amatch_at AS amatch_at
+                     , a.nl_team_grad_cde AS nl_team_grad_cde
+                     , a.psitn_team_id AS psitn_team_id
+                     , a.psitn_team_area_cde AS psitn_team_area_cde
+                     , a.psitn_team_class_cde AS psitn_team_class_cde
+                     , a.psitn_team_grad_cde AS psitn_team_grad_cde
+                     , a.psitn_team_nation_cde AS psitn_team_nation_cde
+                     , a.player_cnvc_begin_dat AS player_cnvc_begin_dat
+                     , a.player_cnvc_end_dat AS player_cnvc_end_dat
+                     , a.player_postn_cde AS player_postn_cde
+                     , a.psitn_team_nm AS psitn_team_nm
+                     , a.player_grade_cde AS player_grade_cde
+                  FROM (
+                        SELECT substr(REPLACE(nsi.summons_start,'-',''), 1, 4) AS stdr_year, nsi.idx AS cnvc_no, nsi.match_grade AS nl_team_grad_cde
+                             , nsp.usrkey AS player_id, nsp.player_idx AS player_indx, nsp.teamid AS psitn_team_id, nsp.tm_area AS psitn_team_area_cde
+                             , nsp.tm_class AS psitn_team_class_cde, nsp.tm_grade AS psitn_team_grad_cde
+                             , TRIM(REPLACE(nsp.summons_start,'-','')) AS player_cnvc_begin_dat, TRIM(REPLACE(nsp.summons_end,'-','')) AS player_cnvc_end_dat
+                             , nsp.team_country_cd AS psitn_team_nation_cde, nsp."POSITION" AS player_postn_cde, nsp.teamname AS psitn_team_nm
+                             , nsp.begrade AS player_grade_cde
+                          FROM national_summons_info nsi
+                             , national_summons_player nsp
+                         WHERE nsi.idx = nsp.summons_idx
+                        ) a
+                        LEFT OUTER JOIN
+                        (
+                         SELECT nmsi.summons_idx AS cnvc_no, nmi.idx AS cmpet_no, nmsi.idx AS game_no
+                              , nmi.match_grade AS nl_team_grad_cde, substr(REPLACE(nmsi.game_time,'-',''), 1, 8) AS game_de, nmsi.amatch_yn AS amatch_at
+                           FROM national_match_info nmi
+                              , national_match_single_info nmsi
+                          WHERE nmi.idx = nmsi.match_idx
+                        ) b  
+                     ON a.cnvc_no = b.cnvc_no
+                ) aa LEFT OUTER JOIN
+                (
+                 SELECT nmpr.match_idx AS cmpet_no, nmpr.single_idx AS game_no
+                      , nmpr."POSITION" AS player_postn_cde, nmpr.status AS entry_se_cde, nmpr.c_check AS capt_at, nmpr.entryno AS entry_no
+                      , CASE WHEN nmpr."TIME" ~ '[^0-9]' THEN 0 ELSE CAST(nmpr."TIME" AS numeric) END AS playng_time, nmpr.jumin AS player_id
+                      , nmpr.aplayer_idx AS player_indx, nms.pkyn AS panalty_kick_at, nms.flag AS player_rcord_se_cde, nms.esyn AS shot_on_target_at
+                      , CASE WHEN nms."TIME" ~ '[^0-9]' THEN 0 ELSE CAST(nms."TIME" AS numeric) END AS player_rcord_occrrnc_time
+                      , CASE WHEN nms.injury_time ~ '[^0-9]' THEN 0 ELSE CAST(nms.injury_time AS numeric) END AS rcord_occrrnc_addnl_time
+                      , 1 AS game_co
+                   FROM "national_match_player_result#" nmpr
+                        LEFT OUTER JOIN "national_match_score#" nms
+                     ON nmpr.match_idx = nms.match_idx
+                    AND nmpr.single_idx = nms.single_idx
+                    AND nmpr.aplayer_idx = nms.aplayer_idx
+                ) bb
+            ON aa.cmpet_no = bb.cmpet_no
+           AND aa.game_no = bb.game_no
+           AND aa.player_indx = bb.player_indx
+       ) aaa LEFT OUTER JOIN 
+       (
+        SELECT summons_idx, jn, hname
+          FROM "national_coach_staff#" 
+         WHERE "POSITION" = '감독'
+       ) bbb
+    ON aaa.cnvc_no = bbb.summons_idx
+       LEFT OUTER JOIN 
+       (
+        SELECT a.stdr_year, a.coach_id, a.psitn_team_id, a.team_regist_de, b.team_secsn_de
+          FROM (
+                SELECT ct.activity AS stdr_year, ct.jumin AS coach_id, ct.after_teamid AS psitn_team_id
+                     , ct.after_position_id AS coach_clsf_cde, ct.tm_area AS psitn_team_area_cde
+                     , ct.tm_grade AS psitn_team_grad_cde, ct.tm_class AS psitn_team_class_cde, TO_CHAR(ct.regdate, 'YYYYMMDD') AS team_regist_de
+                  FROM "coach_team#" ct
+                 WHERE ct.status = '등록'
+               ) a LEFT OUTER JOIN
+               (
+                SELECT ct.activity AS stdr_year, ct.jumin AS coach_id
+                     , CASE WHEN ct.before_teamid IS NULL THEN ct.after_teamid ELSE ct.before_teamid END AS psitn_team_id
+                     , CASE WHEN ct.before_position_id IS NULL THEN ct.after_position_id ELSE ct.before_position_id END AS coach_clsf_cde
+                     , ct.tm_area AS psitn_team_area_cde, ct.tm_grade AS psitn_team_grad_cde
+                     , ct.tm_class AS psitn_team_class_cde, TO_CHAR(ct.regdate, 'YYYYMMDD') AS team_secsn_de
+                  FROM "coach_team#" ct
+                 WHERE ct.status = '탈퇴'
+               ) b
+            ON a.stdr_year = b.stdr_year
+           AND a.coach_id = b.coach_id
+           AND a.psitn_team_id = b.psitn_team_id
+           AND a.coach_clsf_cde = b.coach_clsf_cde
+           AND a.team_regist_de <= COALESCE(b.team_secsn_de, '99991231') /* 등록이 없는 경우 제외하기 위함. */
+         WHERE a.coach_clsf_cde = '1'
+         ORDER BY a.stdr_year
+       ) ccc
+    ON aaa.stdr_year = ccc.stdr_year
+   AND aaa.psitn_team_id = ccc.psitn_team_id
+   AND aaa.player_cnvc_begin_dat BETWEEN ccc.team_regist_de AND ccc.team_secsn_de
+ GROUP BY aaa.stdr_year
+     , aaa.cnvc_no
+     , aaa.player_id
+     , aaa.player_indx
+     , CASE WHEN aaa.player_id IS NULL THEN '^' ELSE fn_sexdstn(aaa.player_id) END
+     , CASE WHEN fn_valid_inspct(aaa.player_id) = 'P' AND fn_valid_inspct_year(aaa.stdr_year||'0101') = 'P' THEN fn_agrde(aaa.stdr_year, aaa.player_id)
+            WHEN fn_valid_inspct(aaa.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct_year(aaa.stdr_year||'0101') = 'E' THEN 'E'
+            WHEN fn_valid_inspct(aaa.player_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , aaa.cmpet_no
+     , aaa.game_no
+     , aaa.game_de
+     , aaa.amatch_at
+     , CASE WHEN bbb.jn IS NULL THEN '^' ELSE bbb.jn END
+     , aaa.nl_team_grad_cde
+     , aaa.psitn_team_id
+     , aaa.psitn_team_area_cde
+     , aaa.psitn_team_class_cde
+     , aaa.psitn_team_grad_cde
+     , CASE WHEN ccc.coach_id IS NULL THEN '^' ELSE ccc.coach_id END
+     , aaa.psitn_team_nation_cde
+     , aaa.player_cnvc_begin_dat
+     , aaa.player_cnvc_end_dat
+     , aaa.player_postn_cde
+     , aaa.entry_se_cde
+     , aaa.capt_at
+     , aaa.panalty_kick_at
+     , aaa.shot_on_target_at
+     , aaa.player_rcord_se_cde
+     , aaa.player_rcord_occrrnc_time
+     , aaa.rcord_occrrnc_addnl_time
+     , aaa.player_grade_cde
+     , aaa.entry_no
+     , aaa.playng_time
+     , aaa.psitn_team_nm
+     , bbb.hname
+     , aaa.game_co
+;

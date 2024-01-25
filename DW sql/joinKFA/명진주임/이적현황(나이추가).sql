@@ -1,0 +1,123 @@
+/*
+ * confm_result_cde(승인결과코드) C : 완료, R : 반려, P : 진행
+ */
+/*
+ * 이적 완료 SQL
+ */
+SELECT CASE WHEN tr.reg_year IS NULL THEN '^' ELSE tr.reg_year END AS stdr_year
+     , CASE WHEN tr.idx IS NULL THEN -1 ELSE tr.idx END AS trans_indx
+     , CASE WHEN tr.jumin IS NULL THEN '^' ELSE tr.jumin END AS player_id
+     , CASE WHEN fn_valid_inspct(tr.jumin) = 'P' AND tr.reg_year IS NOT NULL THEN fn_agrde(tr.reg_year, tr.jumin)
+        WHEN fn_valid_inspct(tr.jumin) = 'E' THEN 'E'
+        WHEN fn_valid_inspct(tr.jumin) = 'N' THEN '^'
+        ELSE '^'
+        END AS player_agrde_cde
+     , CASE WHEN tr.status IS NULL THEN '^' ELSE tr.status END AS confm_sttus_cde
+     , 'C' AS confm_result_cde
+     , CASE WHEN tr.team_id IS NULL THEN '^' ELSE tr.team_id END AS trans_team_id
+     , CASE WHEN tr.originalteam_id IS NULL THEN '^' ELSE tr.originalteam_id END AS psitn_team_id
+     , CASE WHEN tr.reg_date IS NULL THEN '^' ELSE TO_CHAR(tr.reg_date, 'YYYYMMDD') END AS apply_de
+     , CASE WHEN tr.trade_agree_date IS NULL THEN '^' ELSE TO_CHAR(tr.trade_agree_date, 'YYYYMMDD') END AS trans_de
+     , CASE WHEN tr.last_game_date IS NULL THEN '^' ELSE TO_CHAR(tr.last_game_date, 'YYYYMMDD') END AS last_game_playng_de
+     , 1 AS trans_co
+  FROM "trade_request#" tr
+      , trade_request_detail trd
+ WHERE tr.idx = trd.request_idx
+   AND trd.next_prc_cd IS NULL
+   AND trd.appv_result = 'Y'
+ GROUP BY CASE WHEN tr.reg_year IS NULL THEN '^' ELSE tr.reg_year END
+     , CASE WHEN tr.idx IS NULL THEN -1 ELSE tr.idx END
+     , CASE WHEN tr.jumin IS NULL THEN '^' ELSE tr.jumin end
+     , CASE WHEN fn_valid_inspct(tr.jumin) = 'P' AND tr.reg_year IS NOT NULL THEN fn_agrde(tr.reg_year, tr.jumin)
+        WHEN fn_valid_inspct(tr.jumin) = 'E' THEN 'E'
+        WHEN fn_valid_inspct(tr.jumin) = 'N' THEN '^'
+        ELSE '^' END 
+     , CASE WHEN tr.status IS NULL THEN '^' ELSE tr.status END
+     , CASE WHEN tr.team_id IS NULL THEN '^' ELSE tr.team_id END
+     , CASE WHEN tr.originalteam_id IS NULL THEN '^' ELSE tr.originalteam_id END
+     , CASE WHEN tr.reg_date IS NULL THEN '^' ELSE TO_CHAR(tr.reg_date, 'YYYYMMDD') END
+     , CASE WHEN tr.trade_agree_date IS NULL THEN '^' ELSE TO_CHAR(tr.trade_agree_date, 'YYYYMMDD') END
+     , CASE WHEN tr.last_game_date IS NULL THEN '^' ELSE TO_CHAR(tr.last_game_date, 'YYYYMMDD') END
+;
+
+
+/*
+ * 이적 반려 SQL
+ */
+SELECT CASE WHEN tr.reg_year IS NULL THEN '^' ELSE tr.reg_year END AS stdr_year
+     , CASE WHEN tr.idx IS NULL THEN -1 ELSE tr.idx END AS trans_indx
+     , CASE WHEN tr.jumin IS NULL THEN '^' ELSE tr.jumin END AS player_id
+     , CASE WHEN fn_valid_inspct(tr.jumin) = 'P' AND tr.reg_year IS NOT NULL THEN fn_agrde(tr.reg_year, tr.jumin)
+        WHEN fn_valid_inspct(tr.jumin) = 'E' THEN 'E'
+        WHEN fn_valid_inspct(tr.jumin) = 'N' THEN '^'
+        ELSE '^'
+        END AS player_agrde_cde
+     , CASE WHEN tr.status IS NULL THEN '^' ELSE tr.status END AS confm_sttus_cde
+     , 'R' AS confm_result_cde
+     , CASE WHEN tr.team_id IS NULL THEN '^' ELSE tr.team_id END AS trans_team_id
+     , CASE WHEN tr.originalteam_id IS NULL THEN '^' ELSE tr.originalteam_id END AS psitn_team_id
+     , CASE WHEN tr.reg_date IS NULL THEN '^' ELSE TO_CHAR(tr.reg_date, 'YYYYMMDD') END AS apply_de
+     , CASE WHEN tr.trade_agree_date IS NULL THEN '^' ELSE TO_CHAR(tr.trade_agree_date, 'YYYYMMDD') END AS trans_de
+     , CASE WHEN tr.last_game_date IS NULL THEN '^' ELSE TO_CHAR(tr.last_game_date, 'YYYYMMDD') END AS last_game_playng_de
+     , 1 AS trans_co
+  FROM "trade_request#" tr
+      , trade_request_detail trd
+ WHERE tr.idx = trd.request_idx
+   AND trd.prc_end = 'Y'
+   AND trd.appv_result = 'R'
+ GROUP BY CASE WHEN tr.reg_year IS NULL THEN '^' ELSE tr.reg_year END
+     , CASE WHEN tr.idx IS NULL THEN -1 ELSE tr.idx END
+     , CASE WHEN tr.jumin IS NULL THEN '^' ELSE tr.jumin end
+     , CASE WHEN fn_valid_inspct(tr.jumin) = 'P' AND tr.reg_year IS NOT NULL THEN fn_agrde(tr.reg_year, tr.jumin)
+        WHEN fn_valid_inspct(tr.jumin) = 'E' THEN 'E'
+        WHEN fn_valid_inspct(tr.jumin) = 'N' THEN '^'
+        ELSE '^' END 
+     , CASE WHEN tr.status IS NULL THEN '^' ELSE tr.status END
+     , CASE WHEN tr.team_id IS NULL THEN '^' ELSE tr.team_id END
+     , CASE WHEN tr.originalteam_id IS NULL THEN '^' ELSE tr.originalteam_id END
+     , CASE WHEN tr.reg_date IS NULL THEN '^' ELSE TO_CHAR(tr.reg_date, 'YYYYMMDD') END
+     , CASE WHEN tr.trade_agree_date IS NULL THEN '^' ELSE TO_CHAR(tr.trade_agree_date, 'YYYYMMDD') END
+     , CASE WHEN tr.last_game_date IS NULL THEN '^' ELSE TO_CHAR(tr.last_game_date, 'YYYYMMDD') END
+;
+
+
+
+/*
+ * 이적 진행 SQL
+ */
+SELECT CASE WHEN tr.reg_year IS NULL THEN '^' ELSE tr.reg_year END AS stdr_year
+     , CASE WHEN tr.idx IS NULL THEN -1 ELSE tr.idx END AS trans_indx
+     , CASE WHEN tr.jumin IS NULL THEN '^' ELSE tr.jumin END AS player_id
+     , CASE WHEN fn_valid_inspct(tr.jumin) = 'P' AND tr.reg_year IS NOT NULL THEN fn_agrde(tr.reg_year, tr.jumin)
+        WHEN fn_valid_inspct(tr.jumin) = 'E' THEN 'E'
+        WHEN fn_valid_inspct(tr.jumin) = 'N' THEN '^'
+        ELSE '^'
+        END AS player_agrde_cde
+     , CASE WHEN tr.status IS NULL THEN '^' ELSE tr.status END AS confm_sttus_cde
+     , 'P' AS confm_result_cde
+     , CASE WHEN tr.team_id IS NULL THEN '^' ELSE tr.team_id END AS trans_team_id
+     , CASE WHEN tr.originalteam_id IS NULL THEN '^' ELSE tr.originalteam_id END AS psitn_team_id
+     , CASE WHEN tr.reg_date IS NULL THEN '^' ELSE TO_CHAR(tr.reg_date, 'YYYYMMDD') END AS apply_de
+     , CASE WHEN tr.trade_agree_date IS NULL THEN '^' ELSE TO_CHAR(tr.trade_agree_date, 'YYYYMMDD') END AS trans_de
+     , CASE WHEN tr.last_game_date IS NULL THEN '^' ELSE TO_CHAR(tr.last_game_date, 'YYYYMMDD') END AS last_game_playng_de
+     , 1 AS trans_co
+  FROM "trade_request#" tr
+      , trade_request_detail trd
+ WHERE tr.idx = trd.request_idx
+   AND ((appv_result = 'R' AND prc_end = 'N') OR (next_prc_cd IS NULL AND appv_result = 'N'))
+ GROUP BY CASE WHEN tr.reg_year IS NULL THEN '^' ELSE tr.reg_year END
+     , CASE WHEN tr.idx IS NULL THEN -1 ELSE tr.idx END
+     , CASE WHEN tr.jumin IS NULL THEN '^' ELSE tr.jumin end
+     , CASE WHEN fn_valid_inspct(tr.jumin) = 'P' AND tr.reg_year IS NOT NULL THEN fn_agrde(tr.reg_year, tr.jumin)
+        WHEN fn_valid_inspct(tr.jumin) = 'E' THEN 'E'
+        WHEN fn_valid_inspct(tr.jumin) = 'N' THEN '^'
+        ELSE '^' END 
+     , CASE WHEN tr.status IS NULL THEN '^' ELSE tr.status END
+     , CASE WHEN tr.team_id IS NULL THEN '^' ELSE tr.team_id END
+     , CASE WHEN tr.originalteam_id IS NULL THEN '^' ELSE tr.originalteam_id END
+     , CASE WHEN tr.reg_date IS NULL THEN '^' ELSE TO_CHAR(tr.reg_date, 'YYYYMMDD') END
+     , CASE WHEN tr.trade_agree_date IS NULL THEN '^' ELSE TO_CHAR(tr.trade_agree_date, 'YYYYMMDD') END
+     , CASE WHEN tr.last_game_date IS NULL THEN '^' ELSE TO_CHAR(tr.last_game_date, 'YYYYMMDD') END
+;
+
+

@@ -1,0 +1,264 @@
+/*
+ * 팀현황은 팀경기현황과 팀멤버현황으로 팩트 분리하고 팀멤버현황은 선수현황, 지도자현황, 팀정보(통합)을 이용하여 만들기
+ * 팀종별(세부1/2)코드, 프로산하여부, 연합팀종류코드는 tm_register에 없고 teamtbl#에만 있어 과거 데이터를 알 수 없어 2022년부터 확인 가능하도록 함(시즌 중에 변경되면 그 해 모두 변경된 데이터로 적재)
+ */
+/* 
+ * 홈팀
+ */
+SELECT CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END AS stdr_year
+     , CASE WHEN aa.team_id IS NULL THEN '^' ELSE aa.team_id END AS team_id
+     , CASE WHEN bb.item_cde IS NULL THEN '^' ELSE bb.item_cde END AS item_cde
+     , CASE WHEN bb.team_area_cde IS NULL THEN '^' ELSE bb.team_area_cde END AS team_area_cde
+     , CASE WHEN bb.team_grad_cde IS NULL THEN '^' ELSE bb.team_grad_cde END AS team_grad_cde
+     , CASE WHEN bb.team_asoc_grad_cde IS NULL THEN '^' ELSE bb.team_asoc_grad_cde END AS team_asoc_grad_cde
+     , CASE WHEN bb.team_class_cde IS NULL THEN '^' ELSE bb.team_class_cde END AS team_class_cde
+     , CASE WHEN bb.team_sexdstn_cde IS NULL THEN '^' ELSE bb.team_sexdstn_cde END AS team_sexdstn_cde
+     , CASE WHEN bb.team_age_cde IS NULL THEN '^' ELSE bb.team_age_cde END AS team_age_cde
+     , CASE WHEN bb.team_asort_cde IS NULL THEN '^' ELSE bb.team_asort_cde END AS team_asort_cde
+     , CASE WHEN bb.team_asort_detail_1_cde IS NULL THEN '^' ELSE bb.team_asort_detail_1_cde END AS team_asort_detail_1_cde
+     , CASE WHEN bb.team_asort_detail_2_cde IS NULL THEN '^' ELSE bb.team_asort_detail_2_cde END AS team_asort_detail_2_cde
+     , CASE WHEN bb.pro_junior_at IS NULL THEN '^' ELSE bb.pro_junior_at END AS pro_junior_at
+     , CASE WHEN bb.union_team_knd_cde IS NULL THEN '^' ELSE bb.union_team_knd_cde END AS union_team_knd_cde
+     , CASE WHEN bb.dsmntl_de IS NULL THEN '^' ELSE bb.dsmntl_de END AS dsmntl_de
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END AS cmpet_no
+     , CASE WHEN aa.cmpet_knd_cde IS NULL THEN '^' ELSE aa.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN aa.cmpet_class_cde IS NULL THEN '^' ELSE aa.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN aa.league_cmpet_se_cde IS NULL THEN '^' ELSE aa.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END AS game_no
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END AS game_de
+     , CASE WHEN aa.home_team_at IS NULL THEN '^' ELSE aa.home_team_at END AS home_team_at
+     , CASE WHEN aa.game_result_cde IS NULL THEN '^' ELSE aa.game_result_cde END AS game_result_cde
+     , CASE WHEN aa.forfeit_at IS NULL THEN '^' ELSE aa.forfeit_at END AS forfeit_at
+     , CASE WHEN aa.forfeit_process_de IS NULL THEN '^' ELSE aa.forfeit_process_de END AS forfeit_process_de
+     , CASE WHEN aa.forfeit_pnttm_half_elapse_at IS NULL THEN '^' ELSE aa.forfeit_pnttm_half_elapse_at END AS forfeit_pnttm_half_elapse_at
+     , CASE WHEN cc.wnpz_cde IS NULL THEN '^' ELSE cc.wnpz_cde END AS wnpz_cde
+     , COALESCE(aa.winpoint, 0) AS winpoint
+     , aa.win_co
+     , aa.tie_co
+     , aa.lose_co
+     , COALESCE(aa.score, 0) AS score
+     , COALESCE(aa.conceded_goal, 0) AS conceded_goal
+     , COALESCE(aa.goal_dffrnc_co, 0) AS goal_dffrnc_co
+     , CASE WHEN aa.game_co IS NULL THEN 0 ELSE aa.game_co END AS game_co
+  FROM (
+        SELECT a.stdr_year, a.cmpet_no, a.cmpet_class_cde, a.cmpet_knd_cde, a.game_no, a.game_de, a.home_team_at
+             , a.team_id, a.score, a.conceded_goal, a.winpoint, CASE WHEN mf.flag = 'f' THEN 'Y' ELSE mf.flag END AS forfeit_at
+             , TO_CHAR(mf.forfeit_date, 'YYYYMMDD') AS forfeit_process_de, mf.half_over_yn AS forfeit_pnttm_half_elapse_at
+             , a.game_result_cde, a.win_co, a.tie_co, a.lose_co, a.goal_dffrnc_co, a.league_cmpet_se_cde
+             , 1 AS game_co
+          FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no, mi.ma_mch_clss AS cmpet_class_cde, mi.ma_knd AS cmpet_knd_cde, msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de, 'Y' AS home_team_at, msi.teamid_home AS team_id
+                     , msr.th_score_final AS score, msr.ta_score_final AS conceded_goal, msr.home_winpoints AS winpoint
+                     , msr.victorytype AS game_result_cde
+                     , case when msr.victorytype = '1' and msr.th_score_final > msr.ta_score_final then 1
+                            when msr.victorytype in ('3', '5', '8', '11') then 1
+                            else 0 end as win_co
+                     , case when msr.victorytype = '2' then 1 else 0 end as tie_co
+                     , case when msr.victorytype = '1' and msr.th_score_final < msr.ta_score_final then 1
+                            when msr.victorytype in ('4', '7', '10', '12', '13') then 1
+                            else 0 end as lose_co
+                     , (msr.th_score_final - msr.ta_score_final) AS goal_dffrnc_co
+                     , mi."STYLE" AS league_cmpet_se_cde
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+--                   AND TO_CHAR(msi.match_dt, 'YYYY') = TO_CHAR(NOW(), 'YYYY') /* 기준연도 조건 */
+               ) a LEFT OUTER JOIN match_forfeit mf
+            ON a.cmpet_no = mf.match_idx
+           AND a.team_id = mf.teamid
+       ) aa LEFT OUTER JOIN
+       (
+        SELECT stdr_year, team_id, team_nm, team_area_cde, team_grad_cde, team_league_area_cde, team_class_cde
+             , team_asoc_grad_cde, team_sexdstn_cde, team_age_cde, item_cde, pro_at, asort_cde AS team_asort_cde, asort_detail_1_cde AS team_asort_detail_1_cde
+             , asort_detail_2_cde AS team_asort_detail_2_cde, pro_junior_at, union_team_knd_cde, parnts_team_id, fifa_id, dsmntl_de
+          FROM t_team_info tti
+       ) bb
+    ON aa.stdr_year = bb.stdr_year
+   AND aa.team_id = bb.team_id
+       LEFT OUTER JOIN
+       (
+        SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+             , mat.match_idx AS cmpet_no
+             , mat.teamid AS wnpz_trget_id
+             , mat.status AS wnpz_cde
+          FROM match_award_team mat
+               LEFT OUTER JOIN
+               match_info mi
+            ON mat.match_idx = mi.idx
+       ) cc
+    ON aa.stdr_year = cc.stdr_year
+   AND aa.cmpet_no = cc.cmpet_no
+   AND aa.team_id = cc.wnpz_trget_id
+ GROUP BY CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END
+     , CASE WHEN aa.team_id IS NULL THEN '^' ELSE aa.team_id END
+     , CASE WHEN bb.item_cde IS NULL THEN '^' ELSE bb.item_cde END
+     , CASE WHEN bb.team_area_cde IS NULL THEN '^' ELSE bb.team_area_cde END
+     , CASE WHEN bb.team_grad_cde IS NULL THEN '^' ELSE bb.team_grad_cde END
+     , CASE WHEN bb.team_asoc_grad_cde IS NULL THEN '^' ELSE bb.team_asoc_grad_cde END
+     , CASE WHEN bb.team_class_cde IS NULL THEN '^' ELSE bb.team_class_cde END
+     , CASE WHEN bb.team_sexdstn_cde IS NULL THEN '^' ELSE bb.team_sexdstn_cde END
+     , CASE WHEN bb.team_age_cde IS NULL THEN '^' ELSE bb.team_age_cde END
+     , CASE WHEN bb.team_asort_cde IS NULL THEN '^' ELSE bb.team_asort_cde END
+     , CASE WHEN bb.team_asort_detail_1_cde IS NULL THEN '^' ELSE bb.team_asort_detail_1_cde END
+     , CASE WHEN bb.team_asort_detail_2_cde IS NULL THEN '^' ELSE bb.team_asort_detail_2_cde END
+     , CASE WHEN bb.pro_junior_at IS NULL THEN '^' ELSE bb.pro_junior_at END
+     , CASE WHEN bb.union_team_knd_cde IS NULL THEN '^' ELSE bb.union_team_knd_cde END
+     , CASE WHEN bb.dsmntl_de IS NULL THEN '^' ELSE bb.dsmntl_de END
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END
+     , CASE WHEN aa.cmpet_knd_cde IS NULL THEN '^' ELSE aa.cmpet_knd_cde END
+     , CASE WHEN aa.cmpet_class_cde IS NULL THEN '^' ELSE aa.cmpet_class_cde END
+     , CASE WHEN aa.league_cmpet_se_cde IS NULL THEN '^' ELSE aa.league_cmpet_se_cde END
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END
+     , CASE WHEN aa.home_team_at IS NULL THEN '^' ELSE aa.home_team_at END
+     , CASE WHEN aa.game_result_cde IS NULL THEN '^' ELSE aa.game_result_cde END
+     , CASE WHEN aa.forfeit_at IS NULL THEN '^' ELSE aa.forfeit_at END
+     , CASE WHEN aa.forfeit_process_de IS NULL THEN '^' ELSE aa.forfeit_process_de END
+     , CASE WHEN aa.forfeit_pnttm_half_elapse_at IS NULL THEN '^' ELSE aa.forfeit_pnttm_half_elapse_at END
+     , CASE WHEN cc.wnpz_cde IS NULL THEN '^' ELSE cc.wnpz_cde END
+     , COALESCE(aa.winpoint, 0)
+     , aa.win_co
+     , aa.tie_co
+     , aa.lose_co
+     , COALESCE(aa.score, 0)
+     , COALESCE(aa.conceded_goal, 0)
+     , COALESCE(aa.goal_dffrnc_co, 0)
+     , CASE WHEN aa.game_co IS NULL THEN 0 ELSE aa.game_co END
+;
+
+
+
+
+/* 
+ * 원정팀
+ */
+SELECT CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END AS stdr_year
+     , CASE WHEN aa.team_id IS NULL THEN '^' ELSE aa.team_id END AS team_id
+     , CASE WHEN bb.item_cde IS NULL THEN '^' ELSE bb.item_cde END AS item_cde
+     , CASE WHEN bb.team_area_cde IS NULL THEN '^' ELSE bb.team_area_cde END AS team_area_cde
+     , CASE WHEN bb.team_grad_cde IS NULL THEN '^' ELSE bb.team_grad_cde END AS team_grad_cde
+     , CASE WHEN bb.team_asoc_grad_cde IS NULL THEN '^' ELSE bb.team_asoc_grad_cde END AS team_asoc_grad_cde
+     , CASE WHEN bb.team_class_cde IS NULL THEN '^' ELSE bb.team_class_cde END AS team_class_cde
+     , CASE WHEN bb.team_sexdstn_cde IS NULL THEN '^' ELSE bb.team_sexdstn_cde END AS team_sexdstn_cde
+     , CASE WHEN bb.team_age_cde IS NULL THEN '^' ELSE bb.team_age_cde END AS team_age_cde
+     , CASE WHEN bb.team_asort_cde IS NULL THEN '^' ELSE bb.team_asort_cde END AS team_asort_cde
+     , CASE WHEN bb.team_asort_detail_1_cde IS NULL THEN '^' ELSE bb.team_asort_detail_1_cde END AS team_asort_detail_1_cde
+     , CASE WHEN bb.team_asort_detail_2_cde IS NULL THEN '^' ELSE bb.team_asort_detail_2_cde END AS team_asort_detail_2_cde
+     , CASE WHEN bb.pro_junior_at IS NULL THEN '^' ELSE bb.pro_junior_at END AS pro_junior_at
+     , CASE WHEN bb.union_team_knd_cde IS NULL THEN '^' ELSE bb.union_team_knd_cde END AS union_team_knd_cde
+     , CASE WHEN bb.dsmntl_de IS NULL THEN '^' ELSE bb.dsmntl_de END AS dsmntl_de
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END AS cmpet_no
+     , CASE WHEN aa.cmpet_knd_cde IS NULL THEN '^' ELSE aa.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN aa.cmpet_class_cde IS NULL THEN '^' ELSE aa.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN aa.league_cmpet_se_cde IS NULL THEN '^' ELSE aa.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END AS game_no
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END AS game_de
+     , CASE WHEN aa.home_team_at IS NULL THEN '^' ELSE aa.home_team_at END AS home_team_at
+     , CASE WHEN aa.game_result_cde IS NULL THEN '^' ELSE aa.game_result_cde END AS game_result_cde
+     , CASE WHEN aa.forfeit_at IS NULL THEN '^' ELSE aa.forfeit_at END AS forfeit_at
+     , CASE WHEN aa.forfeit_process_de IS NULL THEN '^' ELSE aa.forfeit_process_de END AS forfeit_process_de
+     , CASE WHEN aa.forfeit_pnttm_half_elapse_at IS NULL THEN '^' ELSE aa.forfeit_pnttm_half_elapse_at END AS forfeit_pnttm_half_elapse_at
+     , CASE WHEN cc.wnpz_cde IS NULL THEN '^' ELSE cc.wnpz_cde END AS wnpz_cde
+     , COALESCE(aa.winpoint, 0) AS winpoint
+     , aa.win_co
+     , aa.tie_co
+     , aa.lose_co
+     , COALESCE(aa.score, 0) AS score
+     , COALESCE(aa.conceded_goal, 0) AS conceded_goal
+     , COALESCE(aa.goal_dffrnc_co, 0) AS goal_dffrnc_co
+     , CASE WHEN aa.game_co IS NULL THEN 0 ELSE aa.game_co END AS game_co
+  FROM (
+        SELECT a.stdr_year, a.cmpet_no, a.cmpet_class_cde, a.cmpet_knd_cde, a.game_no, a.game_de, a.home_team_at
+             , a.team_id, a.score, a.conceded_goal, a.winpoint, mf.flag AS forfeit_at
+             , TO_CHAR(mf.forfeit_date, 'YYYYMMDD') AS forfeit_process_de, mf.half_over_yn AS forfeit_pnttm_half_elapse_at
+             , a.game_result_cde, a.win_co, a.tie_co, a.lose_co, a.goal_dffrnc_co, a.league_cmpet_se_cde
+             , 1 AS game_co
+          FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no, mi.ma_mch_clss AS cmpet_class_cde, mi.ma_knd AS cmpet_knd_cde, msi.idx AS game_no
+                     , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de, 'N' AS home_team_at, msi.teamid_away AS team_id
+                     , msr.ta_score_final AS score, msr.th_score_final AS conceded_goal, msr.away_winpoints AS winpoint
+                     , msr.victorytype AS game_result_cde
+                     , case when msr.victorytype = '1' and msr.ta_score_final > msr.th_score_final then 1
+                            when msr.victorytype in ('4', '6', '7', '10') then 1
+                            else 0 end as win_co
+                     , case when msr.victorytype = '2' then 1 else 0 end as tie_co
+                     , case when msr.victorytype = '1' and msr.ta_score_final < msr.th_score_final then 1
+                            when msr.victorytype in ('3', '8', '11', '12', '13') then 1
+                            else 0 end as lose_co
+                     , (msr.ta_score_final - msr.th_score_final) AS goal_dffrnc_co
+                     , mi."STYLE" AS league_cmpet_se_cde
+                  FROM match_info mi
+                     , match_single_info msi
+                     , match_single_result msr
+                 WHERE mi.idx = msi.match_idx
+                   AND msi.match_idx  = msr.match_idx
+                   AND msi.idx = msr.single_idx
+--                   AND TO_CHAR(msi.match_dt, 'YYYY') = TO_CHAR(NOW(), 'YYYY') /* 기준연도 조건 */
+               ) a LEFT OUTER JOIN match_forfeit mf
+            ON a.cmpet_no = mf.match_idx
+           AND a.team_id = mf.teamid
+       ) aa LEFT OUTER JOIN
+       (
+        SELECT stdr_year, team_id, team_nm, team_area_cde, team_grad_cde, team_league_area_cde, team_class_cde
+             , team_asoc_grad_cde, team_sexdstn_cde, team_age_cde, item_cde, pro_at, asort_cde AS team_asort_cde, asort_detail_1_cde AS team_asort_detail_1_cde
+             , asort_detail_2_cde AS team_asort_detail_2_cde, pro_junior_at, union_team_knd_cde, parnts_team_id, fifa_id, dsmntl_de
+          FROM t_team_info tti
+       ) bb
+    ON aa.stdr_year = bb.stdr_year
+   AND aa.team_id = bb.team_id
+       LEFT OUTER JOIN
+       (
+        SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+             , mat.match_idx AS cmpet_no
+             , mat.teamid AS wnpz_trget_id
+             , mat.status AS wnpz_cde
+          FROM match_award_team mat
+               LEFT OUTER JOIN
+               match_info mi
+            ON mat.match_idx = mi.idx
+       ) cc
+    ON aa.stdr_year = cc.stdr_year
+   AND aa.cmpet_no = cc.cmpet_no
+   AND aa.team_id = cc.wnpz_trget_id
+ GROUP BY CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END
+     , CASE WHEN aa.team_id IS NULL THEN '^' ELSE aa.team_id END
+     , CASE WHEN bb.item_cde IS NULL THEN '^' ELSE bb.item_cde END
+     , CASE WHEN bb.team_area_cde IS NULL THEN '^' ELSE bb.team_area_cde END
+     , CASE WHEN bb.team_grad_cde IS NULL THEN '^' ELSE bb.team_grad_cde END
+     , CASE WHEN bb.team_asoc_grad_cde IS NULL THEN '^' ELSE bb.team_asoc_grad_cde END
+     , CASE WHEN bb.team_class_cde IS NULL THEN '^' ELSE bb.team_class_cde END
+     , CASE WHEN bb.team_sexdstn_cde IS NULL THEN '^' ELSE bb.team_sexdstn_cde END
+     , CASE WHEN bb.team_age_cde IS NULL THEN '^' ELSE bb.team_age_cde END
+     , CASE WHEN bb.team_asort_cde IS NULL THEN '^' ELSE bb.team_asort_cde END
+     , CASE WHEN bb.team_asort_detail_1_cde IS NULL THEN '^' ELSE bb.team_asort_detail_1_cde END
+     , CASE WHEN bb.team_asort_detail_2_cde IS NULL THEN '^' ELSE bb.team_asort_detail_2_cde END
+     , CASE WHEN bb.pro_junior_at IS NULL THEN '^' ELSE bb.pro_junior_at END
+     , CASE WHEN bb.union_team_knd_cde IS NULL THEN '^' ELSE bb.union_team_knd_cde END
+     , CASE WHEN bb.dsmntl_de IS NULL THEN '^' ELSE bb.dsmntl_de END
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END
+     , CASE WHEN aa.cmpet_knd_cde IS NULL THEN '^' ELSE aa.cmpet_knd_cde END
+     , CASE WHEN aa.cmpet_class_cde IS NULL THEN '^' ELSE aa.cmpet_class_cde END
+     , CASE WHEN aa.league_cmpet_se_cde IS NULL THEN '^' ELSE aa.league_cmpet_se_cde END
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END
+     , CASE WHEN aa.home_team_at IS NULL THEN '^' ELSE aa.home_team_at end
+     , CASE WHEN aa.game_result_cde IS NULL THEN '^' ELSE aa.game_result_cde END
+     , CASE WHEN aa.forfeit_at IS NULL THEN '^' ELSE aa.forfeit_at END
+     , CASE WHEN aa.forfeit_process_de IS NULL THEN '^' ELSE aa.forfeit_process_de END
+     , CASE WHEN aa.forfeit_pnttm_half_elapse_at IS NULL THEN '^' ELSE aa.forfeit_pnttm_half_elapse_at END
+     , CASE WHEN cc.wnpz_cde IS NULL THEN '^' ELSE cc.wnpz_cde END
+     , COALESCE(aa.winpoint, 0)
+     , aa.win_co
+     , aa.tie_co
+     , aa.lose_co
+     , COALESCE(aa.score, 0)
+     , COALESCE(aa.conceded_goal, 0)
+     , COALESCE(aa.goal_dffrnc_co, 0)
+     , CASE WHEN aa.game_co IS NULL THEN 0 ELSE aa.game_co END
+;

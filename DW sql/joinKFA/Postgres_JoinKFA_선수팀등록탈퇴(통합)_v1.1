@@ -1,0 +1,368 @@
+/* 탈퇴일자가 등록일자보다 빠른 경우 데이터 제외 */
+SELECT COALESCE(a.stdr_year, b.stdr_year) AS stdr_year
+     , COALESCE(a.team_id, b.team_id) AS team_id
+     , COALESCE(a.player_id, b.player_id) AS player_id
+     , COALESCE(a.player_indx, b.player_indx) AS player_indx
+     , COALESCE(a.team_area_cde, b.team_area_cde) AS team_area_cde
+     , COALESCE(a.team_grad_cde, b.team_grad_cde) AS team_grad_cde
+     , COALESCE(a.team_class_cde, b.team_class_cde) AS team_class_cde
+     , COALESCE(a.item_cde, b.item_cde) AS item_cde 
+     , MAX(a.regist_de) AS regist_de
+--     , max(a.flag) AS flag
+     , MAX(b.secsn_de) AS secsn_de
+--     , max(b.flag) AS flag
+     , COALESCE(a.nation_cde, b.nation_cde) AS nation_cde
+     , COALESCE(a.ad_issu_no, b.ad_issu_no) AS ad_issu_no
+     , COALESCE(a.confm_step_cde, b.confm_step_cde) AS confm_step_cde
+     , COALESCE(a.player_postn_cde, b.player_postn_cde) AS player_postn_cde
+     , COALESCE(a.player_grade_cde, b.player_grade_cde) AS player_grade_cde
+     , COALESCE(a.psitn_team_nm, b.psitn_team_nm) AS psitn_team_nm
+     , COALESCE(a.player_nm, b.player_nm) AS player_nm
+  FROM (
+        SELECT TO_CHAR(ph.processing_date, 'YYYY') AS stdr_year
+             , ph.jumin AS player_id
+             , tpi.player_indx AS player_indx
+             , ph.teamid AS team_id
+             , ph.tm_area AS team_area_cde
+             , ph.tm_grade AS team_grad_cde
+             , ph.tm_class AS team_class_cde
+             , TO_CHAR(ph.processing_date, 'YYYYMMDD') AS regist_de
+             , ph.flag
+             , mtt.tm_item_cd AS item_cde
+             , tpi.nation_cde
+             , tpi.ad_issu_no
+             , tpi.confm_step_cde
+             , tpi.player_postn_cde
+             , tpi.player_grade_cde
+             , tpi.player_nm
+             , ph.teamname AS psitn_team_nm
+          FROM "player_history2#" ph
+               LEFT OUTER JOIN t_player_info tpi
+            ON TO_CHAR(ph.processing_date, 'YYYY') = tpi.stdr_year
+           AND tpi.item_cde = 'S'
+           AND ph.jumin = tpi.player_id
+               LEFT OUTER JOIN master_tm_type mtt
+            ON ph.tm_grade = mtt.tm_grade
+         WHERE ph.teamid IS NOT NULL
+           AND ph.flag = '등록'
+      ) a
+      FULL OUTER JOIN
+      (
+       SELECT TO_CHAR(ph.processing_date, 'YYYY') AS stdr_year
+            , ph.jumin AS player_id
+            , tpi.player_indx AS player_indx
+            , ph.teamid AS team_id
+            , ph.tm_area AS team_area_cde
+            , ph.tm_grade AS team_grad_cde
+            , ph.tm_class AS team_class_cde
+            , TO_CHAR(ph.processing_date, 'YYYYMMDD') AS secsn_de
+            , ph.flag
+            , mtt.tm_item_cd AS item_cde
+            , tpi.nation_cde
+            , tpi.ad_issu_no
+            , tpi.confm_step_cde
+            , tpi.player_postn_cde
+            , tpi.player_grade_cde
+            , tpi.player_nm
+            , ph.teamname AS psitn_team_nm
+         FROM "player_history2#" ph
+              LEFT OUTER JOIN t_player_info tpi
+           ON TO_CHAR(ph.processing_date, 'YYYY') = tpi.stdr_year
+          AND ph.jumin = tpi.player_id
+          AND tpi.item_cde = 'S'
+              LEFT OUTER JOIN master_tm_type mtt
+           ON ph.tm_grade = mtt.tm_grade
+        WHERE ph.teamid IS NOT NULL
+          AND ph.flag = '탈퇴'
+      ) b
+    ON a.stdr_year = b.stdr_year
+   AND a.player_id = b.player_id
+   AND a.team_id   = b.team_id
+ WHERE COALESCE(a.regist_de, '00000101') <= COALESCE(b.secsn_de, '99991231')
+ GROUP BY COALESCE(a.stdr_year, b.stdr_year)
+     , COALESCE(a.team_id, b.team_id)
+     , COALESCE(a.player_id, b.player_id)
+     , COALESCE(a.player_indx, b.player_indx)
+     , COALESCE(a.team_area_cde, b.team_area_cde)
+     , COALESCE(a.team_grad_cde, b.team_grad_cde)
+     , COALESCE(a.team_class_cde, b.team_class_cde)
+     , COALESCE(a.item_cde, b.item_cde)
+     , COALESCE(a.nation_cde, b.nation_cde)
+     , COALESCE(a.ad_issu_no, b.ad_issu_no)
+     , COALESCE(a.confm_step_cde, b.confm_step_cde)
+     , COALESCE(a.player_postn_cde, b.player_postn_cde)
+     , COALESCE(a.player_grade_cde, b.player_grade_cde)
+     , COALESCE(a.psitn_team_nm, b.psitn_team_nm)
+     , COALESCE(a.player_nm, b.player_nm)
+ ORDER BY COALESCE(a.stdr_year, b.stdr_year)
+     , COALESCE(a.team_id, b.team_id)
+     , COALESCE(a.player_id, b.player_id)
+;
+
+
+
+/* 탈퇴일자가 등록일자보다 빠른 경우 하나의 데이터를 두 개의 데이터로 쪼갬 */
+SELECT COALESCE(a.stdr_year, b.stdr_year) AS stdr_year
+     , COALESCE(a.team_id, b.team_id) AS team_id
+     , COALESCE(a.player_id, b.player_id) AS player_id
+     , COALESCE(a.player_indx, b.player_indx) AS player_indx
+     , COALESCE(a.team_area_cde, b.team_area_cde) AS team_area_cde
+     , COALESCE(a.team_grad_cde, b.team_grad_cde) AS team_grad_cde
+     , COALESCE(a.team_class_cde, b.team_class_cde) AS team_class_cde
+     , COALESCE(a.item_cde, b.item_cde) AS item_cde 
+     , MAX(a.regist_de) AS regist_de
+--     , max(a.flag) AS flag
+     , '^' AS secsn_de
+--     , max(b.flag) AS flag
+     , COALESCE(a.nation_cde, b.nation_cde) AS nation_cde
+     , COALESCE(a.ad_issu_no, b.ad_issu_no) AS ad_issu_no
+     , COALESCE(a.confm_step_cde, b.confm_step_cde) AS confm_step_cde
+     , COALESCE(a.player_postn_cde, b.player_postn_cde) AS player_postn_cde
+     , COALESCE(a.player_grade_cde, b.player_grade_cde) AS player_grade_cde
+     , COALESCE(a.psitn_team_nm, b.psitn_team_nm) AS psitn_team_nm
+     , COALESCE(a.player_nm, b.player_nm) AS player_nm
+  FROM (
+        SELECT TO_CHAR(ph.processing_date, 'YYYY') AS stdr_year
+             , ph.jumin AS player_id
+             , tpi.player_indx AS player_indx
+             , ph.teamid AS team_id
+             , ph.tm_area AS team_area_cde
+             , ph.tm_grade AS team_grad_cde
+             , ph.tm_class AS team_class_cde
+             , TO_CHAR(ph.processing_date, 'YYYYMMDD') AS regist_de
+             , ph.flag
+             , mtt.tm_item_cd AS item_cde
+             , tpi.nation_cde
+             , tpi.ad_issu_no
+             , tpi.confm_step_cde
+             , tpi.player_postn_cde
+             , tpi.player_grade_cde
+             , tpi.player_nm
+             , ph.teamname AS psitn_team_nm
+          FROM "player_history2#" ph
+               LEFT OUTER JOIN t_player_info tpi
+            ON TO_CHAR(ph.processing_date, 'YYYY') = tpi.stdr_year
+           AND tpi.item_cde = 'S'
+           AND ph.jumin = tpi.player_id
+               LEFT OUTER JOIN master_tm_type mtt
+            ON ph.tm_grade = mtt.tm_grade
+         WHERE ph.teamid IS NOT NULL
+           AND ph.flag = '등록'
+      ) a
+      FULL OUTER JOIN
+      (
+       SELECT TO_CHAR(ph.processing_date, 'YYYY') AS stdr_year
+            , ph.jumin AS player_id
+            , tpi.player_indx AS player_indx
+            , ph.teamid AS team_id
+            , ph.tm_area AS team_area_cde
+            , ph.tm_grade AS team_grad_cde
+            , ph.tm_class AS team_class_cde
+            , TO_CHAR(ph.processing_date, 'YYYYMMDD') AS secsn_de
+            , ph.flag
+            , mtt.tm_item_cd AS item_cde
+            , tpi.nation_cde
+            , tpi.ad_issu_no
+            , tpi.confm_step_cde
+            , tpi.player_postn_cde
+            , tpi.player_grade_cde
+            , tpi.player_nm
+            , ph.teamname AS psitn_team_nm
+         FROM "player_history2#" ph
+              LEFT OUTER JOIN t_player_info tpi
+           ON TO_CHAR(ph.processing_date, 'YYYY') = tpi.stdr_year
+          AND ph.jumin = tpi.player_id
+          AND tpi.item_cde = 'S'
+              LEFT OUTER JOIN master_tm_type mtt
+           ON ph.tm_grade = mtt.tm_grade
+        WHERE ph.teamid IS NOT NULL
+          AND ph.flag = '탈퇴'
+      ) b
+    ON a.stdr_year = b.stdr_year
+   AND a.player_id = b.player_id
+   AND a.team_id   = b.team_id
+ WHERE COALESCE(a.regist_de, '00000101') >= COALESCE(b.secsn_de, '99991231')
+ GROUP BY COALESCE(a.stdr_year, b.stdr_year)
+     , COALESCE(a.team_id, b.team_id)
+     , COALESCE(a.player_id, b.player_id)
+     , COALESCE(a.player_indx, b.player_indx)
+     , COALESCE(a.team_area_cde, b.team_area_cde)
+     , COALESCE(a.team_grad_cde, b.team_grad_cde)
+     , COALESCE(a.team_class_cde, b.team_class_cde)
+     , COALESCE(a.item_cde, b.item_cde)
+     , COALESCE(a.nation_cde, b.nation_cde)
+     , COALESCE(a.ad_issu_no, b.ad_issu_no)
+     , COALESCE(a.confm_step_cde, b.confm_step_cde)
+     , COALESCE(a.player_postn_cde, b.player_postn_cde)
+     , COALESCE(a.player_grade_cde, b.player_grade_cde)
+     , COALESCE(a.psitn_team_nm, b.psitn_team_nm)
+     , COALESCE(a.player_nm, b.player_nm)
+UNION
+SELECT COALESCE(a.stdr_year, b.stdr_year) AS stdr_year
+     , COALESCE(a.team_id, b.team_id) AS team_id
+     , COALESCE(a.player_id, b.player_id) AS player_id
+     , COALESCE(a.player_indx, b.player_indx) AS player_indx
+     , COALESCE(a.team_area_cde, b.team_area_cde) AS team_area_cde
+     , COALESCE(a.team_grad_cde, b.team_grad_cde) AS team_grad_cde
+     , COALESCE(a.team_class_cde, b.team_class_cde) AS team_class_cde
+     , COALESCE(a.item_cde, b.item_cde) AS item_cde 
+     , '^' AS regist_de
+--     , max(a.flag) AS flag
+     , MAX(b.secsn_de) AS secsn_de
+--     , max(b.flag) AS flag
+     , COALESCE(a.nation_cde, b.nation_cde) AS nation_cde
+     , COALESCE(a.ad_issu_no, b.ad_issu_no) AS ad_issu_no
+     , COALESCE(a.confm_step_cde, b.confm_step_cde) AS confm_step_cde
+     , COALESCE(a.player_postn_cde, b.player_postn_cde) AS player_postn_cde
+     , COALESCE(a.player_grade_cde, b.player_grade_cde) AS player_grade_cde
+     , COALESCE(a.psitn_team_nm, b.psitn_team_nm) AS psitn_team_nm
+     , COALESCE(a.player_nm, b.player_nm) AS player_nm
+  FROM (
+        SELECT TO_CHAR(ph.processing_date, 'YYYY') AS stdr_year
+             , ph.jumin AS player_id
+             , tpi.player_indx AS player_indx
+             , ph.teamid AS team_id
+             , ph.tm_area AS team_area_cde
+             , ph.tm_grade AS team_grad_cde
+             , ph.tm_class AS team_class_cde
+             , TO_CHAR(ph.processing_date, 'YYYYMMDD') AS regist_de
+             , ph.flag
+             , mtt.tm_item_cd AS item_cde
+             , tpi.nation_cde
+             , tpi.ad_issu_no
+             , tpi.confm_step_cde
+             , tpi.player_postn_cde
+             , tpi.player_grade_cde
+             , tpi.player_nm
+             , ph.teamname AS psitn_team_nm
+          FROM "player_history2#" ph
+               LEFT OUTER JOIN t_player_info tpi
+            ON TO_CHAR(ph.processing_date, 'YYYY') = tpi.stdr_year
+           AND tpi.item_cde = 'S'
+           AND ph.jumin = tpi.player_id
+               LEFT OUTER JOIN master_tm_type mtt
+            ON ph.tm_grade = mtt.tm_grade
+         WHERE ph.teamid IS NOT NULL
+           AND ph.flag = '등록'
+      ) a
+      FULL OUTER JOIN
+      (
+       SELECT TO_CHAR(ph.processing_date, 'YYYY') AS stdr_year
+            , ph.jumin AS player_id
+            , tpi.player_indx AS player_indx
+            , ph.teamid AS team_id
+            , ph.tm_area AS team_area_cde
+            , ph.tm_grade AS team_grad_cde
+            , ph.tm_class AS team_class_cde
+            , TO_CHAR(ph.processing_date, 'YYYYMMDD') AS secsn_de
+            , ph.flag
+            , mtt.tm_item_cd AS item_cde
+            , tpi.nation_cde
+            , tpi.ad_issu_no
+            , tpi.confm_step_cde
+            , tpi.player_postn_cde
+            , tpi.player_grade_cde
+            , tpi.player_nm
+            , ph.teamname AS psitn_team_nm
+         FROM "player_history2#" ph
+              LEFT OUTER JOIN t_player_info tpi
+           ON TO_CHAR(ph.processing_date, 'YYYY') = tpi.stdr_year
+          AND ph.jumin = tpi.player_id
+          AND tpi.item_cde = 'S'
+              LEFT OUTER JOIN master_tm_type mtt
+           ON ph.tm_grade = mtt.tm_grade
+        WHERE ph.teamid IS NOT NULL
+          AND ph.flag = '탈퇴'
+      ) b
+    ON a.stdr_year = b.stdr_year
+   AND a.player_id = b.player_id
+   AND a.team_id   = b.team_id
+ WHERE COALESCE(a.regist_de, '00000101') >= COALESCE(b.secsn_de, '99991231')
+ GROUP BY COALESCE(a.stdr_year, b.stdr_year)
+     , COALESCE(a.team_id, b.team_id)
+     , COALESCE(a.player_id, b.player_id)
+     , COALESCE(a.player_indx, b.player_indx)
+     , COALESCE(a.team_area_cde, b.team_area_cde)
+     , COALESCE(a.team_grad_cde, b.team_grad_cde)
+     , COALESCE(a.team_class_cde, b.team_class_cde)
+     , COALESCE(a.item_cde, b.item_cde)
+     , COALESCE(a.nation_cde, b.nation_cde)
+     , COALESCE(a.ad_issu_no, b.ad_issu_no)
+     , COALESCE(a.confm_step_cde, b.confm_step_cde)
+     , COALESCE(a.player_postn_cde, b.player_postn_cde)
+     , COALESCE(a.player_grade_cde, b.player_grade_cde)
+     , COALESCE(a.psitn_team_nm, b.psitn_team_nm)
+     , COALESCE(a.player_nm, b.player_nm)
+ ORDER BY stdr_year
+     , team_id
+     , player_id
+;
+
+
+
+SELECT TO_CHAR(ph.processing_date, 'YYYY') AS stdr_year
+     , ph.jumin AS player_id
+     , tpi.player_indx AS player_indx
+     , ph.teamid AS team_id
+     , ph.tm_area AS team_area_cde
+     , ph.tm_grade AS team_grad_cde
+     , ph.tm_class AS team_class_cde
+     , TO_CHAR(ph.processing_date, 'YYYYMMDD') AS regist_de
+     , mtt.tm_item_cd AS item_cde
+     , tpi.nation_cde AS nation_cde
+     , tpi.ad_issu_no AS ad_issu_no
+     , tpi.confm_step_cde AS confm_step_cde
+     , tpi.player_postn_cde AS player_postn_cde
+     , tpi.player_grade_cde AS player_grade_cde
+     , ph.teamname AS psitn_team_nm
+     , tpi.player_nm AS player_nm
+  FROM "player_history2#" ph
+       LEFT OUTER JOIN t_player_info tpi
+    ON TO_CHAR(ph.processing_date, 'YYYY') = tpi.stdr_year 
+   AND ph.jumin = tpi.player_id
+       LEFT OUTER JOIN master_tm_type mtt
+    ON ph.tm_grade = mtt.tm_grade
+ WHERE ph.teamid IS NOT NULL
+   AND ph.flag = '등록부'
+;
+
+
+
+/*
+SELECT CASE WHEN a.stdr_year IS NOT NULL THEN a.stdr_year ELSE b.stdr_year END AS stdr_year
+     , CASE WHEN a.player_id IS NOT NULL THEN a.player_id ELSE b.player_id END AS player_id
+     , CASE WHEN a.team_id IS NOT NULL THEN a.team_id ELSE b.team_id END AS team_id
+     , CASE WHEN a.team_area_cde IS NOT NULL THEN a.team_area_cde ELSE b.team_area_cde END AS team_area_cde
+     , CASE WHEN a.team_grad_cde IS NOT NULL THEN a.team_grad_cde ELSE b.team_grad_cde END AS team_grad_cde
+     , CASE WHEN a.team_class_cde IS NOT NULL THEN a.team_class_cde ELSE b.team_class_cde END AS team_class_cde
+     , a.regist_de
+     , b.secsn_de
+  FROM (
+        SELECT TO_CHAR(processing_date, 'YYYY') AS stdr_year
+             , jumin AS player_id
+             , teamid AS team_id
+             , tm_area AS team_area_cde
+             , tm_grade AS team_grad_cde
+             , tm_class AS team_class_cde
+             , TO_CHAR(processing_date, 'YYYYMMDD') AS regist_de
+          FROM "player_history2#"
+         WHERE teamid IS NOT NULL
+           AND flag = '등록'
+        ) a full outer join
+        (
+        SELECT TO_CHAR(processing_date, 'YYYY') AS stdr_year
+             , jumin AS player_id
+             , teamid AS team_id
+             , tm_area AS team_area_cde
+             , tm_grade AS team_grad_cde
+             , tm_class AS team_class_cde
+             , TO_CHAR(processing_date, 'YYYYMMDD') AS secsn_de
+          FROM "player_history2#"
+         WHERE teamid IS NOT NULL
+           AND flag = '탈퇴'
+        ) b
+    ON a.stdr_year = b.stdr_year
+   AND a.player_id = b.player_id
+   AND a.team_id = b.team_id
+;
+*/

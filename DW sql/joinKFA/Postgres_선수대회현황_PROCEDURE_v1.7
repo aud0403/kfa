@@ -1,0 +1,331 @@
+CREATE OR REPLACE PROCEDURE sp_player_cmpet_sttus (
+INOUT vYr VARCHAR(4)
+)
+AS $$
+/*****
+ * 
+ * todo
+ * 
+ * 주석 처리
+ * 
+ * 
+ * 
+ */
+DECLARE
+    
+    cr_main record;
+    cr_dtl  record;
+
+    iCnt INTEGER;
+    
+    /* 입력을 위한 테이블 Type 정의 */
+    type_dtl   kfadm.ty_player_cmpet_sttus[];
+
+    /* # Cursor 1. 년도별 Loop 처리 하기 위함. vYr이 '' 이면 전체 처리 */
+    cur_match CURSOR(v_year VARCHAR) FOR
+    SELECT stdr_year AS playing_yr, COUNT(*) AS cnt
+      FROM kfadm.t_player_cmpet_sttus
+--     WHERE stdr_year = v_year
+     GROUP BY stdr_year
+     ORDER BY playing_yr;
+ 
+    /* 
+     * # Cursor 2. 입력을 위한 데이터 조회 
+     * Param : v_year 년도(4)
+     * playng_time, player_rcord_occrrnc_time, rcord_occrrnc_addnl_time 숫자가 아닌 값은 0으로 처리
+     */
+    cur_match_dtl CURSOR(v_year VARCHAR) FOR
+    SELECT CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END AS stdr_year
+         , CASE WHEN aa.player_id IS NULL THEN '^' ELSE aa.player_id END AS player_id
+         , CASE WHEN bb.player_indx IS NULL THEN -1 ELSE bb.player_indx END AS player_indx
+         , CASE WHEN aa.partcpt_player_indx IS NULL THEN -1 ELSE aa.partcpt_player_indx END AS partcpt_player_indx
+         , CASE WHEN aa.player_id IS NULL THEN '^' ELSE kfadm.fn_sexdstn(aa.player_id) END AS player_sexdstn_cde
+         , CASE WHEN kfadm.fn_valid_inspct(aa.player_id) = 'P' AND aa.stdr_year IS NOT NULL THEN kfadm.fn_agrde(aa.stdr_year, aa.player_id)
+                WHEN kfadm.fn_valid_inspct(aa.player_id) = 'E' THEN 'E'
+                WHEN kfadm.fn_valid_inspct(aa.player_id) = 'N' THEN '^'
+                ELSE '^'
+            END AS player_agrde_cde
+         , CASE WHEN aa.item_cde IS NULL THEN '^' ELSE aa.item_cde END AS item_cde
+         , CASE WHEN bb.nation_cde IS NULL THEN '^' ELSE bb.nation_cde END AS nation_cde
+         , CASE WHEN bb.ad_issu_no IS NULL THEN '^' ELSE bb.ad_issu_no END AS ad_issu_no
+         , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END AS cmpet_no
+         , CASE WHEN aa.cmpet_class_cde IS NULL THEN '^' ELSE aa.cmpet_class_cde END AS cmpet_class_cde
+         , CASE WHEN aa.cmpet_knd_cde IS NULL THEN '^' ELSE aa.cmpet_knd_cde END AS cmpet_knd_cde
+         , CASE WHEN aa.league_cmpet_se_cde IS NULL THEN '^' ELSE aa.league_cmpet_se_cde END AS league_cmpet_se_cde
+         , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END AS game_no
+         , CASE WHEN bb.confm_step_cde IS NULL THEN '^' ELSE bb.confm_step_cde END AS confm_step_cde
+         , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END AS game_de
+         , CASE WHEN aa.home_away_se_cde IS NULL THEN '^' ELSE aa.home_away_se_cde END AS home_away_se_cde
+         , CASE WHEN aa.psitn_team_id IS NULL THEN '^' ELSE aa.psitn_team_id END AS psitn_team_id
+         , CASE WHEN bb.psitn_team_area_cde IS NULL THEN '^' ELSE bb.psitn_team_area_cde END AS psitn_team_area_cde
+         , CASE WHEN bb.psitn_team_class_cde IS NULL THEN '^' ELSE bb.psitn_team_class_cde END AS psitn_team_class_cde
+         , CASE WHEN bb.psitn_team_grad_cde IS NULL THEN '^' ELSE bb.psitn_team_grad_cde END AS psitn_team_grad_cde
+         , CASE WHEN aa.psitn_team_mangr_id IS NULL THEN '^' ELSE aa.psitn_team_mangr_id END AS psitn_team_mangr_id
+         , CASE WHEN aa.player_postn_cde IS NULL THEN '^' ELSE aa.player_postn_cde END AS player_postn_cde
+         , CASE WHEN aa.entry_se_cde IS NULL THEN '^' ELSE aa.entry_se_cde END AS entry_se_cde
+         , CASE WHEN aa.capt_at IS NULL THEN '^' ELSE aa.capt_at END AS capt_at
+         , CASE WHEN aa.panalty_kick_at IS NULL THEN '^' ELSE aa.panalty_kick_at END AS panalty_kick_at
+         , CASE WHEN aa.player_rcord_se_cde IS NULL THEN '^' ELSE aa.player_rcord_se_cde END AS player_rcord_se_cde
+         , CASE WHEN bb.loan_at IS NULL THEN '^' ELSE bb.loan_at END AS loan_at
+         , CASE WHEN aa.loan_team_id IS NULL THEN '^' ELSE aa.loan_team_id END AS loan_team_id
+         , CASE WHEN aa.playng_qualf_at IS NULL THEN '^' ELSE aa.playng_qualf_at END AS playng_qualf_at
+         , CASE WHEN aa.player_rcord_occrrnc_time IS NULL THEN 0 ELSE aa.player_rcord_occrrnc_time END AS player_rcord_occrrnc_time
+         , CASE WHEN aa.pso_sn IS NULL THEN '^' ELSE aa.pso_sn END AS pso_sn
+         , CASE WHEN aa.rcord_occrrnc_addnl_time IS NULL THEN 0 ELSE aa.rcord_occrrnc_addnl_time END AS rcord_occrrnc_addnl_time
+         , CASE WHEN aa.player_grade_cde IS NULL THEN '^' ELSE aa.player_grade_cde END AS player_grade_cde
+         , CASE WHEN ww.wnpz_cde IS NULL THEN '^' ELSE ww.wnpz_cde END AS wnpz_cde
+         , aa.entry_no AS entry_no
+         , aa.playng_time AS playng_time
+         , CASE WHEN aa.loan_regist_dat IS NULL THEN '^' ELSE aa.loan_regist_dat END AS loan_regist_dat
+         , CASE WHEN aa.loan_end_dat IS NULL THEN '^' ELSE aa.loan_regist_dat END AS loan_end_dat
+         , aa.game_co AS game_co
+      FROM (
+           SELECT a.stdr_year, a.player_id, a.cmpet_no, a.item_cde, a.game_no, a.game_de, a.home_away_se_cde, a.psitn_team_id
+                 , a.player_postn_cde, b.psitn_team_mangr_id, a.entry_se_cde, a.capt_at, a.panalty_kick_at, a.player_rcord_se_cde
+                 , a.playng_qualf_at, a.player_grade_cde, a.entry_no, a.playng_time, a.player_rcord_occrrnc_time
+                 , a.pso_sn, a.rcord_occrrnc_addnl_time, a.game_co, a.loan_team_id, a.loan_regist_dat, a.loan_end_dat
+                 , a.cmpet_class_cde, a.cmpet_knd_cde, a.league_cmpet_se_cde, a.partcpt_player_indx
+              FROM (
+                    SELECT stdr_year, player_id, partcpt_player_indx, player_sexdstn_cde, player_agrde_cde
+                         , item_cde, cmpet_no, cmpet_class_cde, cmpet_knd_cde, league_cmpet_se_cde, game_no, game_de
+                         , home_away_se_cde, psitn_team_id, player_postn_cde, entry_se_cde, capt_at, panalty_kick_at
+                         , player_rcord_se_cde, loan_team_id, playng_qualf_at, player_rcord_occrrnc_time, pso_sn
+                         , rcord_occrrnc_addnl_time, player_grade_cde, entry_no, playng_time, loan_regist_dat, loan_end_dat, game_co
+                      FROM kfadm.t_player_cmpet_sttus
+                     WHERE stdr_year = v_year
+--                     AND cmpet_knd_cde != '11' /* K리그 데이터의 경우 제외하고 별도 sql로 데이터 입력 */
+                   ) a LEFT OUTER JOIN
+                   (
+                    SELECT stdr_year, cmpet_no, game_no, coach_id AS psitn_team_mangr_id, psitn_team_id
+                      FROM kfadm.wf_coach_team_cmpet_sttus
+                     WHERE stdr_year = v_year
+                       AND cmpet_no != -1
+                       AND game_no != -1
+                       AND coach_clsf_cde = '1'
+                     GROUP BY stdr_year, cmpet_no, game_no, coach_id, psitn_team_id
+                   ) b
+                  ON a.stdr_year = b.stdr_year 
+                 AND a.cmpet_no = b.cmpet_no
+                 AND a.game_no = b.game_no
+                 AND a.psitn_team_id = b.psitn_team_id
+            ) aa LEFT OUTER JOIN 
+            (
+            SELECT stdr_year, player_id, player_indx, item_cde, nation_cde, ad_issu_no, confm_step_cde
+                 , psitn_team_id, psitn_team_area_cde, psitn_team_class_cde, psitn_team_grad_cde
+                 , player_postn_cde, loan_at, player_grade_cde
+                 , team_regist_de, team_secsn_de, psitn_team_nm, player_co
+              FROM kfadm.wf_player_sttus
+             WHERE stdr_year = v_year
+            ) bb 
+        ON aa.stdr_year = bb.stdr_year
+       AND aa.player_id = bb.player_id
+       AND aa.psitn_team_id = bb.psitn_team_id
+           LEFT OUTER join
+           (
+           SELECT stdr_year, cmpet_no, wnpz_trget_id, wnpz_cde 
+             FROM wf_wnpz
+            WHERE wnpz_trget_se_cde = 'P'
+           ) ww
+        ON aa.stdr_year = ww.stdr_year
+       AND aa.cmpet_no = ww.cmpet_no 
+       AND aa.player_id = ww.wnpz_trget_id
+     GROUP BY CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END
+         , CASE WHEN aa.player_id IS NULL THEN '^' ELSE aa.player_id END
+         , CASE WHEN bb.player_indx IS NULL THEN -1 ELSE bb.player_indx end
+         , CASE WHEN aa.partcpt_player_indx IS NULL THEN -1 ELSE aa.partcpt_player_indx END
+         , CASE WHEN aa.player_id IS NULL THEN '^' ELSE kfadm.fn_sexdstn(aa.player_id) END
+         , CASE WHEN kfadm.fn_valid_inspct(aa.player_id) = 'P' AND aa.stdr_year IS NOT NULL THEN kfadm.fn_agrde(aa.stdr_year, aa.player_id)
+                WHEN kfadm.fn_valid_inspct(aa.player_id) = 'E' THEN 'E'
+                WHEN kfadm.fn_valid_inspct(aa.player_id) = 'N' THEN '^'
+                ELSE '^'
+            END
+         , CASE WHEN aa.item_cde IS NULL THEN '^' ELSE aa.item_cde END
+         , CASE WHEN bb.nation_cde IS NULL THEN '^' ELSE bb.nation_cde END
+         , CASE WHEN bb.ad_issu_no IS NULL THEN '^' ELSE bb.ad_issu_no END
+         , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END
+         , CASE WHEN aa.cmpet_class_cde IS NULL THEN '^' ELSE aa.cmpet_class_cde END
+         , CASE WHEN aa.cmpet_knd_cde IS NULL THEN '^' ELSE aa.cmpet_knd_cde END
+         , CASE WHEN aa.league_cmpet_se_cde IS NULL THEN '^' ELSE aa.league_cmpet_se_cde END
+         , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END
+         , CASE WHEN bb.confm_step_cde IS NULL THEN '^' ELSE bb.confm_step_cde END
+         , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END
+         , CASE WHEN aa.home_away_se_cde IS NULL THEN '^' ELSE aa.home_away_se_cde END
+         , CASE WHEN aa.psitn_team_id IS NULL THEN '^' ELSE aa.psitn_team_id END
+         , CASE WHEN bb.psitn_team_area_cde IS NULL THEN '^' ELSE bb.psitn_team_area_cde END
+         , CASE WHEN bb.psitn_team_class_cde IS NULL THEN '^' ELSE bb.psitn_team_class_cde END
+         , CASE WHEN bb.psitn_team_grad_cde IS NULL THEN '^' ELSE bb.psitn_team_grad_cde END
+         , CASE WHEN aa.psitn_team_mangr_id IS NULL THEN '^' ELSE aa.psitn_team_mangr_id END
+         , CASE WHEN aa.player_postn_cde IS NULL THEN '^' ELSE aa.player_postn_cde END
+         , CASE WHEN aa.entry_se_cde IS NULL THEN '^' ELSE aa.entry_se_cde END
+         , CASE WHEN aa.capt_at IS NULL THEN '^' ELSE aa.capt_at END
+         , CASE WHEN aa.panalty_kick_at IS NULL THEN '^' ELSE aa.panalty_kick_at END
+         , CASE WHEN aa.player_rcord_se_cde IS NULL THEN '^' ELSE aa.player_rcord_se_cde END
+         , CASE WHEN bb.loan_at IS NULL THEN '^' ELSE bb.loan_at END
+         , CASE WHEN aa.loan_team_id IS NULL THEN '^' ELSE aa.loan_team_id END
+         , CASE WHEN aa.playng_qualf_at IS NULL THEN '^' ELSE aa.playng_qualf_at END
+         , CASE WHEN aa.player_rcord_occrrnc_time IS NULL THEN 0 ELSE aa.player_rcord_occrrnc_time END
+         , CASE WHEN aa.pso_sn IS NULL THEN '^' ELSE aa.pso_sn END
+         , CASE WHEN aa.rcord_occrrnc_addnl_time IS NULL THEN 0 ELSE aa.rcord_occrrnc_addnl_time END
+         , CASE WHEN aa.player_grade_cde IS NULL THEN '^' ELSE aa.player_grade_cde END
+         , CASE WHEN ww.wnpz_cde IS NULL THEN '^' ELSE ww.wnpz_cde END
+         , aa.entry_no
+         , aa.playng_time
+         , CASE WHEN aa.loan_regist_dat IS NULL THEN '^' ELSE aa.loan_regist_dat END
+         , CASE WHEN aa.loan_end_dat IS NULL THEN '^' ELSE aa.loan_end_dat END
+         , aa.game_co ;
+
+BEGIN
+    /* #1. 년도별로 Loop 처리 하기 위함. */
+    OPEN cur_match(vYr);
+    
+    LOOP
+    FETCH cur_match INTO cr_main;
+    EXIT WHEN NOT FOUND;
+        
+        /* Debug 용도 */
+        RAISE NOTICE '>> %, %', cr_main.playing_yr, cr_main.cnt;
+        RAISE NOTICE '>> %', current_timestamp;
+    
+        iCnt := 0;
+        
+        /* #2. 년도별 데이터 입력, 선수대회현황[wf_player_cmpet_sttus]  */
+        OPEN cur_match_dtl(cr_main.playing_yr);
+        LOOP
+        FETCH cur_match_dtl INTO cr_dtl;
+        EXIT WHEN NOT FOUND;
+
+            type_dtl[iCnt] := cr_dtl;
+
+            iCnt := iCnt +1;
+
+            /* 1000 건 단위 Bulk Insert */
+            IF iCnt%1000 = 0 THEN
+            BEGIN
+                /* 선수대회현황 */
+                INSERT INTO kfadm.wf_player_cmpet_sttus (
+                  stdr_year                   /* 기준연도         */
+                , player_id                   /* 선수아이디       */
+                , player_indx                 /* 선수인덱스       */
+                , partcpt_player_indx         /* 참가선수인덱스    */
+                , player_sexdstn_cde          /* 선수성별코드     */
+                , player_agrde_cde            /* 선수연령대코드   */
+                , item_cde                    /* 종목코드         */
+                , nation_cde                  /* 국가코드         */
+                , ad_issu_no                  /* AD발급번호       */
+                , cmpet_no                    /* 대회번호         */
+                , cmpet_class_cde             /* 대회클래스코드    */
+                , cmpet_knd_cde               /* 대회종류코드     */
+                , league_cmpet_se_cde         /* 리그대회구분코드   */
+                , game_no                     /* 경기번호         */
+                , confm_step_cde              /* 승인단계코드     */
+                , game_de                     /* 경기일자         */
+                , home_away_se_cde            /* 홈원정구분코드     */
+                , psitn_team_id               /* 소속팀아이디     */
+                , psitn_team_area_cde         /* 소속팀지역코드   */
+                , psitn_team_class_cde        /* 소속팀클래스코드 */
+                , psitn_team_grad_cde         /* 소속팀등급코드   */
+                , psitn_team_mangr_id         /* 소속팀감독아이디 */
+                , player_postn_cde            /* 선수포지션코드   */
+                , entry_se_cde                /* 엔트리구분코드   */
+                , capt_at                     /* 주장여부         */
+                , panalty_kick_at             /* 패널티킥여부     */
+                , player_rcord_se_cde         /* 선수기록구분코드 */
+                , loan_at                     /* 임대여부         */
+                , loan_team_id                /* 임대팀아이디     */
+                , playng_qualf_at             /* 출전자격여부     */
+                , player_rcord_occrrnc_time   /* 선수기록발생시간 */
+                , pso_sn                      /* PSO순번          */
+                , rcord_occrrnc_addnl_time    /* 기록발생추가시간 */
+                , player_grade_cde            /* 선수학년코드     */
+                , wnpz_cde                    /* 수상코드     */
+                , entry_no                    /* 엔트리번호       */
+                , playng_time                 /* 출전시간         */
+                , loan_regist_dat             /* 임대등록일       */
+                , loan_end_dat                /* 임대만료일       */
+                , game_co                     /* 경기수           */
+                )
+                SELECT * FROM UNNEST(type_dtl);
+                
+                RAISE NOTICE '# 1: array  %', ARRAY_LENGTH(type_dtl,1);
+                RAISE NOTICE '# 1: commit %', LPAD(CAST(iCnt AS VARCHAR),7,' ');
+                /* type init */
+                type_dtl := NULL;
+                
+            EXCEPTION
+                WHEN OTHERS THEN
+                    RAISE NOTICE 'error :::';
+                    RAISE;
+            END;
+            --commit; -- commit 쓰려면 뭔가 써야하나보다. 에러난다.
+            END IF;
+        
+        END LOOP;
+    
+        /* #5. 년도별 데이터 입력, 선수대회현황[wf_player_cmpet_sttus]  */
+        /*     Loop 끝나고 마지막에 한번더 입력 */
+        BEGIN
+            /* 선수대회현황 */
+            INSERT INTO kfadm.wf_player_cmpet_sttus (
+              stdr_year                   /* 기준연도         */
+            , player_id                   /* 선수아이디       */
+            , player_indx                 /* 선수인덱스       */
+            , partcpt_player_indx         /* 참가선수인덱스    */
+            , player_sexdstn_cde          /* 선수성별코드     */
+            , player_agrde_cde            /* 선수연령대코드   */
+            , item_cde                    /* 종목코드         */
+            , nation_cde                  /* 국가코드         */
+            , ad_issu_no                  /* AD발급번호       */
+            , cmpet_no                    /* 대회번호         */
+            , cmpet_class_cde             /* 대회클래스코드    */
+            , cmpet_knd_cde               /* 대회종류코드     */
+            , league_cmpet_se_cde         /* 리그대회구분코드   */
+            , game_no                     /* 경기번호         */
+            , confm_step_cde              /* 승인단계코드     */
+            , game_de                     /* 경기일자         */
+            , home_away_se_cde            /* 홈원정구분코드     */
+            , psitn_team_id               /* 소속팀아이디     */
+            , psitn_team_area_cde         /* 소속팀지역코드   */
+            , psitn_team_class_cde        /* 소속팀클래스코드 */
+            , psitn_team_grad_cde         /* 소속팀등급코드   */
+            , psitn_team_mangr_id         /* 소속팀감독아이디 */
+            , player_postn_cde            /* 선수포지션코드   */
+            , entry_se_cde                /* 엔트리구분코드   */
+            , capt_at                     /* 주장여부         */
+            , panalty_kick_at             /* 패널티킥여부     */
+            , player_rcord_se_cde         /* 선수기록구분코드 */
+            , loan_at                     /* 임대여부         */
+            , loan_team_id                /* 임대팀아이디     */
+            , playng_qualf_at             /* 출전자격여부     */
+            , player_rcord_occrrnc_time   /* 선수기록발생시간 */
+            , pso_sn                      /* PSO순번          */
+            , rcord_occrrnc_addnl_time    /* 기록발생추가시간 */
+            , player_grade_cde            /* 선수학년코드     */
+            , wnpz_cde                     /* 수상코드     */
+            , entry_no                    /* 엔트리번호       */
+            , playng_time                 /* 출전시간         */
+            , loan_regist_dat             /* 임대등록일       */
+            , loan_end_dat                /* 임대만료일       */
+            , game_co                     /* 경기수           */
+            )
+            SELECT * FROM UNNEST(type_dtl);
+            
+            RAISE NOTICE '# 9: array  %', ARRAY_LENGTH(type_dtl,1);
+            RAISE NOTICE '# 9: commit %', LPAD(CAST(iCnt AS VARCHAR),7,' ');
+            -- type init
+            type_dtl := NULL;
+            
+        EXCEPTION
+            WHEN OTHERS THEN
+                RAISE NOTICE 'error :::';
+                RAISE;
+        END;
+    
+        CLOSE cur_match_dtl;
+
+    END LOOP;
+
+    CLOSE cur_match;
+
+END ;
+$$
+LANGUAGE plpgsql ;

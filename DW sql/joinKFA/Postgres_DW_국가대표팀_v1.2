@@ -1,0 +1,237 @@
+/*
+ * 소집에 0000으로 들어간 데이터가 있어 소집과 경기일정을 엮고 경기결과를 left outer join을 사용하여 소집은 되어도 실제 경기에 뛰지 못한 선수를 확인하도록 함  => 소집 left outer join 경기일정 left ouet join 경기결과(소집만 되는 경우가 있어 변경)
+ * 경기수는 경기결과가 있는 경우에만 1을 줌
+ */
+SELECT CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END AS stdr_year
+     , CASE WHEN aa.cnvc_no IS NULL THEN -1 ELSE aa.cnvc_no END AS cnvc_no
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END AS cmpet_no
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END AS game_no
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END AS game_de
+     , CASE WHEN aa.amatch_at IS NULL THEN '^' ELSE aa.amatch_at END AS amatch_at
+     , CASE WHEN aa.nl_team_grad_cde IS NULL THEN '^' ELSE aa.nl_team_grad_cde END AS nl_team_grad_cde
+     , CASE WHEN aa.nl_team_cnvc_begin_dat IS NULL OR aa.nl_team_cnvc_begin_dat = '' THEN '^' ELSE aa.nl_team_cnvc_begin_dat END AS nl_team_cnvc_begin_dat
+     , CASE WHEN aa.nl_team_cnvc_end_dat IS NULL OR aa.nl_team_cnvc_end_dat = '' THEN '^' ELSE aa.nl_team_cnvc_end_dat END AS nl_team_cnvc_end_dat
+     , CASE WHEN aa.mbr_id IS NULL THEN '^' ELSE aa.mbr_id END AS mbr_id
+     , CASE WHEN aa.mbr_mapng_id IS NULL THEN '^' ELSE aa.mbr_mapng_id END AS mbr_mapng_id
+     , CASE WHEN aa.mbr_indx IS NULL THEN -1 ELSE aa.mbr_indx END AS mbr_indx
+     , CASE WHEN aa.mbr_se_cde IS NULL THEN '^' ELSE aa.mbr_se_cde END AS mbr_se_cde
+     , CASE WHEN aa.mbr_cnvc_begin_dat IS NULL OR aa.mbr_cnvc_begin_dat = '' THEN '^' ELSE aa.mbr_cnvc_begin_dat END AS mbr_cnvc_begin_dat
+     , CASE WHEN aa.mbr_cnvc_end_dat IS NULL OR aa.mbr_cnvc_end_dat = '' THEN '^' ELSE aa.mbr_cnvc_end_dat END AS mbr_cnvc_end_dat
+     , CASE WHEN aa.home_away_se_cde IS NULL THEN '^' ELSE aa.home_away_se_cde END AS home_away_se_cde
+     , CASE WHEN aa.oppnt_nation_cde IS NULL THEN '^' ELSE aa.oppnt_nation_cde END AS oppnt_nation_cde
+--     , CASE WHEN aa.oppnt_team_player_nm IS NULL THEN '^' ELSE aa.oppnt_team_player_nm END AS oppnt_team_player_nm
+     , CASE WHEN aa.oppnt_nation_nm IS NULL THEN '^' ELSE aa.oppnt_nation_nm END AS oppnt_nation_nm
+     , CASE WHEN bb.win_co IS NULL THEN 0 ELSE bb.win_co END AS win_co
+     , CASE WHEN bb.tie_co IS NULL THEN 0 ELSE bb.tie_co END AS tie_co
+     , CASE WHEN bb.lose_co IS NULL THEN 0 ELSE bb.lose_co END AS lose_co
+     , CASE WHEN aa.home_away_se_cde = 'TH' THEN COALESCE(bb.th_score_final, 0) ELSE COALESCE(bb.ta_score_final, 0) END AS score
+     , CASE WHEN aa.home_away_se_cde = 'TH' THEN COALESCE(bb.ta_score_final, 0) ELSE COALESCE(bb.th_score_final, 0) END AS conceded_goal
+     , CASE WHEN bb.game_co IS NULL THEN 0 ELSE bb.game_co END AS game_co
+  FROM (
+        SELECT a.stdr_year AS stdr_year
+             , a.cnvc_no AS cnvc_no
+             , b.cmpet_no AS cmpet_no
+             , b.game_no AS game_no
+             , b.game_de AS game_de
+             , b.amatch_at AS amatch_at
+             , a.nl_team_grad_cde AS nl_team_grad_cde
+             , a.nl_team_cnvc_begin_dat AS nl_team_cnvc_begin_dat
+             , a.nl_team_cnvc_end_dat AS nl_team_cnvc_end_dat
+             , a.mbr_id AS mbr_id
+             , CASE WHEN a.mbr_id IS NULL AND a.mbr_indx IS NULL THEN '^' ELSE CONCAT(a.mbr_indx, '_', a.mbr_id) END AS mbr_mapng_id
+             , a.mbr_indx AS mbr_indx
+             , a.mbr_se_cde AS mbr_se_cde
+             , a.mbr_cnvc_begin_dat AS mbr_cnvc_begin_dat
+             , a.mbr_cnvc_end_dat AS mbr_cnvc_end_dat
+             , b.home_away_se_cde AS home_away_se_cde
+             , b.oppnt_nation_cde AS oppnt_nation_cde
+             , b.oppnt_nation_nm AS oppnt_nation_nm
+         FROM (
+               SELECT substr(REPLACE(nsi.summons_start,'-',''), 1, 4) AS stdr_year, nsi.idx AS cnvc_no, nsi.match_grade AS nl_team_grad_cde
+                    , nsp.usrkey AS mbr_id, nsp.player_idx AS mbr_indx
+                    , TRIM(REPLACE(nsi.summons_start,'-','')) AS nl_team_cnvc_begin_dat, TRIM(REPLACE(nsi.summons_end,'-','')) AS nl_team_cnvc_end_dat
+                    , TRIM(REPLACE(nsp.summons_start,'-','')) AS mbr_cnvc_begin_dat, TRIM(REPLACE(nsp.summons_end,'-','')) AS mbr_cnvc_end_dat
+                    , '선수' AS mbr_se_cde
+                 FROM national_summons_info nsi
+                    , national_summons_player nsp
+                WHERE nsi.idx = nsp.summons_idx
+              ) a
+			  LEFT OUTER JOIN
+              (
+               SELECT nmsi.summons_idx AS cnvc_no, nmi.idx AS cmpet_no, nmsi.idx AS game_no
+                    , nmi.match_grade AS cmpet_grad_cde
+                    , nmsi.summons_section AS home_away_se_cde, nmsi.amatch_yn AS amatch_at
+                    , nmsi.host_country_cd AS host_nation_cde, nmsi.vs_country_cd AS oppnt_nation_cde
+                    , nmsi.host_country AS host_nation_nm, nmsi.vs_country AS oppnt_nation_nm
+                    , SUBSTR(REGEXP_REPLACE(nmsi.game_time, '\D', '', 'g'), 1, 8) AS game_de
+                 FROM national_match_info nmi
+                    , national_match_single_info nmsi
+                WHERE nmi.idx = nmsi.match_idx
+              ) b 
+           ON a.cnvc_no = b.cnvc_no
+       ) aa LEFT OUTER JOIN 
+       (
+        SELECT nmsr.idx AS cmpet_no, nmsr.idx AS game_no
+             , nmsr.victorytype AS victry_ty_cde, nmsr.gameresult AS game_result_cde
+             , nmsr.th_score_final, nmsr.ta_score_final
+             , CASE WHEN nmsr.gameresult in ('1', '4') THEN 1 ELSE 0 END AS win_co
+             , CASE WHEN nmsr.gameresult = '3' THEN 1 ELSE 0 END AS tie_co
+             , CASE WHEN nmsr.gameresult in ('2', '5') THEN 1 ELSE 0 END AS lose_co
+             , nmpr.aplayer_idx AS mbr_indx
+             , 1 AS game_co
+          FROM national_match_single_result nmsr
+             , "national_match_player_result#" nmpr
+         WHERE nmsr.match_idx = nmpr.match_idx 
+           AND nmsr.single_idx = nmpr.single_idx 
+       ) bb
+    ON aa.cmpet_no = bb.cmpet_no
+   AND aa.game_no = bb.game_no
+ GROUP BY CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END
+     , CASE WHEN aa.cnvc_no IS NULL THEN -1 ELSE aa.cnvc_no END
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END
+     , CASE WHEN aa.amatch_at IS NULL THEN '^' ELSE aa.amatch_at END
+     , CASE WHEN aa.nl_team_grad_cde IS NULL THEN '^' ELSE aa.nl_team_grad_cde END
+     , CASE WHEN aa.nl_team_cnvc_begin_dat IS NULL OR aa.nl_team_cnvc_begin_dat = '' THEN '^' ELSE aa.nl_team_cnvc_begin_dat END
+     , CASE WHEN aa.nl_team_cnvc_end_dat IS NULL OR aa.nl_team_cnvc_end_dat = '' THEN '^' ELSE aa.nl_team_cnvc_end_dat END
+     , CASE WHEN aa.mbr_id IS NULL THEN '^' ELSE aa.mbr_id END
+     , CASE WHEN aa.mbr_mapng_id IS NULL THEN '^' ELSE aa.mbr_mapng_id END
+     , CASE WHEN aa.mbr_indx IS NULL THEN -1 ELSE aa.mbr_indx END
+     , CASE WHEN aa.mbr_se_cde IS NULL THEN '^' ELSE aa.mbr_se_cde END
+     , CASE WHEN aa.mbr_cnvc_begin_dat IS NULL OR aa.mbr_cnvc_begin_dat = '' THEN '^' ELSE aa.mbr_cnvc_begin_dat END
+     , CASE WHEN aa.mbr_cnvc_end_dat IS NULL OR aa.mbr_cnvc_end_dat = '' THEN '^' ELSE aa.mbr_cnvc_end_dat END
+     , CASE WHEN aa.home_away_se_cde IS NULL THEN '^' ELSE aa.home_away_se_cde END
+     , CASE WHEN aa.oppnt_nation_cde IS NULL THEN '^' ELSE aa.oppnt_nation_cde END
+--   , CASE WHEN aa.oppnt_team_player_nm IS NULL THEN '^' ELSE aa.oppnt_team_player_nm END
+     , CASE WHEN aa.oppnt_nation_nm IS NULL THEN '^' ELSE aa.oppnt_nation_nm END
+     , CASE WHEN bb.win_co IS NULL THEN 0 ELSE bb.win_co END
+     , CASE WHEN bb.tie_co IS NULL THEN 0 ELSE bb.tie_co END
+     , CASE WHEN bb.lose_co IS NULL THEN 0 ELSE bb.lose_co END
+     , CASE WHEN aa.home_away_se_cde = 'TH' THEN COALESCE(bb.th_score_final, 0) ELSE COALESCE(bb.ta_score_final, 0) END
+     , CASE WHEN aa.home_away_se_cde = 'TH' THEN COALESCE(bb.ta_score_final, 0) ELSE COALESCE(bb.th_score_final, 0) END
+     , CASE WHEN bb.game_co IS NULL THEN 0 ELSE bb.game_co END
+;
+
+
+
+/*
+ * 코칭스텝은 소집일은 없고 해제일만 있어 팀 소집일로 대체한다.
+ * 선수경기결과처럼 지도자경기결과 데이터가 없어 경기일자가 해제일보다 빠른 경우의 데이터를 가져오는 조건을 추가하고 싶지만 해제일 데이터가 제대로 들어가 있지 않아 추가히지 않음
+ * SELECT * FROM COMCM010 WHERE FRST_GB = 'NA01' AND SCND_GB = 'A15;  --국가대표 지도자 포지션 코드
+ * 경기수는 경기결과가 있는 경우에만 1을 줌
+ */
+SELECT CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END AS stdr_year
+     , CASE WHEN aa.cnvc_no IS NULL THEN -1 ELSE aa.cnvc_no END AS cnvc_no
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END AS cmpet_no
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END AS game_no
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END AS game_de
+     , CASE WHEN aa.amatch_at IS NULL THEN '^' ELSE aa.amatch_at END AS amatch_at
+     , CASE WHEN aa.nl_team_grad_cde IS NULL THEN '^' ELSE aa.nl_team_grad_cde END AS nl_team_grad_cde
+     , CASE WHEN aa.nl_team_cnvc_begin_dat IS NULL OR aa.nl_team_cnvc_begin_dat = '' THEN '^' ELSE aa.nl_team_cnvc_begin_dat END AS nl_team_cnvc_begin_dat
+     , CASE WHEN aa.nl_team_cnvc_end_dat IS NULL OR aa.nl_team_cnvc_end_dat = '' THEN '^' ELSE aa.nl_team_cnvc_end_dat END AS nl_team_cnvc_end_dat
+     , CASE WHEN aa.mbr_id IS NULL THEN '^' ELSE aa.mbr_id END AS mbr_id
+     , CASE WHEN aa.mbr_mapng_id IS NULL THEN '^' ELSE aa.mbr_mapng_id END AS mbr_mapng_id
+     , CASE WHEN aa.mbr_indx IS NULL THEN -1 ELSE aa.mbr_indx END AS mbr_indx
+     , CASE WHEN aa.mbr_se_cde IS NULL THEN '^' ELSE aa.mbr_se_cde END AS mbr_se_cde
+     , CASE WHEN aa.mbr_cnvc_begin_dat IS NULL OR aa.mbr_cnvc_begin_dat = '' THEN '^' ELSE aa.mbr_cnvc_begin_dat END AS mbr_cnvc_begin_dat
+     , CASE WHEN aa.mbr_cnvc_end_dat IS NULL OR aa.mbr_cnvc_end_dat = '' THEN '^' ELSE aa.mbr_cnvc_end_dat END AS mbr_cnvc_end_dat
+     , CASE WHEN aa.home_away_se_cde IS NULL THEN '^' ELSE aa.home_away_se_cde END AS home_away_se_cde
+     , CASE WHEN aa.oppnt_nation_cde IS NULL THEN '^' ELSE aa.oppnt_nation_cde END AS oppnt_nation_cde
+--     , CASE WHEN aa.oppnt_team_player_nm IS NULL THEN '^' ELSE aa.oppnt_team_player_nm END AS oppnt_team_player_nm
+     , CASE WHEN aa.oppnt_nation_nm IS NULL THEN '^' ELSE aa.oppnt_nation_nm END AS oppnt_nation_nm
+     , CASE WHEN bb.win_co IS NULL THEN 0 ELSE bb.win_co END AS win_co
+     , CASE WHEN bb.tie_co IS NULL THEN 0 ELSE bb.tie_co END AS tie_co
+     , CASE WHEN bb.lose_co IS NULL THEN 0 ELSE bb.lose_co END AS lose_co
+     , CASE WHEN aa.home_away_se_cde = 'TH' THEN COALESCE(bb.th_score_final, 0) ELSE COALESCE(bb.ta_score_final, 0) END AS score
+     , CASE WHEN aa.home_away_se_cde = 'TH' THEN COALESCE(bb.ta_score_final, 0) ELSE COALESCE(bb.th_score_final, 0) END AS conceded_goal
+     , CASE WHEN bb.game_co IS NULL THEN 0 ELSE bb.game_co END AS game_co
+  FROM (
+        SELECT a.stdr_year AS stdr_year
+             , a.cnvc_no AS cnvc_no
+             , b.cmpet_no AS cmpet_no
+             , b.game_no AS game_no
+             , b.game_de AS game_de
+             , b.amatch_at AS amatch_at
+             , a.nl_team_grad_cde AS nl_team_grad_cde
+             , a.nl_team_cnvc_begin_dat AS nl_team_cnvc_begin_dat
+             , a.nl_team_cnvc_end_dat AS nl_team_cnvc_end_dat
+             , a.mbr_id AS mbr_id
+             , CASE WHEN a.mbr_id IS NULL AND a.mbr_indx IS NULL THEN '^' ELSE CONCAT(a.mbr_indx, '_', a.mbr_id) END AS mbr_mapng_id
+             , a.mbr_indx AS mbr_indx
+             , a.mbr_se_cde AS mbr_se_cde
+             , a.mbr_cnvc_begin_dat AS mbr_cnvc_begin_dat
+             , a.mbr_cnvc_end_dat AS mbr_cnvc_end_dat
+             , b.home_away_se_cde AS home_away_se_cde
+             , b.oppnt_nation_cde AS oppnt_nation_cde
+             , b.oppnt_nation_nm AS oppnt_nation_nm
+         FROM (
+               SELECT substr(REPLACE(nsi.summons_start,'-',''), 1, 4) AS stdr_year, nsi.idx AS cnvc_no, nsi.match_grade AS nl_team_grad_cde
+                    , ncs.jn AS mbr_id
+--                    , ncs.coach_idx || '_' || ncs.jn AS mbr_id
+                    , ncs.coach_idx AS mbr_indx
+                    , TRIM(REPLACE(nsi.summons_start,'-','')) AS nl_team_cnvc_begin_dat, TRIM(REPLACE(nsi.summons_end,'-','')) AS nl_team_cnvc_end_dat
+                    , TRIM(REPLACE(nsi.summons_start,'-','')) AS mbr_cnvc_begin_dat, TRIM(REPLACE(ncs.summons_end,'-','')) AS mbr_cnvc_end_dat
+                    , ncs."POSITION" AS mbr_se_cde
+                 FROM national_summons_info nsi
+                    , "national_coach_staff#" ncs
+                WHERE nsi.idx = ncs.summons_idx
+              ) a
+			  LEFT OUTER JOIN
+              (
+               SELECT nmsi.summons_idx AS cnvc_no, nmi.idx AS cmpet_no, nmsi.idx AS game_no
+                    , nmi.match_grade AS cmpet_grad_cde
+                    , nmsi.summons_section AS home_away_se_cde, nmsi.amatch_yn AS amatch_at
+                    , nmsi.host_country_cd AS host_nation_cde, nmsi.vs_country_cd AS oppnt_nation_cde
+                    , nmsi.host_country AS host_nation_nm, nmsi.vs_country AS oppnt_nation_nm
+                    , SUBSTR(REGEXP_REPLACE(nmsi.game_time, '\D', '', 'g'), 1, 8) AS game_de
+                 FROM national_match_info nmi
+                    , national_match_single_info nmsi
+                WHERE nmi.idx = nmsi.match_idx
+              ) b 
+           ON a.cnvc_no = b.cnvc_no
+       ) aa LEFT OUTER JOIN 
+       (
+        SELECT nmsr.idx AS cmpet_no, nmsr.idx AS game_no
+             , nmsr.victorytype AS victry_ty_cde, nmsr.gameresult AS game_result_cde
+             , nmsr.th_score_final, nmsr.ta_score_final
+             , CASE WHEN nmsr.gameresult in ('1', '4') THEN 1 ELSE 0 END AS win_co
+             , CASE WHEN nmsr.gameresult = '3' THEN 1 ELSE 0 END AS tie_co
+             , CASE WHEN nmsr.gameresult in ('2', '5') THEN 1 ELSE 0 END AS lose_co
+             , nmpr.aplayer_idx AS mbr_indx
+             , nmsr.summons_idx AS cnvc_no
+             , 1 AS game_co
+          FROM national_match_single_result nmsr
+             , "national_match_player_result#" nmpr
+         WHERE nmsr.match_idx = nmpr.match_idx 
+           AND nmsr.single_idx = nmpr.single_idx 
+       ) bb
+    ON aa.cmpet_no = bb.cmpet_no
+   AND aa.game_no = bb.game_no
+   AND aa.cnvc_no = bb.cnvc_no
+ GROUP BY CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END
+     , CASE WHEN aa.cnvc_no IS NULL THEN -1 ELSE aa.cnvc_no END
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END
+     , CASE WHEN aa.amatch_at IS NULL THEN '^' ELSE aa.amatch_at END
+     , CASE WHEN aa.nl_team_grad_cde IS NULL THEN '^' ELSE aa.nl_team_grad_cde END
+     , CASE WHEN aa.nl_team_cnvc_begin_dat IS NULL OR aa.nl_team_cnvc_begin_dat = '' THEN '^' ELSE aa.nl_team_cnvc_begin_dat END
+     , CASE WHEN aa.nl_team_cnvc_end_dat IS NULL OR aa.nl_team_cnvc_end_dat = '' THEN '^' ELSE aa.nl_team_cnvc_end_dat END
+     , CASE WHEN aa.mbr_id IS NULL THEN '^' ELSE aa.mbr_id END
+     , CASE WHEN aa.mbr_mapng_id IS NULL THEN '^' ELSE aa.mbr_mapng_id END
+     , CASE WHEN aa.mbr_indx IS NULL THEN -1 ELSE aa.mbr_indx END
+     , CASE WHEN aa.mbr_se_cde IS NULL THEN '^' ELSE aa.mbr_se_cde END
+     , CASE WHEN aa.mbr_cnvc_begin_dat IS NULL OR aa.mbr_cnvc_begin_dat = '' THEN '^' ELSE aa.mbr_cnvc_begin_dat END
+     , CASE WHEN aa.mbr_cnvc_end_dat IS NULL OR aa.mbr_cnvc_end_dat = '' THEN '^' ELSE aa.mbr_cnvc_end_dat END
+     , CASE WHEN aa.home_away_se_cde IS NULL THEN '^' ELSE aa.home_away_se_cde END
+     , CASE WHEN aa.oppnt_nation_cde IS NULL THEN '^' ELSE aa.oppnt_nation_cde END
+--   , CASE WHEN aa.oppnt_team_player_nm IS NULL THEN '^' ELSE aa.oppnt_team_player_nm END
+     , CASE WHEN aa.oppnt_nation_nm IS NULL THEN '^' ELSE aa.oppnt_nation_nm END
+     , CASE WHEN bb.win_co IS NULL THEN 0 ELSE bb.win_co END
+     , CASE WHEN bb.tie_co IS NULL THEN 0 ELSE bb.tie_co END
+     , CASE WHEN bb.lose_co IS NULL THEN 0 ELSE bb.lose_co END
+     , CASE WHEN aa.home_away_se_cde = 'TH' THEN COALESCE(bb.th_score_final, 0) ELSE COALESCE(bb.ta_score_final, 0) END
+     , CASE WHEN aa.home_away_se_cde = 'TH' THEN COALESCE(bb.ta_score_final, 0) ELSE COALESCE(bb.th_score_final, 0) END
+     , CASE WHEN bb.game_co IS NULL THEN 0 ELSE bb.game_co END
+;

@@ -1,0 +1,162 @@
+/*
+ * LOOP 어떻게 사용할지 고민
+ * 월별 LOOP를 이용하여 INSERT하고 UPDATE는 개별 테이블별로 업데이트한다.
+ * 임대정보는 임차팀 정보가 있는 경우만 가져온다.
+ * 유급정보는 유급 발급일이 있는 경우 가져온다. 
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.player_id IS NULL THEN '^' ELSE a.player_id END AS player_id
+     , CASE WHEN a.player_indx IS NULL THEN -1 ELSE a.player_indx END AS player_indx
+     , CASE WHEN a.player_id IS NULL THEN '^' ELSE fn_sexdstn(a.player_id) END AS player_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.player_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.player_id)
+            WHEN fn_valid_inspct(a.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.player_id) = 'N' THEN '^'
+            ELSE '^'
+        END AS player_agrde_cde
+     , CASE WHEN a.item_cde IS NULL THEN '^' ELSE a.item_cde END AS item_cde
+     , CASE WHEN a.nation_cde IS NULL THEN '^' ELSE a.nation_cde END AS nation_cde
+     , CASE WHEN a.ad_issu_no IS NULL THEN '^' ELSE a.ad_issu_no END AS ad_issu_no
+     , CASE WHEN a.confm_step_cde IS NULL THEN '^' ELSE a.confm_step_cde END AS confm_step_cde
+     , CASE WHEN a.psitn_team_id IS NULL THEN '^' ELSE a.psitn_team_id END AS psitn_team_id
+     , CASE WHEN a.psitn_team_area_cde IS NULL THEN '^' ELSE a.psitn_team_area_cde END AS psitn_team_area_cde
+     , CASE WHEN a.psitn_team_class_cde IS NULL THEN '^' ELSE a.psitn_team_class_cde END AS psitn_team_class_cde
+     , CASE WHEN a.psitn_team_grad_cde IS NULL THEN '^' ELSE a.psitn_team_grad_cde END AS psitn_team_grad_cde
+     , CASE WHEN d.coach_id IS NULL THEN '^' ELSE d.coach_id END AS psitn_team_mangr_id
+     , CASE WHEN a.player_postn_cde IS NULL THEN '^' ELSE a.player_postn_cde END AS player_postn_cde
+     , CASE WHEN a.loan_at IS NULL THEN '^' ELSE a.loan_at END AS loan_at
+     , CASE WHEN b.loan_team_id IS NULL THEN '^' ELSE b.loan_team_id END AS loan_team_id
+     , CASE WHEN c.repeater_issu_dat IS NULL THEN 'N' ELSE 'Y' END AS repeater_at
+     , CASE WHEN sr.study_yn IS NULL THEN '^' ELSE sr.study_yn END AS doping_edc_compl_at
+     , CASE WHEN sr.study2_yn IS NULL THEN '^' ELSE sr.study2_yn END AS hnrt_edc_compl_at
+     , CASE WHEN a.player_grade_cde IS NULL THEN '^' ELSE a.player_grade_cde END AS player_grade_cde
+     , CASE WHEN b.loan_regist_dat IS NULL THEN '^' ELSE b.loan_regist_dat END AS loan_regist_dat
+     , CASE WHEN b.loan_end_dat IS NULL THEN '^' ELSE b.loan_end_dat END AS loan_end_dat
+     , CASE WHEN c.repeater_issu_dat IS NULL THEN '^' ELSE c.repeater_issu_dat END AS repeater_issu_dat
+     , CASE WHEN a.team_regist_de IS NULL THEN '^' ELSE a.team_regist_de END AS team_regist_de
+     , CASE WHEN a.team_secsn_de IS NULL THEN '^' ELSE a.team_secsn_de END AS team_secsn_de
+     , a.psitn_team_nm
+     , 1 AS player_co
+  FROM (
+        SELECT aa.stdr_year, aa.player_id, aa.player_indx, aa.item_cde, aa.nation_cde
+             , aa.ad_issu_no, aa.confm_step_cde, aa.psitn_team_id
+             , COALESCE(tti.team_area_cde, aa.psitn_team_area_cde) AS psitn_team_area_cde
+             , COALESCE(tti.team_class_cde, aa.psitn_team_class_cde) AS psitn_team_class_cde
+             , COALESCE(tti.team_grad_cde, aa.psitn_team_grad_cde) AS psitn_team_grad_cde
+             , aa.player_postn_cde, aa.loan_at, aa.player_grade_cde, aa.team_regist_de, aa.team_secsn_de
+             , aa.psitn_team_nm, aa.player_nm
+          FROM (
+                SELECT COALESCE(tph.stdr_year, tpi.stdr_year) AS stdr_year, COALESCE(tph.player_id, tpi.player_id) AS player_id
+                     , COALESCE(tph.player_indx, tpi.player_indx) AS player_indx
+                     , COALESCE(tph.item_cde ,tpi.item_cde) AS item_cde
+                     , COALESCE(tph.nation_cde, tpi.nation_cde) AS nation_cde
+                     , COALESCE(tph.ad_issu_no, tpi.ad_issu_no) AS ad_issu_no
+                     , COALESCE(tph.confm_step_cde, tpi.confm_step_cde) AS confm_step_cde
+                     , COALESCE(tph.team_id, tpi.psitn_team_id) AS psitn_team_id
+                     , tph.team_area_cde AS psitn_team_area_cde
+                     , tph.team_class_cde AS psitn_team_class_cde
+                     , tph.team_grad_cde AS psitn_team_grad_cde
+--                     , CASE WHEN tpi.team_id IS NOT NULL THEN tph.team_area_cde ELSE tpi.psitn_team_area_cde END AS psitn_team_area_cde
+--                     , CASE WHEN tph.team_id IS NOT NULL THEN tph.team_class_cde ELSE tpi.psitn_team_class_cde END AS psitn_team_class_cde
+--                     , CASE WHEN tph.team_id IS NOT NULL THEN tph.team_grad_cde ELSE tpi.psitn_team_grad_cde END AS psitn_team_grad_cde
+                     , COALESCE(tph.player_postn_cde, tpi.player_postn_cde) AS player_postn_cde
+                     , tpi.loan_at
+                     , COALESCE(tph.player_grade_cde, tpi.player_grade_cde) AS player_grade_cde
+                     , tph.regist_de AS team_regist_de, tph.secsn_de AS team_secsn_de
+                     , COALESCE(tph.psitn_team_nm, tpi.psitn_team_nm) AS psitn_team_nm
+                     , COALESCE(tph.player_nm, tpi.player_nm) AS player_nm
+                   FROM t_player_info tpi
+                        FULL OUTER JOIN t_player_history tph
+                     ON tpi.stdr_year = tph.stdr_year
+                    AND tpi.player_id = tph.player_id
+                    AND tpi.psitn_team_id = tph.team_id
+                ) aa
+               LEFT OUTER JOIN
+               t_team_info tti
+            ON aa.stdr_year = tti.stdr_year
+           AND aa.psitn_team_id = tti.team_id
+        ) a LEFT OUTER JOIN
+        (
+        SELECT TO_CHAR(start_date, 'YYYY') AS stdr_year, usr_key AS player_id, loanout_teamid AS loan_team_id, loanin_teamid AS lent_team_id
+             , TO_CHAR(start_date, 'YYYYMMDD') AS loan_regist_dat, TO_CHAR(end_date, 'YYYYMMDD') AS loan_end_dat
+          FROM "player_loan#"
+         WHERE loanin_teamid IS NOT NULL
+        ) b
+    ON a.stdr_year = b.stdr_year
+   AND a.player_id = b.player_id
+   AND a.psitn_team_id = b.lent_team_id
+        LEFT OUTER JOIN "study_result#" sr
+    ON a.stdr_year = sr.study_year
+   AND a.player_id = sr.ftkey
+        LEFT OUTER JOIN
+        (
+        SELECT TO_CHAR(repeater_date, 'YYYY') AS stdr_year, jumin AS player_id, teamid AS team_id
+             , flag, TO_CHAR(repeater_date, 'YYYYMMDD') AS repeater_issu_dat
+          FROM "player_repeater#"
+         WHERE repeater_date IS NOT NULL
+        ) c 
+    ON a.stdr_year = b.stdr_year
+   AND a.player_id = b.player_id
+       LEFT OUTER JOIN
+       (
+       SELECT a.stdr_year, a.coach_id, a.psitn_team_id, a.coach_clsf_cde, a.psitn_team_area_cde, a.psitn_team_grad_cde
+            , a.psitn_team_class_cde, a.team_regist_de, b.team_secsn_de
+         FROM (
+                SELECT ct.activity AS stdr_year, ct.jumin AS coach_id, ct.after_teamid AS psitn_team_id
+                     , ct.after_position_id AS coach_clsf_cde, ct.tm_area AS psitn_team_area_cde
+                     , ct.tm_grade AS psitn_team_grad_cde, ct.tm_class AS psitn_team_class_cde, TO_CHAR(ct.regdate, 'YYYYMMDD') AS team_regist_de
+                  FROM "coach_team#" ct
+                 WHERE ct.status = '등록'
+              ) a LEFT OUTER JOIN
+              (
+                SELECT ct.activity AS stdr_year, ct.jumin AS coach_id
+                     , cASe when ct.before_teamid IS NULL THEN ct.after_teamid ELSE ct.before_teamid END AS psitn_team_id
+                     , cASe when ct.before_position_id IS NULL THEN ct.after_position_id ELSE ct.before_position_id END AS coach_clsf_cde
+                     , ct.tm_area AS psitn_team_area_cde, ct.tm_grade AS psitn_team_grad_cde
+                     , ct.tm_class AS psitn_team_class_cde, TO_CHAR(ct.regdate, 'YYYYMMDD') AS team_secsn_de
+                  FROM "coach_team#" ct
+                 WHERE ct.status = '탈퇴'
+              ) b
+           ON a.stdr_year = b.stdr_year
+          AND a.coach_id = b.coach_id
+          AND a.psitn_team_id = b.psitn_team_id
+          AND a.coach_clsf_cde = b.coach_clsf_cde
+          AND a.team_regist_de <= COALESCE(b.team_secsn_de, '99991231') /* 등록이 없는 경우 제외하기 위함. */
+--                 WHERE a.stdr_year = TO_CHAR(now(), 'YYYY') /* 기준년도 조건 */
+        WHERE a.coach_clsf_cde = '1'
+        ORDER BY a.stdr_year
+       ) d
+    ON a.stdr_year = d.stdr_year
+   AND a.psitn_team_id = d.psitn_team_id
+   AND COALESCE(a.team_regist_de, a.stdr_year || '0101' ) <= COALESCE(d.team_secsn_de, '99991231') /* 지도자 탈퇴일은 선수 등록일보다 나중에 이루어져야 함*/
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.player_id IS NULL THEN '^' ELSE a.player_id END
+     , CASE WHEN a.player_indx IS NULL THEN -1 ELSE a.player_indx END
+     , CASE WHEN a.player_id IS NULL THEN '^' ELSE fn_sexdstn(a.player_id) END
+     , CASE WHEN fn_valid_inspct(a.player_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.player_id)
+            WHEN fn_valid_inspct(a.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.player_id) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN a.item_cde IS NULL THEN '^' ELSE a.item_cde END
+     , CASE WHEN a.nation_cde IS NULL THEN '^' ELSE a.nation_cde END
+     , CASE WHEN a.ad_issu_no IS NULL THEN '^' ELSE a.ad_issu_no END
+     , CASE WHEN a.confm_step_cde IS NULL THEN '^' ELSE a.confm_step_cde END
+     , CASE WHEN a.psitn_team_id IS NULL THEN '^' ELSE a.psitn_team_id END
+     , CASE WHEN a.psitn_team_area_cde IS NULL THEN '^' ELSE a.psitn_team_area_cde END
+     , CASE WHEN a.psitn_team_class_cde IS NULL THEN '^' ELSE a.psitn_team_class_cde END
+     , CASE WHEN a.psitn_team_grad_cde IS NULL THEN '^' ELSE a.psitn_team_grad_cde end
+     , CASE WHEN d.coach_id IS NULL THEN '^' ELSE d.coach_id END
+     , CASE WHEN a.player_postn_cde IS NULL THEN '^' ELSE a.player_postn_cde END
+     , CASE WHEN a.loan_at IS NULL THEN '^' ELSE a.loan_at END
+     , CASE WHEN b.loan_team_id IS NULL THEN '^' ELSE b.loan_team_id END
+     , CASE WHEN c.repeater_issu_dat IS NULL THEN 'N' ELSE 'Y' END
+     , CASE WHEN sr.study_yn IS NULL THEN '^' ELSE sr.study_yn END
+     , CASE WHEN sr.study2_yn IS NULL THEN '^' ELSE sr.study2_yn END
+     , CASE WHEN a.player_grade_cde IS NULL THEN '^' ELSE a.player_grade_cde END
+     , CASE WHEN b.loan_regist_dat IS NULL THEN '^' ELSE b.loan_regist_dat END
+     , CASE WHEN b.loan_end_dat IS NULL THEN '^' ELSE b.loan_end_dat END
+     , CASE WHEN c.repeater_issu_dat IS NULL THEN '^' ELSE c.repeater_issu_dat END
+     , CASE WHEN a.team_regist_de IS NULL THEN '^' ELSE a.team_regist_de END
+     , CASE WHEN a.team_secsn_de IS NULL THEN '^' ELSE a.team_secsn_de END
+     , a.psitn_team_nm
+;

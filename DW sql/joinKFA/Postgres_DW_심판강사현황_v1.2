@@ -1,0 +1,41 @@
+SELECT CASE WHEN a.inputed_year IS NULL THEN '^' ELSE a.inputed_year END AS stdr_year
+     , CASE WHEN a.usrkey IS NULL THEN '^' ELSE a.usrkey END AS referee_instrctr_id
+     , CASE WHEN a."POSITION" IS NULL THEN '^' ELSE a."POSITION" END AS referee_instrctr_se_cde
+     , CASE WHEN a.areacode IS NULL THEN '^' ELSE a.areacode END AS instrctr_area_cde
+     , CASE WHEN a.usrkey IS NULL THEN '^' ELSE fn_sexdstn(a.usrkey) END AS referee_instrctr_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.usrkey) = 'P' AND a.inputed_year IS NOT NULL THEN fn_agrde(a.inputed_year, a.usrkey)
+            WHEN fn_valid_inspct(a.usrkey) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.usrkey) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_instrctr_agrde_cde
+     , CASE WHEN fn_valid_inspct(a.usrkey) = 'P' AND a.inputed_year  IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.inputed_year, a.usrkey) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.usrkey) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.usrkey) = 'N' THEN '^'
+            ELSE '^'
+        END AS agrde_lclas_cde
+     , 1 AS instrctr_co
+  FROM (
+        SELECT b.inputed_year
+             , b."POSITION"
+             , a.usrkey
+             , b.areacode
+          FROM "referee_inst_info#" a
+             , (SELECT * FROM referee_inst_year WHERE del_yn != 'Y') b
+         WHERE a.usrkey = b.usrkey
+        ) a
+ GROUP BY CASE WHEN a.inputed_year IS NULL THEN '^' ELSE a.inputed_year END
+     , CASE WHEN a.usrkey IS NULL THEN '^' ELSE a.usrkey END
+     , CASE WHEN a."POSITION" IS NULL THEN '^' ELSE a."POSITION" END
+     , CASE WHEN a.areacode IS NULL THEN '^' ELSE a.areacode END
+     , CASE WHEN a.usrkey IS NULL THEN '^' ELSE fn_sexdstn(a.usrkey) END
+     , CASE WHEN fn_valid_inspct(a.usrkey) = 'P' AND a.inputed_year IS NOT NULL THEN fn_agrde(a.inputed_year, a.usrkey)
+            WHEN fn_valid_inspct(a.usrkey) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.usrkey) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN fn_valid_inspct(a.usrkey) = 'P' AND a.inputed_year  IS NOT NULL THEN CAST(TRUNC(CAST(fn_agrde(a.inputed_year, a.usrkey) AS NUMERIC)/10) AS TEXT)
+            WHEN fn_valid_inspct(a.usrkey) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.usrkey) = 'N' THEN '^'
+            ELSE '^'
+        END
+;

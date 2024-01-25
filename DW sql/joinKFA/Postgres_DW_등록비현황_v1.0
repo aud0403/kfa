@@ -1,0 +1,39 @@
+SELECT isl.is_stl_yy AS stdr_year
+     , CASE WHEN isl.is_idx IS NULL then -1 ELSE isl.is_idx END AS pay_indx
+     , isl.ms_cd AS pay_cde
+     , CASE WHEN isl.stor_id IS NULL THEN '^' ELSE isl.stor_id END AS store_id
+     , CASE WHEN isl.is_stl_mthd IS NULL THEN '^' ELSE isl.is_stl_mthd END AS pay_mth_cde
+     , CASE WHEN isl.sido_cd IS NULL THEN '^' ELSE isl.sido_cd END AS ctprvn_cde
+     , CASE WHEN isl.sigungu_cd IS NULL THEN '^' ELSE isl.sigungu_cd END AS signgu_cde
+     , CASE WHEN isl.is_stl_cptr IS NULL THEN '^' ELSE isl.is_stl_cptr END AS pay_mby_cde
+     , CASE WHEN isl.is_stl_yn = 'Y' THEN 'Y' ELSE 'N' END AS pay_compt_at
+     , CASE WHEN isl.rgst_dt IS NULL THEN '^' ELSE TO_CHAR(isl.rgst_dt, 'YYYYMMDD') END AS apply_de
+     , CASE WHEN isl.cmpl_dt IS NULL THEN '^' ELSE TO_CHAR(isl.cmpl_dt, 'YYYYMMDD') END AS pay_de
+     , CASE WHEN isl.team_id IS NULL THEN '^' ELSE isl.team_id END AS team_id
+     , CASE WHEN tti.team_grad_cde IS NULL THEN '^' ELSE tti.team_grad_cde END AS team_grad_cde
+     , CASE WHEN isl.ms_cd = 'RT01' THEN isl.team_id ELSE isl.ftkey END AS regist_id
+     , CASE WHEN isl.is_stl_yn = 'Y' THEN isl.is_amt ELSE 0 END AS pay_amount
+     , CASE WHEN isl.is_stl_yn = 'Y' THEN 1 ELSE 0 END AS regist_co
+  FROM itg_stl isl
+       LEFT OUTER JOIN
+       t_team_info tti
+    ON isl.is_stl_yy = tti.stdr_year
+   AND isl.team_id = tti.team_id
+ WHERE isl.ms_cd IN ('RR02', 'RP02', 'RT01', 'RP01', 'RR01', 'RA01', 'TP01')
+ GROUP BY isl.is_stl_yy
+     , CASE WHEN isl.is_idx IS NULL then -1 ELSE isl.is_idx END
+     , isl.ms_cd
+     , CASE WHEN isl.stor_id IS NULL THEN '^' ELSE isl.stor_id END
+     , CASE WHEN isl.is_stl_mthd IS NULL THEN '^' ELSE isl.is_stl_mthd END
+     , CASE WHEN isl.sido_cd IS NULL THEN '^' ELSE isl.sido_cd END
+     , CASE WHEN isl.sigungu_cd IS NULL THEN '^' ELSE isl.sigungu_cd END
+     , CASE WHEN isl.is_stl_cptr IS NULL THEN '^' ELSE isl.is_stl_cptr END
+     , CASE WHEN isl.is_stl_yn = 'Y' THEN 'Y' ELSE 'N' END
+     , CASE WHEN isl.rgst_dt IS NULL THEN '^' ELSE TO_CHAR(isl.rgst_dt, 'YYYYMMDD') END
+     , CASE WHEN isl.cmpl_dt IS NULL THEN '^' ELSE TO_CHAR(isl.cmpl_dt, 'YYYYMMDD') END
+     , CASE WHEN isl.team_id IS NULL THEN '^' ELSE isl.team_id END
+     , CASE WHEN tti.team_grad_cde IS NULL THEN '^' ELSE tti.team_grad_cde END
+     , CASE WHEN isl.ms_cd = 'RT01' THEN isl.team_id ELSE isl.ftkey END
+     , CASE WHEN isl.is_stl_yn = 'Y' THEN isl.is_amt ELSE 0 END
+     , CASE WHEN isl.is_stl_yn = 'Y' THEN 1 ELSE 0 END
+;

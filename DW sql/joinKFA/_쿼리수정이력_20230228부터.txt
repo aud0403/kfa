@@ -1,0 +1,12 @@
+2023.02.28 수정 내용
+Postgres_DW_지도자대회참가현황_v1.1
+
+수정전 ( 지도자 팀 탈퇴 날짜 )
+CASE WHEN a.team_secsn_de IS NULL THEN '^' ELSE a.team_regist_de END AS team_secsn_de
+
+수정후 ( 지도자 팀 탈퇴 날짜 )
+CASE WHEN a.team_secsn_de IS NULL THEN '^' ELSE a.team_secsn_de END AS team_secsn_de
+
+Postgres_DW_지도자대회참가현황_v1.1  --> Postgres_DW_지도자대회참가현황_v1.2
+
+

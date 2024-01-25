@@ -1,0 +1,250 @@
+/*
+ * spcttor_co, spcttor_co 숫자가 아닌 값은 0으로 처리
+ */
+SELECT CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END AS stdr_year
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END AS cmpet_no
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no END AS game_no
+     , CASE WHEN aa.item_cde IS NULL THEN '^' ELSE aa.item_cde END AS item_cde
+     , CASE WHEN aa.cmpet_begin_dat IS NULL THEN '^' ELSE aa.cmpet_begin_dat END AS cmpet_begin_dat
+     , CASE WHEN aa.cmpet_end_dat IS NULL THEN '^' ELSE aa.cmpet_end_dat END AS cmpet_end_dat
+     , CASE WHEN aa.cmpet_class_cde IS NULL THEN '^' ELSE aa.cmpet_class_cde END AS cmpet_class_cde
+     , CASE WHEN aa.league_cmpet_se_cde IS NULL THEN '^' ELSE aa.league_cmpet_se_cde END AS league_cmpet_se_cde
+     , CASE WHEN aa.cmpet_et_at IS NULL THEN '^' ELSE aa.cmpet_et_at END AS cmpet_et_at
+     , CASE WHEN aa.pro_junior_partcpt_at IS NULL THEN '^' ELSE aa.pro_junior_partcpt_at END AS pro_junior_partcpt_at
+     , CASE WHEN aa.anytm_sbstt_use_at IS NULL THEN '^' ELSE aa.anytm_sbstt_use_at END AS anytm_sbstt_use_at
+     , CASE WHEN aa.red_card_sbstt_use_at IS NULL THEN '^' ELSE aa.red_card_sbstt_use_at END AS red_card_sbstt_use_at
+     , CASE WHEN aa.home_game_use_at IS NULL THEN '^' ELSE aa.home_game_use_at END AS home_game_use_at
+     , CASE WHEN aa.cmpet_knd_cde IS NULL THEN '^' ELSE aa.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN aa.card_accmlt_use_at IS NULL THEN '^' ELSE aa.card_accmlt_use_at END AS card_accmlt_use_at
+     , CASE WHEN aa.panalty_shootout_at IS NULL THEN '^' ELSE aa.panalty_shootout_at END AS panalty_shootout_at
+     , CASE WHEN aa.dwrn_at IS NULL THEN '^' ELSE aa.dwrn_at END AS dwrn_at
+     , CASE WHEN aa.game_mthd_se_cde IS NULL THEN '^' ELSE aa.game_mthd_se_cde END AS game_mthd_se_cde
+     , CASE WHEN aa.confm_cmpet_at IS NULL THEN '^' ELSE aa.confm_cmpet_at END AS confm_cmpet_at
+     , CASE WHEN aa.wnrd_playng_stop_cyfd_at IS NULL THEN '^' ELSE aa.wnrd_playng_stop_cyfd_at END AS wnrd_playng_stop_cyfd_at
+     , CASE WHEN aa.ranking_system_use_at IS NULL THEN '^' ELSE aa.ranking_system_use_at END AS ranking_system_use_at
+     , CASE WHEN aa.coach_card_accmlt_use_at IS NULL THEN '^' ELSE aa.coach_card_accmlt_use_at END AS coach_card_accmlt_use_at
+     , CASE WHEN aa.forfeit_game_at IS NULL THEN '^' ELSE aa.forfeit_game_at END AS forfeit_game_at
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END AS game_de
+     , CASE WHEN aa.game_begin_tmzon_cde IS NULL THEN '^' ELSE aa.game_begin_tmzon_cde END AS game_begin_tmzon_cde
+     , CASE WHEN aa.home_team_id IS NULL THEN '^' ELSE aa.home_team_id END AS home_team_id
+     , CASE WHEN aa.home_team_grad_cde IS NULL THEN '^' ELSE aa.home_team_grad_cde END AS home_team_grad_cde
+     , CASE WHEN aa.away_team_id IS NULL THEN '^' ELSE aa.away_team_id END AS away_team_id
+     , CASE WHEN bb.team_grad_cde IS NULL THEN '^' ELSE bb.team_grad_cde END AS away_team_grad_cde
+     , CASE WHEN aa.home_game_at IS NULL THEN '^' ELSE aa.home_game_at END AS home_game_at
+     , CASE WHEN aa.game_dstrct_cde IS NULL THEN '^' ELSE aa.game_dstrct_cde END AS game_dstrct_cde
+     , CASE WHEN aa.game_se_cde IS NULL THEN '^' ELSE aa.game_se_cde END AS game_se_cde
+     , CASE WHEN aa.referee_system_cde IS NULL THEN '^' ELSE aa.referee_system_cde END AS referee_system_cde
+     , CASE WHEN aa.game_et_at IS NULL THEN '^' ELSE aa.game_et_at END AS game_et_at
+     , CASE WHEN aa.referee_reprt_at IS NULL THEN '^' ELSE aa.referee_reprt_at END AS referee_reprt_at
+     , CASE WHEN aa.referee_assr_reprt_at IS NULL THEN '^' ELSE aa.referee_assr_reprt_at END AS referee_assr_reprt_at
+     , CASE WHEN aa.game_result_cde IS NULL THEN '^' ELSE aa.game_result_cde END AS game_result_cde
+     , CASE WHEN aa.head_referee1_no IS NULL THEN -1 ELSE aa.head_referee1_no END AS head_referee1_no
+     , CASE WHEN aa.head_referee2_no IS NULL THEN -1 ELSE aa.head_referee2_no END AS head_referee2_no
+     , CASE WHEN aa.astnt_referee1_no IS NULL THEN -1 ELSE aa.astnt_referee1_no END AS astnt_referee1_no
+     , CASE WHEN aa.astnt_referee2_no IS NULL THEN -1 ELSE aa.astnt_referee2_no END AS astnt_referee2_no
+     , CASE WHEN aa.addnl_astnt_referee1_no IS NULL THEN -1 ELSE aa.addnl_astnt_referee1_no END AS addnl_astnt_referee1_no
+     , CASE WHEN aa.addnl_astnt_referee2_no IS NULL THEN -1 ELSE aa.addnl_astnt_referee2_no END AS addnl_astnt_referee2_no
+     , CASE WHEN aa.foutth_ofcl_no IS NULL THEN -1 ELSE aa.foutth_ofcl_no END AS foutth_ofcl_no
+     , CASE WHEN aa.tmkpr_no IS NULL THEN -1 ELSE aa.tmkpr_no END AS tmkpr_no
+     , CASE WHEN aa.var_no IS NULL THEN -1 ELSE aa.var_no END AS var_no
+     , CASE WHEN aa.avar_no IS NULL THEN -1 ELSE aa.avar_no END AS avar_no
+     , CASE WHEN aa.referee_assr_no IS NULL THEN -1 ELSE aa.referee_assr_no END AS referee_assr_no
+     , CASE WHEN aa.game_sprvisor_no IS NULL THEN -1 ELSE aa.game_sprvisor_no END AS game_sprvisor_no
+     , CASE WHEN aa.game_end_at IS NULL THEN '^' ELSE aa.game_end_at END AS game_end_at
+     , aa.game_dt AS game_dt
+     , aa.game_place_nm AS game_place_nm
+     , CASE WHEN aa.spcttor_co IS NULL THEN 0 ELSE aa.spcttor_co END AS spcttor_co
+     , CASE WHEN aa.game_time IS NULL THEN 0 ELSE aa.game_time END AS game_time
+     , CASE WHEN aa.fhalf_game_time IS NULL THEN 0 ELSE aa.fhalf_game_time END AS fhalf_game_time
+     , CASE WHEN aa.shalf_game_time IS NULL THEN 0 ELSE aa.shalf_game_time END AS shalf_game_time
+     , CASE WHEN aa.fhalf_addnl_time IS NULL THEN 0 ELSE aa.fhalf_addnl_time END AS fhalf_addnl_time
+     , CASE WHEN aa.shalf_addnl_time IS NULL THEN 0 ELSE aa.shalf_addnl_time END AS shalf_addnl_time
+     , CASE WHEN aa.et_fhalf_time IS NULL THEN 0 ELSE aa.et_fhalf_time END AS et_fhalf_time
+     , CASE WHEN aa.et_shalf_time IS NULL THEN 0 ELSE aa.et_shalf_time END AS et_shalf_time
+     , CASE WHEN aa.et_fhalf_addnl_time IS NULL THEN 0 ELSE aa.et_fhalf_addnl_time END AS et_fhalf_addnl_time
+     , CASE WHEN aa.et_shalf_addnl_time IS NULL THEN 0 ELSE aa.et_shalf_addnl_time END AS et_shalf_addnl_time
+     , CASE WHEN aa.home_team_fhalf_score IS NULL THEN 0 ELSE aa.home_team_fhalf_score END AS home_team_fhalf_score
+     , CASE WHEN aa.home_team_shalf_score IS NULL THEN 0 ELSE aa.home_team_shalf_score END AS home_team_shalf_score
+     , CASE WHEN aa.home_team_et_fhalf_score IS NULL THEN 0 ELSE aa.home_team_et_fhalf_score END AS home_team_et_fhalf_score
+     , CASE WHEN aa.home_team_et_shalf_score IS NULL THEN 0 ELSE aa.home_team_et_shalf_score END AS home_team_et_shalf_score
+     , CASE WHEN aa.home_team_last_score IS NULL THEN 0 ELSE aa.home_team_last_score END AS home_team_last_score
+     , CASE WHEN aa.home_team_panalty_shootout_score IS NULL THEN 0 ELSE aa.home_team_panalty_shootout_score END AS home_team_panalty_shootout_score
+     , CASE WHEN aa.away_team_fhalf_score IS NULL THEN 0 ELSE aa.away_team_fhalf_score END AS away_team_fhalf_score
+     , CASE WHEN aa.away_team_shalf_score IS NULL THEN 0 ELSE aa.away_team_shalf_score END AS away_team_shalf_score
+     , CASE WHEN aa.away_team_et_fhalf_score IS NULL THEN 0 ELSE aa.away_team_et_fhalf_score END AS away_team_et_fhalf_score
+     , CASE WHEN aa.away_team_et_shalf_score IS NULL THEN 0 ELSE aa.away_team_et_shalf_score END AS away_team_et_shalf_score
+     , CASE WHEN aa.away_team_last_score IS NULL THEN 0 ELSE aa.away_team_last_score END AS away_team_last_score
+     , CASE WHEN aa.away_team_panalty_shootout_score IS NULL THEN 0 ELSE aa.away_team_panalty_shootout_score END AS away_team_panalty_shootout_score
+     , CASE WHEN aa.frst_card_playng_stop_term IS NULL THEN 0 ELSE aa.frst_card_playng_stop_term END AS frst_card_playng_stop_term
+     , CASE WHEN aa.after_card_playng_stop_term IS NULL THEN 0 ELSE aa.after_card_playng_stop_term END AS after_card_playng_stop_term
+     , CASE WHEN aa.card_accmlt_playng_stop_term IS NULL THEN 0 ELSE aa.card_accmlt_playng_stop_term END AS card_accmlt_playng_stop_term
+     , CASE WHEN aa.field_win_winpoint IS NULL THEN 0 ELSE aa.field_win_winpoint END AS field_win_winpoint
+     , CASE WHEN aa.tie_winpoint IS NULL THEN 0 ELSE aa.tie_winpoint END AS tie_winpoint
+     , CASE WHEN aa.field_lose_winpoint IS NULL THEN 0 ELSE aa.field_lose_winpoint END AS field_lose_winpoint
+     , CASE WHEN aa.panalty_shootout_win_winpoint IS NULL THEN 0 ELSE aa.panalty_shootout_win_winpoint END AS panalty_shootout_win_winpoint
+     , CASE WHEN aa.panalty_shootout_lose_winpoint IS NULL THEN 0 ELSE aa.panalty_shootout_lose_winpoint END AS panalty_shootout_lose_winpoint
+     , aa.game_co AS game_co 
+  FROM (
+        SELECT a.stdr_year, a.cmpet_no, a.game_no, a.cmpet_begin_dat, a.cmpet_end_dat, a.cmpet_class_cde, a.league_cmpet_se_cde, a.cmpet_et_at
+             , a.pro_junior_partcpt_at, a.anytm_sbstt_use_at, a.red_card_sbstt_use_at, a.home_game_use_at, a.cmpet_knd_cde
+             , a.card_accmlt_use_at, a.panalty_shootout_at, a.dwrn_at, a.game_mthd_se_cde, a.confm_cmpet_at, a.wnrd_playng_stop_cyfd_at
+             , a.ranking_system_use_at, a.coach_card_accmlt_use_at, a.forfeit_game_at, TO_CHAR(a.game_dt, 'YYYYMMDD') AS game_de
+             , TO_CHAR(a.game_dt, 'HH24MI') AS game_begin_tmzon_cde, a.home_team_id, a.away_team_id, a.home_game_at
+             , a.game_dstrct_cde, a.game_se_cde, a.referee_system_cde, a.game_et_at,a.referee_reprt_at, a.referee_assr_reprt_at
+             , a.game_result_cde, a.head_referee1_no, a.head_referee2_no, a.astnt_referee1_no, a.astnt_referee2_no
+             , a.addnl_astnt_referee1_no, a.addnl_astnt_referee2_no, a.foutth_ofcl_no, a.tmkpr_no, a.var_no, a.avar_no
+             , a.referee_assr_no, a.game_sprvisor_no, a.game_end_at, a.game_dt, a.game_place_nm, a.spcttor_co
+             , a.game_time, a.fhalf_game_time, a.shalf_game_time, a.fhalf_addnl_time, a.shalf_addnl_time, a.et_fhalf_time
+             , a.et_shalf_time, a.et_fhalf_addnl_time, a.et_shalf_addnl_time, a.home_team_fhalf_score, a.home_team_shalf_score
+             , a.home_team_et_fhalf_score, a.home_team_et_shalf_score, a.home_team_last_score, a.home_team_panalty_shootout_score
+             , a.away_team_fhalf_score, a.away_team_shalf_score, a.away_team_et_fhalf_score, a.away_team_et_shalf_score
+             , a.away_team_last_score, a.away_team_panalty_shootout_score, a.frst_card_playng_stop_term, a.after_card_playng_stop_term
+             , a.card_accmlt_playng_stop_term, a.field_win_winpoint, a.tie_winpoint, a.field_lose_winpoint
+             , a.panalty_shootout_win_winpoint, a.panalty_shootout_lose_winpoint, b.team_grad_cde AS home_team_grad_cde
+             , a.game_co, a.item_cde
+          FROM (
+                SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+                     , mi.idx AS cmpet_no, msi.idx AS game_no
+                     , TO_CHAR(mi.playing_start, 'YYYYMMDD') AS cmpet_begin_dat, TO_CHAR(mi.playing_end, 'YYYYMMDD') AS cmpet_end_dat
+                     , mi.ma_mch_clss AS cmpet_class_cde, mi."STYLE" AS league_cmpet_se_cde, mi.extension AS cmpet_et_at
+                     , mi.k_junior AS pro_junior_partcpt_at, mi.rule_option1 AS anytm_sbstt_use_at, mi.rule_option2 AS red_card_sbstt_use_at
+                     , mi.homegame_yn AS home_game_use_at, mi.ma_knd AS cmpet_knd_cde, mi.mas_acum_yellow_yn AS card_accmlt_use_at
+                     , mi.mas_pnso_yn AS panalty_shootout_at, mi.mas_dwrn_yn AS dwrn_at, mi.mas_cl AS game_mthd_se_cde, mi.approved_yn AS confm_cmpet_at
+                     , mi.mas_ssps_stop_trans_yn AS wnrd_playng_stop_cyfd_at, mi.ma_rnk_system AS ranking_system_use_at
+                     , mi.mas_acum_yellow_staff_yn AS coach_card_accmlt_use_at, msi.forfeit AS forfeit_game_at, msi.teamid_home AS home_team_id
+                     , msi.teamid_away AS away_team_id, msi.homegame_yn AS home_game_at, msi.league_area AS game_dstrct_cde
+                     , msi.game_gubun AS game_se_cde, msi.referee_rule AS referee_system_cde, msi.extension AS game_et_at
+                     , msi.ref_report_yn AS referee_reprt_at, msi.ass_report_yn AS referee_assr_reprt_at, msr.victorytype AS game_result_cde
+                     , msr.referee_main_no AS head_referee1_no, msr.referee_main2_no AS head_referee2_no, msr.referee_sub1_no AS astnt_referee1_no
+                     , msr.referee_sub2_no AS astnt_referee2_no, msr.referee_sub3_no AS addnl_astnt_referee1_no, msr.referee_sub4_no AS addnl_astnt_referee2_no
+                     , msr.referee_standby_no AS foutth_ofcl_no, msr.referee_standby0_no AS tmkpr_no, msr.referee_sub4_no AS var_no, msr.referee_avar_no AS avar_no
+                     , msr.referee_assessor_no AS referee_assr_no, msr.match_commissioner_no AS game_sprvisor_no, msr.match_end_yn AS game_end_at
+                     , msi.match_dt AS game_dt, msi.match_area AS game_place_nm
+                     , CASE WHEN msr.viewers ~ '[^0-9]' THEN 0 ELSE CAST(msr.viewers AS numeric) END AS spcttor_co
+                     , CASE WHEN mi.playing_time ~ '[^0-9]' THEN 0 ELSE CAST(mi.playing_time AS numeric) END AS game_time
+                     , msr.time_fh AS fhalf_game_time, msr.time_sh AS shalf_game_time, msr.intime_fh AS fhalf_addnl_time, msr.intime_sh AS shalf_addnl_time
+                     , msr.extime_fh AS et_fhalf_time, msr.extime_sh AS et_shalf_time, msr.intime_ext_fh AS et_fhalf_addnl_time
+                     , msr.intime_ext_sh AS et_shalf_addnl_time, msr.th_score_fh AS home_team_fhalf_score, msr.th_score_sh AS home_team_shalf_score
+                     , msr.th_score_ex_fh AS home_team_et_fhalf_score, msr.th_score_ex_sh AS home_team_et_shalf_score, msr.th_score_final AS home_team_last_score
+                     , msr.th_score_pk AS home_team_panalty_shootout_score
+                     , msr.ta_score_fh AS away_team_fhalf_score, msr.ta_score_sh AS away_team_shalf_score, msr.ta_score_ex_fh AS away_team_et_fhalf_score
+                     , msr.ta_score_ex_sh AS away_team_et_shalf_score, msr.ta_score_final AS away_team_last_score
+                     , msr.ta_score_pk AS away_team_panalty_shootout_score
+                     , mi.mas_ssps_vbg_yellow_stop_cnt AS frst_card_playng_stop_term, mi.mas_ssps_yellow_stop_cnt AS after_card_playng_stop_term
+                     , mi.mas_ssps_accu_red_cnt AS card_accmlt_playng_stop_term, mi.mas_po_win AS field_win_winpoint, mi.mas_po_tie AS tie_winpoint
+                     , mi.mas_po_lose AS field_lose_winpoint, mi.mas_po_psno_win AS panalty_shootout_win_winpoint, mi.mas_po_psno_lose AS panalty_shootout_lose_winpoint
+                     , CASE WHEN msi.idx IS NULL THEN 0 ELSE 1 END AS game_co
+                     , CASE WHEN mi.ma_mch_clss = '1' OR  mi.ma_mch_clss = '2' THEN 'S'
+                            WHEN mi.ma_mch_clss = 'F' THEN 'F'
+                            WHEN mi.ma_mch_clss = 'J' THEN 'J'
+                            ELSE '^'
+                        END AS item_cde
+                  FROM match_info mi
+                     , match_single_info msi
+                       LEFT OUTER JOIN match_single_result msr
+                    ON msi.match_idx = msr.match_idx
+                   AND msi.idx = msr.single_idx
+                 WHERE mi.idx = msi.match_idx
+--                   AND TO_CHAR(msi.match_dt, 'YYYY') = '2021' /* 기준연도 조건 */
+               ) a LEFT OUTER JOIN
+               (
+                SELECT stdr_year, team_id, team_nm, team_area_cde, team_grad_cde, team_league_area_cde, team_class_cde
+                     , team_asoc_grad_cde, team_sexdstn_cde, team_age_cde, item_cde, asort_cde AS team_asort_cde, asort_detail_1_cde AS team_asort_detail_1_cde
+                     , asort_detail_2_cde AS team_asort_detail_2_cde, pro_junior_at, union_team_knd_cde, parnts_team_id, fifa_id, dsmntl_de
+                  FROM t_team_info tti
+               ) b
+            ON a.stdr_year = b.stdr_year
+           AND a.home_team_id = b.team_id
+       ) aa LEFT OUTER JOIN
+       (
+        SELECT stdr_year, team_id, team_nm, team_area_cde, team_grad_cde, team_league_area_cde, team_class_cde
+             , team_asoc_grad_cde, team_sexdstn_cde, team_age_cde, item_cde, asort_cde AS team_asort_cde, asort_detail_1_cde AS team_asort_detail_1_cde
+             , asort_detail_2_cde AS team_asort_detail_2_cde, pro_junior_at, union_team_knd_cde, parnts_team_id, fifa_id, dsmntl_de
+          FROM t_team_info tti
+       ) bb
+    ON aa.stdr_year = bb.stdr_year
+   AND aa.away_team_id = bb.team_id
+ GROUP BY CASE WHEN aa.stdr_year IS NULL THEN '^' ELSE aa.stdr_year END 
+     , CASE WHEN aa.cmpet_no IS NULL THEN -1 ELSE aa.cmpet_no END
+     , CASE WHEN aa.game_no IS NULL THEN -1 ELSE aa.game_no end
+     , CASE WHEN aa.item_cde IS NULL THEN '^' ELSE aa.item_cde END 
+     , CASE WHEN aa.cmpet_begin_dat IS NULL THEN '^' ELSE aa.cmpet_begin_dat END
+     , CASE WHEN aa.cmpet_end_dat IS NULL THEN '^' ELSE aa.cmpet_end_dat END
+     , CASE WHEN aa.cmpet_class_cde IS NULL THEN '^' ELSE aa.cmpet_class_cde END
+     , CASE WHEN aa.league_cmpet_se_cde IS NULL THEN '^' ELSE aa.league_cmpet_se_cde END
+     , CASE WHEN aa.cmpet_et_at IS NULL THEN '^' ELSE aa.cmpet_et_at END
+     , CASE WHEN aa.pro_junior_partcpt_at IS NULL THEN '^' ELSE aa.pro_junior_partcpt_at END
+     , CASE WHEN aa.anytm_sbstt_use_at IS NULL THEN '^' ELSE aa.anytm_sbstt_use_at END
+     , CASE WHEN aa.red_card_sbstt_use_at IS NULL THEN '^' ELSE aa.red_card_sbstt_use_at END
+     , CASE WHEN aa.home_game_use_at IS NULL THEN '^' ELSE aa.home_game_use_at END
+     , CASE WHEN aa.cmpet_knd_cde IS NULL THEN '^' ELSE aa.cmpet_knd_cde END
+     , CASE WHEN aa.card_accmlt_use_at IS NULL THEN '^' ELSE aa.card_accmlt_use_at END
+     , CASE WHEN aa.panalty_shootout_at IS NULL THEN '^' ELSE aa.panalty_shootout_at END
+     , CASE WHEN aa.dwrn_at IS NULL THEN '^' ELSE aa.dwrn_at END
+     , CASE WHEN aa.game_mthd_se_cde IS NULL THEN '^' ELSE aa.game_mthd_se_cde END
+     , CASE WHEN aa.confm_cmpet_at IS NULL THEN '^' ELSE aa.confm_cmpet_at END
+     , CASE WHEN aa.wnrd_playng_stop_cyfd_at IS NULL THEN '^' ELSE aa.wnrd_playng_stop_cyfd_at END
+     , CASE WHEN aa.ranking_system_use_at IS NULL THEN '^' ELSE aa.ranking_system_use_at END
+     , CASE WHEN aa.coach_card_accmlt_use_at IS NULL THEN '^' ELSE aa.coach_card_accmlt_use_at END
+     , CASE WHEN aa.forfeit_game_at IS NULL THEN '^' ELSE aa.forfeit_game_at END
+     , CASE WHEN aa.game_de IS NULL THEN '^' ELSE aa.game_de END
+     , CASE WHEN aa.game_begin_tmzon_cde IS NULL THEN '^' ELSE aa.game_begin_tmzon_cde END
+     , CASE WHEN aa.home_team_id IS NULL THEN '^' ELSE aa.home_team_id END
+     , CASE WHEN aa.home_team_grad_cde IS NULL THEN '^' ELSE aa.home_team_grad_cde END
+     , CASE WHEN aa.away_team_id IS NULL THEN '^' ELSE aa.away_team_id END
+     , CASE WHEN bb.team_grad_cde IS NULL THEN '^' ELSE bb.team_grad_cde END
+     , CASE WHEN aa.home_game_at IS NULL THEN '^' ELSE aa.home_game_at END
+     , CASE WHEN aa.game_dstrct_cde IS NULL THEN '^' ELSE aa.game_dstrct_cde END
+     , CASE WHEN aa.game_se_cde IS NULL THEN '^' ELSE aa.game_se_cde END
+     , CASE WHEN aa.referee_system_cde IS NULL THEN '^' ELSE aa.referee_system_cde END
+     , CASE WHEN aa.game_et_at IS NULL THEN '^' ELSE aa.game_et_at END
+     , CASE WHEN aa.referee_reprt_at IS NULL THEN '^' ELSE aa.referee_reprt_at END
+     , CASE WHEN aa.referee_assr_reprt_at IS NULL THEN '^' ELSE aa.referee_assr_reprt_at END
+     , CASE WHEN aa.game_result_cde IS NULL THEN '^' ELSE aa.game_result_cde END
+     , CASE WHEN aa.head_referee1_no IS NULL THEN -1 ELSE aa.head_referee1_no END
+     , CASE WHEN aa.head_referee2_no IS NULL THEN -1 ELSE aa.head_referee2_no END
+     , CASE WHEN aa.astnt_referee1_no IS NULL THEN -1 ELSE aa.astnt_referee1_no END
+     , CASE WHEN aa.astnt_referee2_no IS NULL THEN -1 ELSE aa.astnt_referee2_no END
+     , CASE WHEN aa.addnl_astnt_referee1_no IS NULL THEN -1 ELSE aa.addnl_astnt_referee1_no END
+     , CASE WHEN aa.addnl_astnt_referee2_no IS NULL THEN -1 ELSE aa.addnl_astnt_referee2_no END
+     , CASE WHEN aa.foutth_ofcl_no IS NULL THEN -1 ELSE aa.foutth_ofcl_no END
+     , CASE WHEN aa.tmkpr_no IS NULL THEN -1 ELSE aa.tmkpr_no END
+     , CASE WHEN aa.var_no IS NULL THEN -1 ELSE aa.var_no END
+     , CASE WHEN aa.avar_no IS NULL THEN -1 ELSE aa.avar_no END
+     , CASE WHEN aa.referee_assr_no IS NULL THEN -1 ELSE aa.referee_assr_no END
+     , CASE WHEN aa.game_sprvisor_no IS NULL THEN -1 ELSE aa.game_sprvisor_no END
+     , CASE WHEN aa.game_end_at IS NULL THEN '^' ELSE aa.game_end_at END
+     , aa.game_dt
+     , aa.game_place_nm
+     , CASE WHEN aa.spcttor_co IS NULL THEN 0 ELSE aa.spcttor_co END
+     , CASE WHEN aa.game_time IS NULL THEN 0 ELSE aa.game_time END
+     , CASE WHEN aa.fhalf_game_time IS NULL THEN 0 ELSE aa.fhalf_game_time END
+     , CASE WHEN aa.shalf_game_time IS NULL THEN 0 ELSE aa.shalf_game_time END
+     , CASE WHEN aa.fhalf_addnl_time IS NULL THEN 0 ELSE aa.fhalf_addnl_time END
+     , CASE WHEN aa.shalf_addnl_time IS NULL THEN 0 ELSE aa.shalf_addnl_time END
+     , CASE WHEN aa.et_fhalf_time IS NULL THEN 0 ELSE aa.et_fhalf_time END
+     , CASE WHEN aa.et_shalf_time IS NULL THEN 0 ELSE aa.et_shalf_time END
+     , CASE WHEN aa.et_fhalf_addnl_time IS NULL THEN 0 ELSE aa.et_fhalf_addnl_time END
+     , CASE WHEN aa.et_shalf_addnl_time IS NULL THEN 0 ELSE aa.et_shalf_addnl_time END
+     , CASE WHEN aa.home_team_fhalf_score IS NULL THEN 0 ELSE aa.home_team_fhalf_score END
+     , CASE WHEN aa.home_team_shalf_score IS NULL THEN 0 ELSE aa.home_team_shalf_score END
+     , CASE WHEN aa.home_team_et_fhalf_score IS NULL THEN 0 ELSE aa.home_team_et_fhalf_score END
+     , CASE WHEN aa.home_team_et_shalf_score IS NULL THEN 0 ELSE aa.home_team_et_shalf_score END
+     , CASE WHEN aa.home_team_last_score IS NULL THEN 0 ELSE aa.home_team_last_score END
+     , CASE WHEN aa.home_team_panalty_shootout_score IS NULL THEN 0 ELSE aa.home_team_panalty_shootout_score END
+     , CASE WHEN aa.away_team_fhalf_score IS NULL THEN 0 ELSE aa.away_team_fhalf_score END
+     , CASE WHEN aa.away_team_shalf_score IS NULL THEN 0 ELSE aa.away_team_shalf_score END
+     , CASE WHEN aa.away_team_et_fhalf_score IS NULL THEN 0 ELSE aa.away_team_et_fhalf_score END
+     , CASE WHEN aa.away_team_et_shalf_score IS NULL THEN 0 ELSE aa.away_team_et_shalf_score END
+     , CASE WHEN aa.away_team_last_score IS NULL THEN 0 ELSE aa.away_team_last_score END
+     , CASE WHEN aa.away_team_panalty_shootout_score IS NULL THEN 0 ELSE aa.away_team_panalty_shootout_score END
+     , CASE WHEN aa.frst_card_playng_stop_term IS NULL THEN 0 ELSE aa.frst_card_playng_stop_term END
+     , CASE WHEN aa.after_card_playng_stop_term IS NULL THEN 0 ELSE aa.after_card_playng_stop_term END
+     , CASE WHEN aa.card_accmlt_playng_stop_term IS NULL THEN 0 ELSE aa.card_accmlt_playng_stop_term END
+     , CASE WHEN aa.field_win_winpoint IS NULL THEN 0 ELSE aa.field_win_winpoint END
+     , CASE WHEN aa.tie_winpoint IS NULL THEN 0 ELSE aa.tie_winpoint END
+     , CASE WHEN aa.field_lose_winpoint IS NULL THEN 0 ELSE aa.field_lose_winpoint END
+     , CASE WHEN aa.panalty_shootout_win_winpoint IS NULL THEN 0 ELSE aa.panalty_shootout_win_winpoint END
+     , CASE WHEN aa.panalty_shootout_lose_winpoint IS NULL THEN 0 ELSE aa.panalty_shootout_lose_winpoint END
+     , aa.game_co
+;

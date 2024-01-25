@@ -1,0 +1,176 @@
+/*
+ * (소집) INNER JOIN (경기정보, 경기결과)
+ * 소집이 되어야 경기를 뛸 수 있으므로 소집이 기준 테이블이 됨
+ * 해체일은 2013년도 이전 데이터의 경우 사용하기 어려워 일괄적재를 원칙으로하고 추후 변경된다면 기준연도를 소집일과 해체일 연도가 다른 경우가 존재하여 소집일, 해체일 둘다 봐야할 것 같음
+ */
+SELECT CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END AS stdr_year
+     , CASE WHEN a.cnvc_no IS NULL THEN -1 ELSE a.cnvc_no END AS cnvc_no
+     , CASE WHEN b.cmpet_no IS NULL THEN -1 ELSE b.cmpet_no END AS cmpet_no
+     , CASE WHEN b.game_no IS NULL THEN -1 ELSE b.game_no END AS game_no
+     , CASE WHEN b.cmpet_knd_cde IS NULL THEN '^' ELSE b.cmpet_knd_cde END AS cmpet_knd_cde
+     , CASE WHEN b.cmpet_nm_knd_cde IS NULL THEN '^' ELSE b.cmpet_nm_knd_cde END AS cmpet_nm_knd_cde
+     , CASE WHEN b.cmpet_begin_dat IS NULL THEN '^' ELSE b.cmpet_begin_dat END AS cmpet_begin_dat
+     , CASE WHEN b.cmpet_end_dat IS NULL THEN '^' ELSE b.cmpet_end_dat END AS cmpet_end_dat
+     , CASE WHEN b.fins_begin_dat IS NULL THEN '^' ELSE b.fins_begin_dat END AS fins_begin_dat
+     , CASE WHEN b.cmpet_grad_cde IS NULL THEN '^' ELSE b.cmpet_grad_cde END AS cmpet_grad_cde
+     , CASE WHEN b.game_de IS NULL THEN '^' ELSE b.game_de END AS game_de
+     , CASE WHEN b.game_begin_tmzon_cde IS NULL THEN '^' ELSE b.game_begin_tmzon_cde END AS game_begin_tmzon_cde
+     , CASE WHEN b.home_away_se_cde IS NULL THEN '^' ELSE b.home_away_se_cde END AS home_away_se_cde
+     , CASE WHEN b.amatch_at IS NULL THEN '^' ELSE b.amatch_at END AS amatch_at
+     , CASE WHEN b.host_nation_cde IS NULL THEN '^' ELSE b.host_nation_cde END AS host_nation_cde
+     , CASE WHEN b.oppnt_nation_cde IS NULL THEN '^' ELSE b.oppnt_nation_cde END AS oppnt_nation_cde
+     , CASE WHEN b.victorytype  IS NULL THEN '^' ELSE b.victorytype  END AS victry_ty_cde
+     , CASE WHEN b.gameresult IS NULL THEN '^'
+            WHEN b.gameresult = '승' THEN '1' 
+            WHEN b.gameresult = '패' THEN '2' 
+            WHEN b.gameresult = '무' THEN '3' 
+            ELSE b.gameresult
+        END AS game_result_cde
+     , b.host_nation_nm AS host_nation_nm
+     , b.oppnt_nation AS oppnt_nation_nm
+--     , b.game_dt AS game_dt
+     , b.game_place_nm AS game_place_nm
+     , COALESCE(CAST(b.viewers AS numeric), 0) AS spcttor_co
+     , COALESCE(b.game_time, 0) AS game_time
+     , COALESCE(b.et_time, 0) AS et_time
+     , COALESCE(b.intime_fh, 0) AS fhalf_addnl_time
+     , COALESCE(b.intime_sh, 0) AS shalf_addnl_time
+     , COALESCE(b.extime_fh, 0) AS et_fhalf_time
+     , COALESCE(b.extime_sh, 0) AS et_shalf_time
+     , COALESCE(b.intime_ext_fh, 0) AS et_fhalf_addnl_time
+     , COALESCE(b.intime_ext_sh, 0) AS et_shalf_addnl_time
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_score_fh, 0) ELSE COALESCE(b.ta_score_fh, 0) END AS nl_team_fhalf_score
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_score_sh, 0) ELSE COALESCE(b.ta_score_sh, 0) END AS nl_team_shalf_score
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_score_ex_fh, 0) ELSE COALESCE(b.ta_score_ex_fh, 0) END AS nl_team_et_fhalf_score
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_score_ex_sh, 0) ELSE COALESCE(b.ta_score_ex_sh, 0) END AS nl_team_et_shalf_score
+     , COALESCE(b.th_score_final, 0) AS nl_team_last_score
+     , COALESCE(b.th_score_pk, 0) AS nl_team_panalty_shootout_score
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_shooting, 0) ELSE COALESCE(b.ta_shooting, 0) END AS nl_team_shot_co
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_score_fh, 0) ELSE COALESCE(b.th_score_fh, 0) END AS oppnt_team_fhalf_score
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_score_sh, 0) ELSE COALESCE(b.th_score_sh, 0) END AS oppnt_team_shalf_score
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_score_ex_fh, 0) ELSE COALESCE(b.th_score_ex_fh, 0) END AS oppnt_team_et_fhalf_score
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_score_ex_sh, 0) ELSE COALESCE(b.th_score_ex_sh, 0) END AS oppnt_team_et_shalf_score
+     , COALESCE(b.ta_score_final, 0) AS oppnt_team_last_score
+     , COALESCE(b.ta_score_pk, 0) AS oppnt_team_panalty_shootout_score
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_shooting, 0) ELSE COALESCE(b.th_shooting, 0) END AS oppnt_team_shot_co
+     , b.referee_main AS head_referee1_nm
+     , b.referee_sub1 AS astnt_referee1_nm
+     , b.referee_sub2 AS astnt_referee2_nm
+     , b.referee_add_sub1 AS addnl_astnt_referee1_nm
+     , b.referee_add_sub2 AS addnl_astnt_referee2_nm
+     , b.referee_standby AS foutth_ofcl_nm
+     , b.referee_var AS var_nm
+     , b.match_commissioner AS game_sprvisor_nm
+     , b.referee_assessor AS referee_assr_nm
+     , b.general_coordi AS gnrl_mangr_nm
+     , b.media_officer AS media_charger_nm
+     , CASE WHEN b.gameresult in ('1', '4', '승') THEN 1 ELSE 0 END AS win_co
+     , CASE WHEN b.gameresult in ('3', '무') THEN 1 ELSE 0 END AS tie_co
+     , CASE WHEN b.gameresult in ('2', '5', '패') THEN 1 ELSE 0 END AS lose_co
+     , CASE WHEN b.single_idx IS NULL THEN 0 ELSE 1 END AS game_co
+  FROM (
+        SELECT SUBSTR(REPLACE(nsi.summons_start,'-',''), 1, 4) AS stdr_year, nsi.idx AS cnvc_no, nsi.match_grade AS cmpet_grad_cde
+          FROM national_summons_info nsi
+        ) a
+     , (
+        SELECT nmsi.summons_idx AS cnvc_no, nmi.idx AS cmpet_no, nmsi.idx AS game_no, nmi.match_type AS cmpet_knd_cde
+             , nmi.match_title_type AS cmpet_nm_knd_cde, REPLACE(nmi.match_start,'-','') AS cmpet_begin_dat
+             , REPLACE(nmi.match_end,'-','') AS cmpet_end_dat
+             , REPLACE(nmi.fin_match_start,'-','') AS fins_begin_dat, nmi.match_grade AS cmpet_grad_cde
+             , nmsi.summons_section AS home_away_se_cde, nmsi.amatch_yn AS amatch_at
+             , nmsi.host_country_cd AS host_nation_cde, nmsi.vs_country_cd AS oppnt_nation_cde
+             , nmsi.host_country AS host_nation_nm, nmsi.vs_country AS oppnt_nation
+             , nmsi.game_time AS game_dt, SUBSTR(REGEXP_REPLACE(nmsi.game_time, '\D', '', 'g'), 1, 8) AS game_de
+             , SUBSTR(REGEXP_REPLACE(nmsi.game_time, '\D', '', 'g'), 9, 12) AS game_begin_tmzon_cde
+             , nmsi.game_area AS game_place_nm
+             , CAST(nmi.playing_time AS numeric) AS game_time, CAST(nmi.extra_time AS numeric) AS et_time
+             , nmsr.intime_fh, nmsr.intime_sh, nmsr.extime_fh, nmsr.extime_sh, nmsr.intime_ext_fh
+             , nmsr.intime_ext_sh, nmsr.th_score_fh, nmsr.th_score_sh, nmsr.th_score_ex_fh, nmsr.th_score_ex_sh
+             , CASE WHEN nmsi.summons_section = 'TH' THEN COALESCE(ncr.th_score, nmsr.th_score_final) ELSE COALESCE(ncr.th_score, nmsr.ta_score_final) END AS th_score_final
+             , CASE WHEN nmsi.summons_section = 'TH' THEN COALESCE(ncr.th_score_pk, nmsr.th_score_pk) ELSE COALESCE(ncr.th_score_pk, nmsr.ta_score_pk) END AS th_score_pk
+             , CASE WHEN nmsi.summons_section = 'TH' THEN COALESCE(ncr.ta_score, nmsr.ta_score_final) ELSE COALESCE(ncr.ta_score, nmsr.th_score_final) END AS ta_score_final
+             , CASE WHEN nmsi.summons_section = 'TH' THEN COALESCE(ncr.ta_score_pk, nmsr.ta_score_pk) ELSE COALESCE(ncr.ta_score_pk, nmsr.th_score_pk) END AS ta_score_pk
+             , nmsr.th_shooting, nmsr.ta_score_fh, nmsr.ta_score_sh
+             , nmsr.ta_score_ex_fh, nmsr.ta_score_ex_sh, nmsr.ta_shooting
+             , nmsr.referee_main, nmsr.referee_sub1, nmsr.referee_sub2, nmsr.referee_add_sub1, nmsr.referee_add_sub2
+             , nmsr.referee_standby, nmsr.referee_var, nmsr.match_commissioner, nmsr.referee_assessor, nmsr.general_coordi 
+             , nmsr.media_officer, COALESCE(ncr.victory_type, nmsr.gameresult) AS gameresult, nmsr.single_idx, nmsr.victorytype, nmsr.viewers
+          FROM national_match_info nmi
+             , national_match_single_info nmsi
+               LEFT OUTER JOIN
+               national_chronicle_record ncr
+            ON nmsi.match_idx = ncr.match_idx
+           AND nmsi.idx = ncr.single_idx
+               LEFT OUTER JOIN
+               national_match_single_result nmsr
+            ON nmsi.match_idx = nmsr.match_idx
+           AND nmsi.idx = nmsr.single_idx
+         WHERE nmi.idx = nmsi.match_idx
+       ) b
+ WHERE a.cnvc_no = b.cnvc_no
+ GROUP BY CASE WHEN a.stdr_year IS NULL THEN '^' ELSE a.stdr_year END
+     , CASE WHEN a.cnvc_no IS NULL THEN -1 ELSE a.cnvc_no END
+     , CASE WHEN b.cmpet_no IS NULL THEN -1 ELSE b.cmpet_no END
+     , CASE WHEN b.game_no IS NULL THEN -1 ELSE b.game_no END
+     , CASE WHEN b.cmpet_knd_cde IS NULL THEN '^' ELSE b.cmpet_knd_cde END
+     , CASE WHEN b.cmpet_nm_knd_cde IS NULL THEN '^' ELSE b.cmpet_nm_knd_cde END
+     , CASE WHEN b.cmpet_begin_dat IS NULL THEN '^' ELSE b.cmpet_begin_dat END
+     , CASE WHEN b.cmpet_end_dat IS NULL THEN '^' ELSE b.cmpet_end_dat END
+     , CASE WHEN b.fins_begin_dat IS NULL THEN '^' ELSE b.fins_begin_dat END
+     , CASE WHEN b.cmpet_grad_cde IS NULL THEN '^' ELSE b.cmpet_grad_cde END
+     , CASE WHEN b.game_de IS NULL THEN '^' ELSE b.game_de END
+     , CASE WHEN b.game_begin_tmzon_cde IS NULL THEN '^' ELSE b.game_begin_tmzon_cde END
+     , CASE WHEN b.home_away_se_cde IS NULL THEN '^' ELSE b.home_away_se_cde END
+     , CASE WHEN b.amatch_at IS NULL THEN '^' ELSE b.amatch_at END
+     , CASE WHEN b.host_nation_cde IS NULL THEN '^' ELSE b.host_nation_cde END
+     , CASE WHEN b.oppnt_nation_cde IS NULL THEN '^' ELSE b.oppnt_nation_cde END
+     , CASE WHEN b.victorytype  IS NULL THEN '^' ELSE b.victorytype  END
+     , CASE WHEN b.gameresult IS NULL THEN '^'
+            WHEN b.gameresult = '승' THEN '1' 
+            WHEN b.gameresult = '패' THEN '2' 
+            WHEN b.gameresult = '무' THEN '3' 
+            ELSE b.gameresult
+        END
+     , b.host_nation_nm
+     , b.oppnt_nation
+--     , b.game_dt
+     , b.game_place_nm
+     , COALESCE(CAST(b.viewers AS numeric), 0)
+     , COALESCE(b.game_time, 0)
+     , COALESCE(b.et_time, 0)
+     , COALESCE(b.intime_fh, 0)
+     , COALESCE(b.intime_sh, 0)
+     , COALESCE(b.extime_fh, 0)
+     , COALESCE(b.extime_sh, 0)
+     , COALESCE(b.intime_ext_fh, 0)
+     , COALESCE(b.intime_ext_sh, 0)
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_score_fh, 0) ELSE COALESCE(b.ta_score_fh, 0) END
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_score_sh, 0) ELSE COALESCE(b.ta_score_sh, 0) END
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_score_ex_fh, 0) ELSE COALESCE(b.ta_score_ex_fh, 0) END
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_score_ex_sh, 0) ELSE COALESCE(b.ta_score_ex_sh, 0) END
+     , COALESCE(b.th_score_final, 0)
+     , COALESCE(b.th_score_pk, 0)
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.th_shooting, 0) ELSE COALESCE(b.ta_shooting, 0) END
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_score_fh, 0) ELSE COALESCE(b.th_score_fh, 0) END
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_score_sh, 0) ELSE COALESCE(b.th_score_sh, 0) END
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_score_ex_fh, 0) ELSE COALESCE(b.th_score_ex_fh, 0) END
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_score_ex_sh, 0) ELSE COALESCE(b.th_score_ex_sh, 0) END
+     , COALESCE(b.ta_score_final, 0) 
+     , COALESCE(b.ta_score_pk, 0)
+     , CASE WHEN b.home_away_se_cde = 'TH' THEN COALESCE(b.ta_shooting, 0) ELSE COALESCE(b.th_shooting, 0) END
+     , b.referee_main
+     , b.referee_sub1
+     , b.referee_sub2
+     , b.referee_add_sub1
+     , b.referee_add_sub2
+     , b.referee_standby
+     , b.referee_var
+     , b.match_commissioner
+     , b.referee_assessor
+     , b.general_coordi
+     , b.media_officer
+     , CASE WHEN b.gameresult in ('1', '4', '승') THEN 1 ELSE 0 END
+     , CASE WHEN b.gameresult in ('3', '무') THEN 1 ELSE 0 END
+     , CASE WHEN b.gameresult in ('2', '5', '패') THEN 1 ELSE 0 END
+     , CASE WHEN b.single_idx IS NULL THEN 0 ELSE 1 END
+;

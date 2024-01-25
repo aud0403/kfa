@@ -1,0 +1,38 @@
+/* DW 테이블 사용한 SQL */
+SELECT aa.psitn_team_area_cde 
+	, (SELECT dstrct_nm FROM wd_dstrct WHERE dstrct_cde = aa.psitn_team_area_cde) AS nm
+    , count(aa.psitn_team_area_cde)
+  FROM (
+        SELECT DISTINCT a.player_id, a.psitn_team_area_cde, a.psitn_team_grad_cde
+             , a.compare_value
+             , RANK() OVER( PARTITION BY a.player_id ORDER BY a.compare_value DESC) AS ROW_NUM
+          FROM (
+                SELECT player_id, psitn_team_area_cde, psitn_team_grad_cde
+                     , CASE WHEN team_secsn_de = '^' THEN '99991231' ELSE team_secsn_de END AS compare_value
+                  FROM wf_player_sttus wps
+                 WHERE stdr_year = '2022'
+                   AND psitn_team_id != '^'
+                   AND confm_step_cde = '2'
+                   AND player_grade_cde ='5'
+                   AND item_cde = 'S'
+                 ORDER BY PLAYER_ID
+               ) a
+       ) aa
+ WHERE row_num = 1
+   AND aa.psitn_team_grad_cde IN ( 'ES','FES','U2','FU2')
+ GROUP BY aa.psitn_team_area_cde
+;
+
+
+
+
+/* 이수정부장님 제공 SQL */
+select count(tm_area) "등록선수수", cm.kor_cd_nm "시도" from ply_register# pr
+inner join player_info# pi on pr.usrkey = pi.jumin
+inner join comcm010 cm on cm.frst_gb = 'P03' and cm.thrd_gb = '*' and cm.scnd_gb = pi.tm_area
+where
+    pr.tm_item_cd = 'S' and pr.activity = '2022'
+    and pi.begrade=  '5' and pi.tm_grade in ( 'ES','FES','U2','FU2') and pi.register_step='2'
+group by tm_area,cm.kor_cd_nm
+order by cm.kor_cd_nm
+;

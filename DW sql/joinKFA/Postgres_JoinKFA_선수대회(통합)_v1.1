@@ -1,0 +1,215 @@
+/* K리그 제외 SQL */
+SELECT a.stdr_year
+     , a.player_id
+     , CASE WHEN a.player_id IS NULL THEN '^' ELSE fn_sexdstn(a.player_id) END AS player_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.player_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.player_id)
+            WHEN fn_valid_inspct(a.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.player_id) = 'N' THEN '^'
+            ELSE '^'
+       END AS player_agrde_cde
+     , a.cmpet_no
+     , a.item_cde
+     , a.game_no
+     , a.game_de
+     , a.home_away_se_cde
+     , a.psitn_team_id
+     , a.player_postn_cde
+     , a.entry_se_cde
+     , a.capt_at
+     , a.panalty_kick_at
+     , a.player_rcord_se_cde
+     , a.playng_qualf_at
+     , a.player_grade_cde
+     , a.entry_no
+     , a.playng_time
+     , a.player_rcord_occrrnc_time
+     , a.pso_sn
+     , a.rcord_occrrnc_addnl_time
+     , a.game_co
+     , a.cmpet_class_cde
+     , a.cmpet_knd_cde
+     , a.league_cmpet_se_cde
+     , a.partcpt_player_indx
+     , b.loan_team_id
+     , b.loan_regist_dat
+     , b.loan_end_dat
+  FROM (
+        SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+             , mi.idx AS cmpet_no, msi.idx AS game_no
+             , CASE WHEN mi.ma_mch_clss IN ('1', '2') THEN 'S' ELSE mi.ma_mch_clss END AS item_cde
+             , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de, mpr.jumin AS player_id, mpr.entryno AS entry_no
+             , mpr."POSITION" AS player_postn_cde, mpr.teamid AS psitn_team_id, mpr.begrade AS player_grade_cde
+             , mpr.status AS entry_se_cde, mpr.c_check AS capt_at, apy_qu_yn AS playng_qualf_at
+             , CASE WHEN mpr."TIME" ~ '[^0-9]' THEN 0 ELSE CAST(mpr."TIME" AS numeric) END AS playng_time
+             , ms.pkyn AS panalty_kick_at, ms.flag AS player_rcord_se_cde
+             , CASE WHEN ms."TIME" ~ '[^0-9]' THEN 0 ELSE CAST(ms."TIME" AS numeric) END AS player_rcord_occrrnc_time
+             , CASE WHEN ms.injury_time ~ '[^0-9]' THEN 0 ELSE CAST(ms.injury_time AS numeric) END AS rcord_occrrnc_addnl_time
+             , ms.opt3 AS pso_sn, ms.gubun AS home_away_se_cde, ms.reason AS warn_resn_cde
+             , CASE WHEN msi.idx IS NULL THEN 0 ELSE 1 END AS game_co
+             , mi.ma_mch_clss AS cmpet_class_cde, mi."STYLE" AS league_cmpet_se_cde, mi.ma_knd AS cmpet_knd_cde
+             , mpr.aplayer_idx AS partcpt_player_indx 
+          FROM match_info mi
+             , match_single_info msi
+             , match_single_result msr
+             , "match_player_result#" mpr
+               LEFT OUTER JOIN 
+               "match_score#" ms
+            ON mpr.match_idx = ms.match_idx
+           AND mpr.single_idx = ms.single_idx
+           AND (mpr.aplayer_idx = ms.aplayer_idx OR mpr.jumin = ms.jumin)
+         WHERE mi.ma_knd     != '11'
+           AND mi.idx         = msi.match_idx
+           AND msi.match_idx  = msr.match_idx
+           AND msi.idx        = msr.single_idx
+           AND msi.match_idx  = mpr.match_idx
+           AND msi.idx        = mpr.single_idx
+       ) a LEFT OUTER JOIN
+       (
+        SELECT TO_CHAR(start_date, 'YYYY') AS stdr_year, usr_key AS player_id, loanout_teamid AS loan_team_id, loanin_teamid AS lent_team_id
+             , TO_CHAR(start_date, 'YYYYMMDD') AS loan_regist_dat, TO_CHAR(end_date, 'YYYYMMDD') AS loan_end_dat
+          FROM "player_loan#"
+         WHERE loanin_teamid IS NOT NULL
+       ) b
+      ON a.stdr_year BETWEEN substr(loan_regist_dat, 1 ,4) AND substr(loan_end_dat, 1 ,4)
+     AND a.player_id  = b.player_id
+     AND a.psitn_team_id = b.lent_team_id
+ GROUP BY a.stdr_year
+     , a.player_id
+     , CASE WHEN a.player_id IS NULL THEN '^' ELSE fn_sexdstn(a.player_id) END
+     , CASE WHEN fn_valid_inspct(a.player_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.player_id)
+            WHEN fn_valid_inspct(a.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.player_id) = 'N' THEN '^'
+            ELSE '^'
+       END
+     , a.cmpet_no
+     , a.item_cde
+     , a.game_no
+     , a.game_de
+     , a.home_away_se_cde
+     , a.psitn_team_id
+     , a.player_postn_cde
+     , a.entry_se_cde
+     , a.capt_at
+     , a.panalty_kick_at
+     , a.player_rcord_se_cde
+     , a.playng_qualf_at
+     , a.player_grade_cde
+     , a.entry_no
+     , a.playng_time
+     , a.player_rcord_occrrnc_time
+     , a.pso_sn
+     , a.rcord_occrrnc_addnl_time
+     , a.game_co
+     , a.cmpet_class_cde
+     , a.cmpet_knd_cde
+     , a.league_cmpet_se_cde
+     , a.partcpt_player_indx
+     , b.loan_team_id
+     , b.loan_regist_dat
+     , b.loan_end_dat
+;
+
+
+
+/* K리그 SQL */
+SELECT a.stdr_year
+     , a.player_id
+     , CASE WHEN a.player_id IS NULL THEN '^' ELSE fn_sexdstn(a.player_id) END AS player_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(a.player_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.player_id)
+            WHEN fn_valid_inspct(a.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.player_id) = 'N' THEN '^'
+            ELSE '^'
+       END AS player_agrde_cde
+     , a.cmpet_no
+     , a.item_cde
+     , a.game_no
+     , a.game_de
+     , a.home_away_se_cde
+     , a.psitn_team_id
+     , a.player_postn_cde
+     , a.entry_se_cde
+     , a.panalty_kick_at
+     , a.player_rcord_se_cde
+     , a.entry_no
+     , a.playng_time
+     , a.player_rcord_occrrnc_time
+     , a.rcord_occrrnc_addnl_time
+     , a.game_co
+     , a.cmpet_class_cde
+     , a.cmpet_knd_cde
+     , a.league_cmpet_se_cde
+     , b.loan_team_id
+     , b.loan_regist_dat
+     , b.loan_end_dat
+  FROM (
+        SELECT TO_CHAR(mi.playing_start, 'YYYY') AS stdr_year
+             , mi.idx AS cmpet_no, msi.idx AS game_no
+             , CASE WHEN mi.ma_mch_clss IN ('1', '2') THEN 'S' ELSE mi.ma_mch_clss END AS item_cde
+             , TO_CHAR(msi.match_dt, 'YYYYMMDD') AS game_de, a.usrkey AS player_id, a.entryno AS entry_no
+             , a.position_kfa AS player_postn_cde, a.teamid AS psitn_team_id, a.status AS entry_se_cde
+             , CASE WHEN a.playing_time ~ '[^0-9]' THEN 0 ELSE CAST(a.playing_time AS NUMERIC) END AS playng_time
+             , rcrr.pkyn AS panalty_kick_at, rcrr.flag AS player_rcord_se_cde
+             , CASE WHEN rcrr."TIME" ~ '[^0-9]' THEN 0 ELSE CAST(rcrr."TIME" AS NUMERIC) END AS player_rcord_occrrnc_time
+             , CASE WHEN rcrr.injury_time ~ '[^0-9]' THEN 0 ELSE CAST(rcrr.injury_time AS NUMERIC) END AS rcord_occrrnc_addnl_time
+             , rcrr.gubun AS home_away_se_cde, rcrr.reason AS warn_resn_cde
+             , CASE WHEN msi.idx IS NULL THEN 0 ELSE 1 END AS game_co
+             , mi.ma_mch_clss AS cmpet_class_cde, mi."STYLE" AS league_cmpet_se_cde, mi.ma_knd AS cmpet_knd_cde
+          FROM match_info mi
+             , match_single_info msi
+             , (
+                SELECT CAST(iprm5.match_idx_kfa AS NUMERIC) AS match_idx, CAST(iprm5.single_idx_kfa AS NUMERIC) as single_idx
+                     , iprm7.teamid, iprm7.usrkey, iprm7.entryno, iprm7.playing_time, iprm7.position_kfa, iprm7.status
+                  FROM if_pro_referee_match_007 iprm7, if_pro_referee_match_005 iprm5
+                 WHERE iprm7.match_year = iprm5.match_year 
+                   AND iprm7.match_idx = iprm5.match_idx 
+                   AND iprm7.single_idx = iprm5.single_idx
+               ) a
+               LEFT OUTER JOIN 
+               "referee_chief_rept_result#" rcrr
+            ON a.match_idx = rcrr.mat_idx
+           AND a.single_idx = rcrr.mas_idx
+           AND a.usrkey = rcrr.jumin
+         WHERE mi.ma_knd      = '11' /* K리그 데이터의 경우 제외하고 별도 sql로 데이터 입력 */
+           AND mi.idx         = msi.match_idx
+           AND msi.match_idx  = a.match_idx
+           AND msi.idx        = a.single_idx
+       ) a LEFT OUTER JOIN
+       (
+        SELECT TO_CHAR(start_date, 'YYYY') AS stdr_year, usr_key AS player_id, loanout_teamid AS loan_team_id, loanin_teamid AS lent_team_id
+             , TO_CHAR(start_date, 'YYYYMMDD') AS loan_regist_dat, TO_CHAR(end_date, 'YYYYMMDD') AS loan_end_dat
+          FROM "player_loan#"
+         WHERE loanin_teamid IS NOT NULL
+       ) b
+      ON a.stdr_year BETWEEN substr(loan_regist_dat, 1 ,4) AND substr(loan_end_dat, 1 ,4)
+     AND a.player_id  = b.player_id
+     AND a.psitn_team_id = b.lent_team_id
+ GROUP BY a.stdr_year
+     , a.player_id
+     , CASE WHEN a.player_id IS NULL THEN '^' ELSE fn_sexdstn(a.player_id) END
+     , CASE WHEN fn_valid_inspct(a.player_id) = 'P' AND a.stdr_year IS NOT NULL THEN fn_agrde(a.stdr_year, a.player_id)
+            WHEN fn_valid_inspct(a.player_id) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(a.player_id) = 'N' THEN '^'
+            ELSE '^'
+       END
+     , a.cmpet_no
+     , a.item_cde
+     , a.game_no
+     , a.game_de
+     , a.home_away_se_cde
+     , a.psitn_team_id
+     , a.player_postn_cde
+     , a.entry_se_cde
+     , a.panalty_kick_at
+     , a.player_rcord_se_cde
+     , a.entry_no
+     , a.playng_time
+     , a.player_rcord_occrrnc_time
+     , a.rcord_occrrnc_addnl_time
+     , a.game_co
+     , a.cmpet_class_cde
+     , a.cmpet_knd_cde
+     , a.league_cmpet_se_cde
+     , b.loan_team_id
+     , b.loan_regist_dat
+     , b.loan_end_dat
+;

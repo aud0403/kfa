@@ -1,0 +1,87 @@
+SELECT CASE WHEN TO_CHAR(rei.edu_term_start, 'YYYY') IS NULL THEN '^' ELSE TO_CHAR(rei.edu_term_start, 'YYYY') END AS stdr_year
+     , CASE WHEN rei.idx IS NULL THEN -1 ELSE rei.idx END AS edc_crse_no
+     , CASE WHEN rei.edu_gubun IS NULL THEN '^' ELSE rei.edu_gubun END AS edc_cl_cde
+     , CASE WHEN rei.edu_process IS NULL THEN '^' ELSE rei.edu_process END AS progrs_sittn_cde
+     , CASE WHEN rei.edu_area_cd IS NULL THEN '^' ELSE rei.edu_area_cd END AS edc_area_cde
+     , CASE WHEN rei.edu_retirement_yn IS NULL THEN '^' ELSE rei.edu_retirement_yn END AS retire_referee_at
+     , CASE WHEN rei.ref_evla_gd_cd IS NULL THEN '^' ELSE rei.ref_evla_gd_cd END AS promt_wsp_cde
+     , CASE WHEN rei.alldo_asg_yn IS NULL THEN '^' ELSE rei.alldo_asg_yn END AS wnty_cmpet_asign_at
+     , CASE WHEN rei.ref_rfrsh_trn_cnsctv_cd IS NULL THEN '^' ELSE rei.ref_rfrsh_trn_cnsctv_cd END AS fyer_cnd_cde
+     , CASE WHEN rei.ref_rfrsh_trn_year_cd IS NULL THEN '^' ELSE rei.ref_rfrsh_trn_year_cd END AS term_cnd_cde
+     , CASE WHEN rei.ref_active_year_cd IS NULL THEN '^' ELSE rei.ref_active_year_cd END act_cnd_cde
+     , CASE WHEN rei.elevate_yn IS NULL THEN '^' ELSE rei.elevate_yn END AS qualf_cnvrs_edc_at
+     , CASE WHEN rei.ref_lvl IS NULL THEN '^' ELSE rei.ref_lvl END AS cnfdn_referee_cnvrs_wsp_cde
+     , CASE WHEN reph.usrkey IS NULL THEN '^' ELSE reph.usrkey END AS referee_id
+     , CASE WHEN reph.refno1 IS NULL THEN '^' ELSE reph.refno1 END AS regist_asoc_cde
+     , CASE WHEN reph.refno4 IS NULL THEN '^' ELSE reph.refno4 END AS referee_wsp_cde
+     , CASE WHEN reph.ref_no IS NULL THEN -1 ELSE reph.ref_no END AS referee_no
+--   , CASE WHEN reph.inputed_year IS NULL THEN '^' ELSE reph.inputed_year END
+     , CASE WHEN reph.edu_physical_approval IS NULL THEN '^' ELSE reph.edu_physical_approval END AS ftness_pasage_cde
+     , CASE WHEN reph.edu_theory_yn IS NULL THEN '^' ELSE reph.edu_theory_yn END AS theory_pasage_cde
+     , CASE WHEN reph.edu_practical_yn IS NULL THEN '^' ELSE reph.edu_practical_yn END  AS prcttq_pasage_cde
+     , CASE WHEN reph.edu_success_yn IS NULL THEN '^' ELSE reph.edu_success_yn END AS psexam_cde
+     , CASE WHEN reph.edu_reshuffle_yn IS NULL THEN '^' ELSE reph.edu_reshuffle_yn END AS referee_cnvrs_at
+     , CASE WHEN rei.edu_term_start IS NULL THEN '^' ELSE TO_CHAR(rei.edu_term_start, 'YYYYMMDD') END AS edc_begin_de
+     , CASE WHEN rei.edu_term_end IS NULL THEN '^' ELSE TO_CHAR(rei.edu_term_end, 'YYYYMMDD') END AS edc_compt_de
+     , CASE WHEN reph.edu_physical_approval_dt IS NULL THEN '^' ELSE TO_CHAR(reph.edu_physical_approval_dt, 'YYYYMMDD') END AS ftness_compl_de
+     , CASE WHEN reph.edu_theory_dt IS NULL THEN '^' ELSE TO_CHAR(reph.edu_theory_dt, 'YYYYMMDD') END AS theory_compl_de
+     , CASE WHEN reph.edu_practical_dt IS NULL THEN '^' ELSE TO_CHAR(reph.edu_practical_dt, 'YYYYMMDD') END AS prcttq_compl_de
+     , CASE WHEN reph.edu_success_dt IS NULL THEN '^' ELSE TO_CHAR(reph.edu_success_dt, 'YYYYMMDD') END AS psexam_de
+     , CASE WHEN reph.usrkey IS NULL THEN '^' ELSE fn_sexdstn(reph.usrkey) END AS referee_sexdstn_cde
+     , CASE WHEN fn_valid_inspct(reph.usrkey) = 'P' AND TO_CHAR(rei.edu_term_start, 'YYYY') IS NOT NULL THEN fn_agrde(TO_CHAR(rei.edu_term_start, 'YYYY'), reph.usrkey)
+            WHEN fn_valid_inspct(reph.usrkey) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(reph.usrkey) = 'N' THEN '^'
+            ELSE '^'
+        END AS referee_agrde_cde
+     , CASE WHEN rei.edu_area IS NULL THEN '미입력' ELSE rei.edu_area END AS edc_place_nm
+     , CASE WHEN rei.edu_term_times IS NULL THEN 0 ELSE rei.edu_term_times END AS edc_term
+     , CASE WHEN rei.ref_asg_mndy_tot_cnt IS NULL THEN 0 ELSE rei.ref_asg_mndy_tot_cnt END AS referee_asign_essntl_term
+     , CASE WHEN rei.edu_per_limit ~ '[0-9]' THEN CAST(rei.edu_per_limit AS NUMERIC) ELSE 0 END AS apply_garden
+     , CASE WHEN rei.edu_days IS NULL THEN 0 ELSE rei.edu_days END AS edc_daycnt
+     , CASE WHEN reph.edu_idx IS NULL THEN 0 ELSE 1 END AS edc_co
+--   , edu_receipt_grade, rei.permission_sido, rei.permission_inst
+  FROM referee_education_info rei
+       LEFT OUTER JOIN "referee_education_per_histn#" reph
+    ON rei.idx = reph.edu_idx 
+ GROUP BY CASE WHEN TO_CHAR(rei.edu_term_start, 'YYYY') IS NULL THEN '^' ELSE TO_CHAR(rei.edu_term_start, 'YYYY') END
+     , CASE WHEN rei.idx IS NULL THEN -1 ELSE rei.idx END
+     , CASE WHEN rei.edu_gubun IS NULL THEN '^' ELSE rei.edu_gubun END
+     , CASE WHEN rei.edu_process IS NULL THEN '^' ELSE rei.edu_process END
+     , CASE WHEN rei.edu_area_cd IS NULL THEN '^' ELSE rei.edu_area_cd END
+     , CASE WHEN rei.edu_retirement_yn IS NULL THEN '^' ELSE rei.edu_retirement_yn END
+     , CASE WHEN rei.ref_evla_gd_cd IS NULL THEN '^' ELSE rei.ref_evla_gd_cd END
+     , CASE WHEN rei.alldo_asg_yn IS NULL THEN '^' ELSE rei.alldo_asg_yn END
+     , CASE WHEN rei.ref_rfrsh_trn_cnsctv_cd IS NULL THEN '^' ELSE rei.ref_rfrsh_trn_cnsctv_cd END
+     , CASE WHEN rei.ref_rfrsh_trn_year_cd IS NULL THEN '^' ELSE rei.ref_rfrsh_trn_year_cd END
+     , CASE WHEN rei.ref_active_year_cd IS NULL THEN '^' ELSE rei.ref_active_year_cd END
+     , CASE WHEN rei.elevate_yn IS NULL THEN '^' ELSE rei.elevate_yn END
+     , CASE WHEN rei.ref_lvl IS NULL THEN '^' ELSE rei.ref_lvl END
+     , CASE WHEN reph.usrkey IS NULL THEN '^' ELSE reph.usrkey END
+     , CASE WHEN reph.refno1 IS NULL THEN '^' ELSE reph.refno1 END
+     , CASE WHEN reph.refno4 IS NULL THEN '^' ELSE reph.refno4 END
+     , CASE WHEN reph.ref_no IS NULL THEN -1 ELSE reph.ref_no END
+--   , CASE WHEN reph.inputed_year IS NULL THEN '^' ELSE reph.inputed_year END
+     , CASE WHEN reph.edu_physical_approval IS NULL THEN '^' ELSE reph.edu_physical_approval END
+     , CASE WHEN reph.edu_theory_yn IS NULL THEN '^' ELSE reph.edu_theory_yn END
+     , CASE WHEN reph.edu_practical_yn IS NULL THEN '^' ELSE reph.edu_practical_yn END
+     , CASE WHEN reph.edu_success_yn IS NULL THEN '^' ELSE reph.edu_success_yn END
+     , CASE WHEN reph.edu_reshuffle_yn IS NULL THEN '^' ELSE reph.edu_reshuffle_yn END
+     , CASE WHEN rei.edu_term_start IS NULL THEN '^' ELSE TO_CHAR(rei.edu_term_start, 'YYYYMMDD') END
+     , CASE WHEN rei.edu_term_end IS NULL THEN '^' ELSE TO_CHAR(rei.edu_term_end, 'YYYYMMDD') END
+     , CASE WHEN reph.edu_physical_approval_dt IS NULL THEN '^' ELSE TO_CHAR(reph.edu_physical_approval_dt, 'YYYYMMDD') END
+     , CASE WHEN reph.edu_theory_dt IS NULL THEN '^' ELSE TO_CHAR(reph.edu_theory_dt, 'YYYYMMDD') END
+     , CASE WHEN reph.edu_practical_dt IS NULL THEN '^' ELSE TO_CHAR(reph.edu_practical_dt, 'YYYYMMDD') END
+     , CASE WHEN reph.edu_success_dt IS NULL THEN '^' ELSE TO_CHAR(reph.edu_success_dt, 'YYYYMMDD') END
+     , CASE WHEN reph.usrkey IS NULL THEN '^' ELSE fn_sexdstn(reph.usrkey) END
+     , CASE WHEN fn_valid_inspct(reph.usrkey) = 'P' AND TO_CHAR(rei.edu_term_start, 'YYYY') IS NOT NULL THEN fn_agrde(TO_CHAR(rei.edu_term_start, 'YYYY'), reph.usrkey)
+            WHEN fn_valid_inspct(reph.usrkey) = 'E' THEN 'E'
+            WHEN fn_valid_inspct(reph.usrkey) = 'N' THEN '^'
+            ELSE '^'
+        END
+     , CASE WHEN rei.edu_area IS NULL THEN '미입력' ELSE rei.edu_area END
+     , CASE WHEN rei.edu_term_times IS NULL THEN 0 ELSE rei.edu_term_times END
+     , CASE WHEN rei.ref_asg_mndy_tot_cnt IS NULL THEN 0 ELSE rei.ref_asg_mndy_tot_cnt END
+     , CASE WHEN rei.edu_per_limit ~ '[0-9]' THEN CAST(rei.edu_per_limit AS NUMERIC) ELSE 0 END
+     , CASE WHEN rei.edu_days IS NULL THEN 0 ELSE rei.edu_days END
+     , CASE WHEN reph.edu_idx IS NULL THEN 0 ELSE 1 END
+;
